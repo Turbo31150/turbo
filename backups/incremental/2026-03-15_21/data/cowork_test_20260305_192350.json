@@ -1,0 +1,5696 @@
+{
+  "summary": {
+    "total": 331,
+    "ok": 331,
+    "fail": 0,
+    "missing": 0,
+    "warnings_total": 32,
+    "avg_lines": 225,
+    "avg_functions": 7,
+    "with_docstring": 329,
+    "with_argparse": 304,
+    "with_main": 331,
+    "non_stdlib": [
+      "Non-stdlib import: statistics",
+      "Non-stdlib import: psutil",
+      "Non-stdlib import: psutil",
+      "Non-stdlib import: requests",
+      "Non-stdlib import: psutil",
+      "Non-stdlib import: functions",
+      "Non-stdlib import: psutil",
+      "Non-stdlib import: gzip",
+      "Non-stdlib import: importlib.util",
+      "Non-stdlib import: openclaw_watchdog",
+      "Non-stdlib import: psutil",
+      "Non-stdlib import: shlex",
+      "Non-stdlib import: statistics",
+      "Non-stdlib import: prompt_router",
+      "Non-stdlib import: statistics",
+      "Non-stdlib import: importlib.util",
+      "Non-stdlib import: unittest",
+      "Non-stdlib import: zipfile",
+      "Non-stdlib import: shlex"
+    ],
+    "elapsed_s": 25.8,
+    "timestamp": "2026-03-05T19:23:50.555266"
+  },
+  "results": [
+    {
+      "script": "agent_orchestrator",
+      "errors": [],
+      "warnings": [],
+      "metrics": {
+        "functions": 27,
+        "classes": 1,
+        "lines": 924,
+        "has_docstring": true,
+        "has_main": true,
+        "has_argparse": true,
+        "imports": 14
+      },
+      "syntax": "OK",
+      "help": "OK",
+      "status": "OK"
+    },
+    {
+      "script": "ai_conversation",
+      "errors": [],
+      "warnings": [],
+      "metrics": {
+        "functions": 7,
+        "classes": 0,
+        "lines": 114,
+        "has_docstring": true,
+        "has_main": true,
+        "has_argparse": false,
+        "imports": 2
+      },
+      "syntax": "OK",
+      "status": "OK"
+    },
+    {
+      "script": "alert_manager",
+      "errors": [],
+      "warnings": [],
+      "metrics": {
+        "functions": 11,
+        "classes": 0,
+        "lines": 251,
+        "has_docstring": true,
+        "has_main": true,
+        "has_argparse": true,
+        "imports": 12
+      },
+      "syntax": "OK",
+      "help": "OK",
+      "status": "OK"
+    },
+    {
+      "script": "anomaly_detector",
+      "errors": [],
+      "warnings": [
+        "Non-stdlib import: statistics",
+        "Non-stdlib import: psutil",
+        "Non-stdlib import: psutil",
+        "--help exit code: 1"
+      ],
+      "metrics": {
+        "functions": 16,
+        "classes": 0,
+        "lines": 288,
+        "has_docstring": true,
+        "has_main": true,
+        "has_argparse": true,
+        "imports": 13
+      },
+      "syntax": "OK",
+      "help": "FAIL",
+      "status": "OK"
+    },
+    {
+      "script": "api_monitor",
+      "errors": [],
+      "warnings": [
+        "Non-stdlib import: requests"
+      ],
+      "metrics": {
+        "functions": 7,
+        "classes": 0,
+        "lines": 147,
+        "has_docstring": true,
+        "has_main": true,
+        "has_argparse": true,
+        "imports": 10
+      },
+      "syntax": "OK",
+      "help": "OK",
+      "status": "OK"
+    },
+    {
+      "script": "audio_controller",
+      "errors": [],
+      "warnings": [
+        "--help exit code: 1"
+      ],
+      "metrics": {
+        "functions": 7,
+        "classes": 0,
+        "lines": 167,
+        "has_docstring": true,
+        "has_main": true,
+        "has_argparse": true,
+        "imports": 5
+      },
+      "syntax": "OK",
+      "help": "FAIL",
+      "status": "OK"
+    },
+    {
+      "script": "auto_deployer",
+      "errors": [],
+      "warnings": [],
+      "metrics": {
+        "functions": 8,
+        "classes": 0,
+        "lines": 199,
+        "has_docstring": true,
+        "has_main": true,
+        "has_argparse": true,
+        "imports": 9
+      },
+      "syntax": "OK",
+      "help": "OK",
+      "status": "OK"
+    },
+    {
+      "script": "auto_dispatcher",
+      "errors": [],
+      "warnings": [],
+      "metrics": {
+        "functions": 9,
+        "classes": 0,
+        "lines": 241,
+        "has_docstring": true,
+        "has_main": true,
+        "has_argparse": true,
+        "imports": 8
+      },
+      "syntax": "OK",
+      "help": "OK",
+      "status": "OK"
+    },
+    {
+      "script": "auto_documenter",
+      "errors": [],
+      "warnings": [],
+      "metrics": {
+        "functions": 4,
+        "classes": 0,
+        "lines": 208,
+        "has_docstring": true,
+        "has_main": true,
+        "has_argparse": true,
+        "imports": 6
+      },
+      "syntax": "OK",
+      "help": "OK",
+      "status": "OK"
+    },
+    {
+      "script": "auto_healer",
+      "errors": [],
+      "warnings": [
+        "--help exit code: 1"
+      ],
+      "metrics": {
+        "functions": 5,
+        "classes": 0,
+        "lines": 119,
+        "has_docstring": true,
+        "has_main": true,
+        "has_argparse": true,
+        "imports": 7
+      },
+      "syntax": "OK",
+      "help": "FAIL",
+      "status": "OK"
+    },
+    {
+      "script": "auto_learner",
+      "errors": [],
+      "warnings": [],
+      "metrics": {
+        "functions": 5,
+        "classes": 0,
+        "lines": 134,
+        "has_docstring": true,
+        "has_main": true,
+        "has_argparse": false,
+        "imports": 4
+      },
+      "syntax": "OK",
+      "status": "OK"
+    },
+    {
+      "script": "auto_monitor",
+      "errors": [],
+      "warnings": [],
+      "metrics": {
+        "functions": 3,
+        "classes": 0,
+        "lines": 70,
+        "has_docstring": true,
+        "has_main": true,
+        "has_argparse": false,
+        "imports": 2
+      },
+      "syntax": "OK",
+      "status": "OK"
+    },
+    {
+      "script": "auto_reporter",
+      "errors": [],
+      "warnings": [],
+      "metrics": {
+        "functions": 5,
+        "classes": 0,
+        "lines": 148,
+        "has_docstring": true,
+        "has_main": true,
+        "has_argparse": false,
+        "imports": 3
+      },
+      "syntax": "OK",
+      "status": "OK"
+    },
+    {
+      "script": "auto_scheduler",
+      "errors": [],
+      "warnings": [],
+      "metrics": {
+        "functions": 6,
+        "classes": 0,
+        "lines": 179,
+        "has_docstring": true,
+        "has_main": true,
+        "has_argparse": false,
+        "imports": 3
+      },
+      "syntax": "OK",
+      "status": "OK"
+    },
+    {
+      "script": "auto_skill_tester",
+      "errors": [],
+      "warnings": [],
+      "metrics": {
+        "functions": 8,
+        "classes": 0,
+        "lines": 297,
+        "has_docstring": true,
+        "has_main": true,
+        "has_argparse": true,
+        "imports": 8
+      },
+      "syntax": "OK",
+      "help": "OK",
+      "status": "OK"
+    },
+    {
+      "script": "auto_trader",
+      "errors": [],
+      "warnings": [],
+      "metrics": {
+        "functions": 3,
+        "classes": 0,
+        "lines": 70,
+        "has_docstring": true,
+        "has_main": true,
+        "has_argparse": false,
+        "imports": 2
+      },
+      "syntax": "OK",
+      "status": "OK"
+    },
+    {
+      "script": "auto_updater",
+      "errors": [],
+      "warnings": [],
+      "metrics": {
+        "functions": 8,
+        "classes": 0,
+        "lines": 106,
+        "has_docstring": true,
+        "has_main": true,
+        "has_argparse": false,
+        "imports": 3
+      },
+      "syntax": "OK",
+      "status": "OK"
+    },
+    {
+      "script": "autonomous_health_guard",
+      "errors": [],
+      "warnings": [],
+      "metrics": {
+        "functions": 8,
+        "classes": 0,
+        "lines": 258,
+        "has_docstring": true,
+        "has_main": true,
+        "has_argparse": true,
+        "imports": 9
+      },
+      "syntax": "OK",
+      "help": "OK",
+      "status": "OK"
+    },
+    {
+      "script": "bluetooth_manager",
+      "errors": [],
+      "warnings": [],
+      "metrics": {
+        "functions": 7,
+        "classes": 0,
+        "lines": 129,
+        "has_docstring": true,
+        "has_main": true,
+        "has_argparse": true,
+        "imports": 5
+      },
+      "syntax": "OK",
+      "help": "OK",
+      "status": "OK"
+    },
+    {
+      "script": "browser_automation",
+      "errors": [],
+      "warnings": [],
+      "metrics": {
+        "functions": 7,
+        "classes": 0,
+        "lines": 264,
+        "has_docstring": true,
+        "has_main": true,
+        "has_argparse": true,
+        "imports": 8
+      },
+      "syntax": "OK",
+      "help": "OK",
+      "status": "OK"
+    },
+    {
+      "script": "browser_pilot",
+      "errors": [],
+      "warnings": [],
+      "metrics": {
+        "functions": 24,
+        "classes": 0,
+        "lines": 442,
+        "has_docstring": true,
+        "has_main": true,
+        "has_argparse": true,
+        "imports": 12
+      },
+      "syntax": "OK",
+      "help": "OK",
+      "status": "OK"
+    },
+    {
+      "script": "clipboard_history",
+      "errors": [],
+      "warnings": [],
+      "metrics": {
+        "functions": 6,
+        "classes": 0,
+        "lines": 91,
+        "has_docstring": true,
+        "has_main": true,
+        "has_argparse": false,
+        "imports": 2
+      },
+      "syntax": "OK",
+      "status": "OK"
+    },
+    {
+      "script": "cluster_autotuner",
+      "errors": [],
+      "warnings": [],
+      "metrics": {
+        "functions": 6,
+        "classes": 0,
+        "lines": 175,
+        "has_docstring": true,
+        "has_main": true,
+        "has_argparse": true,
+        "imports": 6
+      },
+      "syntax": "OK",
+      "help": "OK",
+      "status": "OK"
+    },
+    {
+      "script": "cluster_benchmark_auto",
+      "errors": [],
+      "warnings": [],
+      "metrics": {
+        "functions": 10,
+        "classes": 0,
+        "lines": 318,
+        "has_docstring": true,
+        "has_main": true,
+        "has_argparse": true,
+        "imports": 8
+      },
+      "syntax": "OK",
+      "help": "OK",
+      "status": "OK"
+    },
+    {
+      "script": "cluster_dashboard_api",
+      "errors": [],
+      "warnings": [
+        "Non-stdlib import: psutil",
+        "Non-stdlib import: functions"
+      ],
+      "metrics": {
+        "functions": 8,
+        "classes": 1,
+        "lines": 184,
+        "has_docstring": true,
+        "has_main": true,
+        "has_argparse": false,
+        "imports": 13
+      },
+      "syntax": "OK",
+      "status": "OK"
+    },
+    {
+      "script": "cluster_failover_manager",
+      "errors": [],
+      "warnings": [],
+      "metrics": {
+        "functions": 4,
+        "classes": 0,
+        "lines": 113,
+        "has_docstring": true,
+        "has_main": true,
+        "has_argparse": true,
+        "imports": 8
+      },
+      "syntax": "OK",
+      "help": "OK",
+      "status": "OK"
+    },
+    {
+      "script": "cluster_load_predictor",
+      "errors": [],
+      "warnings": [],
+      "metrics": {
+        "functions": 6,
+        "classes": 0,
+        "lines": 147,
+        "has_docstring": true,
+        "has_main": true,
+        "has_argparse": true,
+        "imports": 8
+      },
+      "syntax": "OK",
+      "help": "OK",
+      "status": "OK"
+    },
+    {
+      "script": "cluster_model_rotator",
+      "errors": [],
+      "warnings": [],
+      "metrics": {
+        "functions": 6,
+        "classes": 0,
+        "lines": 148,
+        "has_docstring": true,
+        "has_main": true,
+        "has_argparse": true,
+        "imports": 9
+      },
+      "syntax": "OK",
+      "help": "OK",
+      "status": "OK"
+    },
+    {
+      "script": "cluster_sync",
+      "errors": [],
+      "warnings": [],
+      "metrics": {
+        "functions": 8,
+        "classes": 0,
+        "lines": 172,
+        "has_docstring": true,
+        "has_main": true,
+        "has_argparse": true,
+        "imports": 8
+      },
+      "syntax": "OK",
+      "help": "OK",
+      "status": "OK"
+    },
+    {
+      "script": "code_generator",
+      "errors": [],
+      "warnings": [],
+      "metrics": {
+        "functions": 12,
+        "classes": 0,
+        "lines": 754,
+        "has_docstring": true,
+        "has_main": true,
+        "has_argparse": true,
+        "imports": 13
+      },
+      "syntax": "OK",
+      "help": "OK",
+      "status": "OK"
+    },
+    {
+      "script": "code_reviewer",
+      "errors": [],
+      "warnings": [],
+      "metrics": {
+        "functions": 4,
+        "classes": 0,
+        "lines": 207,
+        "has_docstring": true,
+        "has_main": true,
+        "has_argparse": true,
+        "imports": 8
+      },
+      "syntax": "OK",
+      "help": "OK",
+      "status": "OK"
+    },
+    {
+      "script": "config_validator",
+      "errors": [],
+      "warnings": [],
+      "metrics": {
+        "functions": 11,
+        "classes": 0,
+        "lines": 224,
+        "has_docstring": true,
+        "has_main": true,
+        "has_argparse": true,
+        "imports": 11
+      },
+      "syntax": "OK",
+      "help": "OK",
+      "status": "OK"
+    },
+    {
+      "script": "context_engine",
+      "errors": [],
+      "warnings": [],
+      "metrics": {
+        "functions": 10,
+        "classes": 0,
+        "lines": 154,
+        "has_docstring": true,
+        "has_main": true,
+        "has_argparse": false,
+        "imports": 2
+      },
+      "syntax": "OK",
+      "status": "OK"
+    },
+    {
+      "script": "continuous_coder",
+      "errors": [],
+      "warnings": [],
+      "metrics": {
+        "functions": 13,
+        "classes": 0,
+        "lines": 433,
+        "has_docstring": true,
+        "has_main": true,
+        "has_argparse": true,
+        "imports": 12
+      },
+      "syntax": "OK",
+      "help": "OK",
+      "status": "OK"
+    },
+    {
+      "script": "continuous_learner",
+      "errors": [],
+      "warnings": [],
+      "metrics": {
+        "functions": 8,
+        "classes": 0,
+        "lines": 258,
+        "has_docstring": true,
+        "has_main": true,
+        "has_argparse": true,
+        "imports": 7
+      },
+      "syntax": "OK",
+      "help": "OK",
+      "status": "OK"
+    },
+    {
+      "script": "continuous_test_runner",
+      "errors": [],
+      "warnings": [],
+      "metrics": {
+        "functions": 6,
+        "classes": 0,
+        "lines": 210,
+        "has_docstring": true,
+        "has_main": true,
+        "has_argparse": true,
+        "imports": 9
+      },
+      "syntax": "OK",
+      "help": "OK",
+      "status": "OK"
+    },
+    {
+      "script": "conversation_manager",
+      "errors": [],
+      "warnings": [],
+      "metrics": {
+        "functions": 11,
+        "classes": 0,
+        "lines": 431,
+        "has_docstring": true,
+        "has_main": true,
+        "has_argparse": true,
+        "imports": 8
+      },
+      "syntax": "OK",
+      "help": "OK",
+      "status": "OK"
+    },
+    {
+      "script": "cross_channel_sync",
+      "errors": [],
+      "warnings": [],
+      "metrics": {
+        "functions": 9,
+        "classes": 0,
+        "lines": 309,
+        "has_docstring": true,
+        "has_main": true,
+        "has_argparse": true,
+        "imports": 7
+      },
+      "syntax": "OK",
+      "help": "OK",
+      "status": "OK"
+    },
+    {
+      "script": "dashboard_generator",
+      "errors": [],
+      "warnings": [],
+      "metrics": {
+        "functions": 7,
+        "classes": 0,
+        "lines": 123,
+        "has_docstring": true,
+        "has_main": true,
+        "has_argparse": true,
+        "imports": 8
+      },
+      "syntax": "OK",
+      "help": "OK",
+      "status": "OK"
+    },
+    {
+      "script": "data_exporter",
+      "errors": [],
+      "warnings": [],
+      "metrics": {
+        "functions": 5,
+        "classes": 0,
+        "lines": 169,
+        "has_docstring": true,
+        "has_main": true,
+        "has_argparse": true,
+        "imports": 7
+      },
+      "syntax": "OK",
+      "help": "OK",
+      "status": "OK"
+    },
+    {
+      "script": "db_optimizer",
+      "errors": [],
+      "warnings": [],
+      "metrics": {
+        "functions": 5,
+        "classes": 0,
+        "lines": 134,
+        "has_docstring": true,
+        "has_main": true,
+        "has_argparse": false,
+        "imports": 3
+      },
+      "syntax": "OK",
+      "status": "OK"
+    },
+    {
+      "script": "decision_engine",
+      "errors": [],
+      "warnings": [],
+      "metrics": {
+        "functions": 12,
+        "classes": 0,
+        "lines": 475,
+        "has_docstring": true,
+        "has_main": true,
+        "has_argparse": true,
+        "imports": 9
+      },
+      "syntax": "OK",
+      "help": "OK",
+      "status": "OK"
+    },
+    {
+      "script": "deployment_manager",
+      "errors": [],
+      "warnings": [],
+      "metrics": {
+        "functions": 8,
+        "classes": 0,
+        "lines": 162,
+        "has_docstring": true,
+        "has_main": true,
+        "has_argparse": true,
+        "imports": 6
+      },
+      "syntax": "OK",
+      "help": "OK",
+      "status": "OK"
+    },
+    {
+      "script": "desktop_organizer",
+      "errors": [],
+      "warnings": [],
+      "metrics": {
+        "functions": 5,
+        "classes": 0,
+        "lines": 269,
+        "has_docstring": true,
+        "has_main": true,
+        "has_argparse": true,
+        "imports": 9
+      },
+      "syntax": "OK",
+      "help": "OK",
+      "status": "OK"
+    },
+    {
+      "script": "desktop_workflow_builder",
+      "errors": [],
+      "warnings": [],
+      "metrics": {
+        "functions": 10,
+        "classes": 0,
+        "lines": 330,
+        "has_docstring": true,
+        "has_main": true,
+        "has_argparse": true,
+        "imports": 9
+      },
+      "syntax": "OK",
+      "help": "OK",
+      "status": "OK"
+    },
+    {
+      "script": "display_manager",
+      "errors": [],
+      "warnings": [
+        "--help exit code: 1"
+      ],
+      "metrics": {
+        "functions": 11,
+        "classes": 1,
+        "lines": 221,
+        "has_docstring": true,
+        "has_main": true,
+        "has_argparse": true,
+        "imports": 7
+      },
+      "syntax": "OK",
+      "help": "FAIL",
+      "status": "OK"
+    },
+    {
+      "script": "domino_executor",
+      "errors": [],
+      "warnings": [],
+      "metrics": {
+        "functions": 8,
+        "classes": 0,
+        "lines": 343,
+        "has_docstring": true,
+        "has_main": true,
+        "has_argparse": true,
+        "imports": 10
+      },
+      "syntax": "OK",
+      "help": "OK",
+      "status": "OK"
+    },
+    {
+      "script": "driver_checker",
+      "errors": [],
+      "warnings": [],
+      "metrics": {
+        "functions": 8,
+        "classes": 0,
+        "lines": 201,
+        "has_docstring": true,
+        "has_main": true,
+        "has_argparse": true,
+        "imports": 7
+      },
+      "syntax": "OK",
+      "help": "OK",
+      "status": "OK"
+    },
+    {
+      "script": "electron_app_monitor",
+      "errors": [],
+      "warnings": [],
+      "metrics": {
+        "functions": 7,
+        "classes": 0,
+        "lines": 166,
+        "has_docstring": true,
+        "has_main": true,
+        "has_argparse": true,
+        "imports": 8
+      },
+      "syntax": "OK",
+      "help": "OK",
+      "status": "OK"
+    },
+    {
+      "script": "email_reader",
+      "errors": [],
+      "warnings": [],
+      "metrics": {
+        "functions": 9,
+        "classes": 0,
+        "lines": 221,
+        "has_docstring": true,
+        "has_main": true,
+        "has_argparse": false,
+        "imports": 4
+      },
+      "syntax": "OK",
+      "status": "OK"
+    },
+    {
+      "script": "event_bus_monitor",
+      "errors": [],
+      "warnings": [],
+      "metrics": {
+        "functions": 7,
+        "classes": 0,
+        "lines": 248,
+        "has_docstring": true,
+        "has_main": true,
+        "has_argparse": true,
+        "imports": 9
+      },
+      "syntax": "OK",
+      "help": "OK",
+      "status": "OK"
+    },
+    {
+      "script": "event_logger",
+      "errors": [],
+      "warnings": [],
+      "metrics": {
+        "functions": 8,
+        "classes": 0,
+        "lines": 174,
+        "has_docstring": true,
+        "has_main": true,
+        "has_argparse": true,
+        "imports": 9
+      },
+      "syntax": "OK",
+      "help": "OK",
+      "status": "OK"
+    },
+    {
+      "script": "file_organizer",
+      "errors": [],
+      "warnings": [
+        "--help exit code: 1"
+      ],
+      "metrics": {
+        "functions": 8,
+        "classes": 0,
+        "lines": 204,
+        "has_docstring": true,
+        "has_main": true,
+        "has_argparse": true,
+        "imports": 7
+      },
+      "syntax": "OK",
+      "help": "FAIL",
+      "status": "OK"
+    },
+    {
+      "script": "generate_docstrings",
+      "errors": [],
+      "warnings": [],
+      "metrics": {
+        "functions": 5,
+        "classes": 1,
+        "lines": 80,
+        "has_docstring": false,
+        "has_main": true,
+        "has_argparse": true,
+        "imports": 1
+      },
+      "syntax": "OK",
+      "help": "OK",
+      "status": "OK"
+    },
+    {
+      "script": "gpu_optimizer",
+      "errors": [],
+      "warnings": [],
+      "metrics": {
+        "functions": 14,
+        "classes": 0,
+        "lines": 935,
+        "has_docstring": true,
+        "has_main": true,
+        "has_argparse": true,
+        "imports": 9
+      },
+      "syntax": "OK",
+      "help": "OK",
+      "status": "OK"
+    },
+    {
+      "script": "gpu_thermal_guard",
+      "errors": [],
+      "warnings": [
+        "--help exit code: 1"
+      ],
+      "metrics": {
+        "functions": 10,
+        "classes": 0,
+        "lines": 176,
+        "has_docstring": true,
+        "has_main": true,
+        "has_argparse": true,
+        "imports": 9
+      },
+      "syntax": "OK",
+      "help": "FAIL",
+      "status": "OK"
+    },
+    {
+      "script": "health_checker",
+      "errors": [],
+      "warnings": [
+        "Non-stdlib import: psutil",
+        "--help exit code: 1"
+      ],
+      "metrics": {
+        "functions": 14,
+        "classes": 0,
+        "lines": 290,
+        "has_docstring": true,
+        "has_main": true,
+        "has_argparse": true,
+        "imports": 11
+      },
+      "syntax": "OK",
+      "help": "FAIL",
+      "status": "OK"
+    },
+    {
+      "script": "ia_agent_spawner",
+      "errors": [],
+      "warnings": [],
+      "metrics": {
+        "functions": 7,
+        "classes": 0,
+        "lines": 255,
+        "has_docstring": true,
+        "has_main": true,
+        "has_argparse": true,
+        "imports": 3
+      },
+      "syntax": "OK",
+      "help": "OK",
+      "status": "OK"
+    },
+    {
+      "script": "ia_anomaly_detector",
+      "errors": [],
+      "warnings": [],
+      "metrics": {
+        "functions": 6,
+        "classes": 0,
+        "lines": 185,
+        "has_docstring": true,
+        "has_main": true,
+        "has_argparse": true,
+        "imports": 9
+      },
+      "syntax": "OK",
+      "help": "OK",
+      "status": "OK"
+    },
+    {
+      "script": "ia_autonomous_coder",
+      "errors": [],
+      "warnings": [],
+      "metrics": {
+        "functions": 8,
+        "classes": 0,
+        "lines": 221,
+        "has_docstring": true,
+        "has_main": true,
+        "has_argparse": true,
+        "imports": 11
+      },
+      "syntax": "OK",
+      "help": "OK",
+      "status": "OK"
+    },
+    {
+      "script": "ia_capability_tracker",
+      "errors": [],
+      "warnings": [],
+      "metrics": {
+        "functions": 5,
+        "classes": 0,
+        "lines": 143,
+        "has_docstring": true,
+        "has_main": true,
+        "has_argparse": true,
+        "imports": 8
+      },
+      "syntax": "OK",
+      "help": "OK",
+      "status": "OK"
+    },
+    {
+      "script": "ia_chain_of_thought",
+      "errors": [],
+      "warnings": [],
+      "metrics": {
+        "functions": 9,
+        "classes": 0,
+        "lines": 273,
+        "has_docstring": true,
+        "has_main": true,
+        "has_argparse": true,
+        "imports": 7
+      },
+      "syntax": "OK",
+      "help": "OK",
+      "status": "OK"
+    },
+    {
+      "script": "ia_chain_of_thought_v2",
+      "errors": [],
+      "warnings": [],
+      "metrics": {
+        "functions": 9,
+        "classes": 0,
+        "lines": 327,
+        "has_docstring": true,
+        "has_main": true,
+        "has_argparse": true,
+        "imports": 7
+      },
+      "syntax": "OK",
+      "help": "OK",
+      "status": "OK"
+    },
+    {
+      "script": "ia_code_generator",
+      "errors": [],
+      "warnings": [],
+      "metrics": {
+        "functions": 8,
+        "classes": 0,
+        "lines": 172,
+        "has_docstring": true,
+        "has_main": true,
+        "has_argparse": true,
+        "imports": 10
+      },
+      "syntax": "OK",
+      "help": "OK",
+      "status": "OK"
+    },
+    {
+      "script": "ia_code_generator_v2",
+      "errors": [],
+      "warnings": [],
+      "metrics": {
+        "functions": 10,
+        "classes": 0,
+        "lines": 343,
+        "has_docstring": true,
+        "has_main": true,
+        "has_argparse": true,
+        "imports": 10
+      },
+      "syntax": "OK",
+      "help": "OK",
+      "status": "OK"
+    },
+    {
+      "script": "ia_context_compressor",
+      "errors": [],
+      "warnings": [],
+      "metrics": {
+        "functions": 7,
+        "classes": 0,
+        "lines": 175,
+        "has_docstring": true,
+        "has_main": true,
+        "has_argparse": true,
+        "imports": 9
+      },
+      "syntax": "OK",
+      "help": "OK",
+      "status": "OK"
+    },
+    {
+      "script": "ia_cost_tracker",
+      "errors": [],
+      "warnings": [],
+      "metrics": {
+        "functions": 4,
+        "classes": 0,
+        "lines": 87,
+        "has_docstring": true,
+        "has_main": true,
+        "has_argparse": true,
+        "imports": 4
+      },
+      "syntax": "OK",
+      "help": "OK",
+      "status": "OK"
+    },
+    {
+      "script": "ia_curriculum_planner",
+      "errors": [],
+      "warnings": [],
+      "metrics": {
+        "functions": 7,
+        "classes": 0,
+        "lines": 304,
+        "has_docstring": true,
+        "has_main": true,
+        "has_argparse": true,
+        "imports": 3
+      },
+      "syntax": "OK",
+      "help": "OK",
+      "status": "OK"
+    },
+    {
+      "script": "ia_data_synthesizer",
+      "errors": [],
+      "warnings": [],
+      "metrics": {
+        "functions": 7,
+        "classes": 0,
+        "lines": 290,
+        "has_docstring": true,
+        "has_main": true,
+        "has_argparse": true,
+        "imports": 3
+      },
+      "syntax": "OK",
+      "help": "OK",
+      "status": "OK"
+    },
+    {
+      "script": "ia_debate_engine",
+      "errors": [],
+      "warnings": [],
+      "metrics": {
+        "functions": 9,
+        "classes": 0,
+        "lines": 266,
+        "has_docstring": true,
+        "has_main": true,
+        "has_argparse": true,
+        "imports": 4
+      },
+      "syntax": "OK",
+      "help": "OK",
+      "status": "OK"
+    },
+    {
+      "script": "ia_doc_generator",
+      "errors": [],
+      "warnings": [],
+      "metrics": {
+        "functions": 10,
+        "classes": 0,
+        "lines": 333,
+        "has_docstring": true,
+        "has_main": true,
+        "has_argparse": true,
+        "imports": 8
+      },
+      "syntax": "OK",
+      "help": "OK",
+      "status": "OK"
+    },
+    {
+      "script": "ia_doc_writer",
+      "errors": [],
+      "warnings": [],
+      "metrics": {
+        "functions": 4,
+        "classes": 0,
+        "lines": 135,
+        "has_docstring": true,
+        "has_main": true,
+        "has_argparse": true,
+        "imports": 8
+      },
+      "syntax": "OK",
+      "help": "OK",
+      "status": "OK"
+    },
+    {
+      "script": "ia_ensemble_voter",
+      "errors": [],
+      "warnings": [],
+      "metrics": {
+        "functions": 5,
+        "classes": 0,
+        "lines": 179,
+        "has_docstring": true,
+        "has_main": true,
+        "has_argparse": true,
+        "imports": 8
+      },
+      "syntax": "OK",
+      "help": "OK",
+      "status": "OK"
+    },
+    {
+      "script": "ia_error_analyzer",
+      "errors": [],
+      "warnings": [],
+      "metrics": {
+        "functions": 6,
+        "classes": 0,
+        "lines": 185,
+        "has_docstring": true,
+        "has_main": true,
+        "has_argparse": true,
+        "imports": 9
+      },
+      "syntax": "OK",
+      "help": "OK",
+      "status": "OK"
+    },
+    {
+      "script": "ia_experiment_runner",
+      "errors": [],
+      "warnings": [],
+      "metrics": {
+        "functions": 9,
+        "classes": 0,
+        "lines": 299,
+        "has_docstring": true,
+        "has_main": true,
+        "has_argparse": true,
+        "imports": 3
+      },
+      "syntax": "OK",
+      "help": "OK",
+      "status": "OK"
+    },
+    {
+      "script": "ia_fact_checker",
+      "errors": [],
+      "warnings": [],
+      "metrics": {
+        "functions": 11,
+        "classes": 0,
+        "lines": 318,
+        "has_docstring": true,
+        "has_main": true,
+        "has_argparse": true,
+        "imports": 7
+      },
+      "syntax": "OK",
+      "help": "OK",
+      "status": "OK"
+    },
+    {
+      "script": "ia_feedback_loop",
+      "errors": [],
+      "warnings": [],
+      "metrics": {
+        "functions": 5,
+        "classes": 0,
+        "lines": 177,
+        "has_docstring": true,
+        "has_main": true,
+        "has_argparse": true,
+        "imports": 8
+      },
+      "syntax": "OK",
+      "help": "OK",
+      "status": "OK"
+    },
+    {
+      "script": "ia_goal_decomposer",
+      "errors": [],
+      "warnings": [],
+      "metrics": {
+        "functions": 6,
+        "classes": 0,
+        "lines": 168,
+        "has_docstring": true,
+        "has_main": true,
+        "has_argparse": true,
+        "imports": 8
+      },
+      "syntax": "OK",
+      "help": "OK",
+      "status": "OK"
+    },
+    {
+      "script": "ia_goal_tracker",
+      "errors": [],
+      "warnings": [],
+      "metrics": {
+        "functions": 8,
+        "classes": 0,
+        "lines": 254,
+        "has_docstring": true,
+        "has_main": true,
+        "has_argparse": true,
+        "imports": 3
+      },
+      "syntax": "OK",
+      "help": "OK",
+      "status": "OK"
+    },
+    {
+      "script": "ia_hypothesis_tester",
+      "errors": [],
+      "warnings": [],
+      "metrics": {
+        "functions": 9,
+        "classes": 0,
+        "lines": 318,
+        "has_docstring": true,
+        "has_main": true,
+        "has_argparse": true,
+        "imports": 3
+      },
+      "syntax": "OK",
+      "help": "OK",
+      "status": "OK"
+    },
+    {
+      "script": "ia_image_prompt_crafter",
+      "errors": [],
+      "warnings": [],
+      "metrics": {
+        "functions": 8,
+        "classes": 0,
+        "lines": 247,
+        "has_docstring": true,
+        "has_main": true,
+        "has_argparse": true,
+        "imports": 3
+      },
+      "syntax": "OK",
+      "help": "OK",
+      "status": "OK"
+    },
+    {
+      "script": "ia_inference_profiler",
+      "errors": [],
+      "warnings": [],
+      "metrics": {
+        "functions": 4,
+        "classes": 0,
+        "lines": 149,
+        "has_docstring": true,
+        "has_main": true,
+        "has_argparse": true,
+        "imports": 8
+      },
+      "syntax": "OK",
+      "help": "OK",
+      "status": "OK"
+    },
+    {
+      "script": "ia_knowledge_distiller",
+      "errors": [],
+      "warnings": [],
+      "metrics": {
+        "functions": 14,
+        "classes": 0,
+        "lines": 445,
+        "has_docstring": true,
+        "has_main": true,
+        "has_argparse": true,
+        "imports": 9
+      },
+      "syntax": "OK",
+      "help": "OK",
+      "status": "OK"
+    },
+    {
+      "script": "ia_knowledge_graph",
+      "errors": [],
+      "warnings": [],
+      "metrics": {
+        "functions": 5,
+        "classes": 0,
+        "lines": 179,
+        "has_docstring": true,
+        "has_main": true,
+        "has_argparse": true,
+        "imports": 9
+      },
+      "syntax": "OK",
+      "help": "OK",
+      "status": "OK"
+    },
+    {
+      "script": "ia_memory_consolidator",
+      "errors": [],
+      "warnings": [],
+      "metrics": {
+        "functions": 4,
+        "classes": 0,
+        "lines": 130,
+        "has_docstring": true,
+        "has_main": true,
+        "has_argparse": true,
+        "imports": 7
+      },
+      "syntax": "OK",
+      "help": "OK",
+      "status": "OK"
+    },
+    {
+      "script": "ia_meta_optimizer",
+      "errors": [],
+      "warnings": [],
+      "metrics": {
+        "functions": 8,
+        "classes": 0,
+        "lines": 291,
+        "has_docstring": true,
+        "has_main": true,
+        "has_argparse": true,
+        "imports": 4
+      },
+      "syntax": "OK",
+      "help": "OK",
+      "status": "OK"
+    },
+    {
+      "script": "ia_model_benchmarker",
+      "errors": [],
+      "warnings": [],
+      "metrics": {
+        "functions": 5,
+        "classes": 0,
+        "lines": 189,
+        "has_docstring": true,
+        "has_main": true,
+        "has_argparse": true,
+        "imports": 9
+      },
+      "syntax": "OK",
+      "help": "OK",
+      "status": "OK"
+    },
+    {
+      "script": "ia_model_cache_manager",
+      "errors": [],
+      "warnings": [],
+      "metrics": {
+        "functions": 5,
+        "classes": 0,
+        "lines": 127,
+        "has_docstring": true,
+        "has_main": true,
+        "has_argparse": true,
+        "imports": 8
+      },
+      "syntax": "OK",
+      "help": "OK",
+      "status": "OK"
+    },
+    {
+      "script": "ia_pattern_detector",
+      "errors": [],
+      "warnings": [],
+      "metrics": {
+        "functions": 7,
+        "classes": 0,
+        "lines": 194,
+        "has_docstring": true,
+        "has_main": true,
+        "has_argparse": true,
+        "imports": 8
+      },
+      "syntax": "OK",
+      "help": "OK",
+      "status": "OK"
+    },
+    {
+      "script": "ia_peer_reviewer",
+      "errors": [],
+      "warnings": [],
+      "metrics": {
+        "functions": 12,
+        "classes": 0,
+        "lines": 277,
+        "has_docstring": true,
+        "has_main": true,
+        "has_argparse": true,
+        "imports": 5
+      },
+      "syntax": "OK",
+      "help": "OK",
+      "status": "OK"
+    },
+    {
+      "script": "ia_proactive_agent",
+      "errors": [],
+      "warnings": [],
+      "metrics": {
+        "functions": 11,
+        "classes": 0,
+        "lines": 268,
+        "has_docstring": true,
+        "has_main": true,
+        "has_argparse": true,
+        "imports": 10
+      },
+      "syntax": "OK",
+      "help": "OK",
+      "status": "OK"
+    },
+    {
+      "script": "ia_prompt_optimizer",
+      "errors": [],
+      "warnings": [],
+      "metrics": {
+        "functions": 6,
+        "classes": 0,
+        "lines": 194,
+        "has_docstring": true,
+        "has_main": true,
+        "has_argparse": true,
+        "imports": 8
+      },
+      "syntax": "OK",
+      "help": "OK",
+      "status": "OK"
+    },
+    {
+      "script": "ia_routing_optimizer",
+      "errors": [],
+      "warnings": [],
+      "metrics": {
+        "functions": 4,
+        "classes": 0,
+        "lines": 80,
+        "has_docstring": true,
+        "has_main": true,
+        "has_argparse": true,
+        "imports": 4
+      },
+      "syntax": "OK",
+      "help": "OK",
+      "status": "OK"
+    },
+    {
+      "script": "ia_self_critic",
+      "errors": [],
+      "warnings": [],
+      "metrics": {
+        "functions": 11,
+        "classes": 0,
+        "lines": 407,
+        "has_docstring": true,
+        "has_main": true,
+        "has_argparse": true,
+        "imports": 9
+      },
+      "syntax": "OK",
+      "help": "OK",
+      "status": "OK"
+    },
+    {
+      "script": "ia_self_improver",
+      "errors": [],
+      "warnings": [],
+      "metrics": {
+        "functions": 7,
+        "classes": 0,
+        "lines": 241,
+        "has_docstring": true,
+        "has_main": true,
+        "has_argparse": true,
+        "imports": 7
+      },
+      "syntax": "OK",
+      "help": "OK",
+      "status": "OK"
+    },
+    {
+      "script": "ia_skill_synthesizer",
+      "errors": [],
+      "warnings": [],
+      "metrics": {
+        "functions": 5,
+        "classes": 0,
+        "lines": 115,
+        "has_docstring": true,
+        "has_main": true,
+        "has_argparse": true,
+        "imports": 8
+      },
+      "syntax": "OK",
+      "help": "OK",
+      "status": "OK"
+    },
+    {
+      "script": "ia_story_generator",
+      "errors": [],
+      "warnings": [],
+      "metrics": {
+        "functions": 9,
+        "classes": 0,
+        "lines": 294,
+        "has_docstring": true,
+        "has_main": true,
+        "has_argparse": true,
+        "imports": 4
+      },
+      "syntax": "OK",
+      "help": "OK",
+      "status": "OK"
+    },
+    {
+      "script": "ia_swarm_coordinator",
+      "errors": [],
+      "warnings": [],
+      "metrics": {
+        "functions": 5,
+        "classes": 0,
+        "lines": 144,
+        "has_docstring": true,
+        "has_main": true,
+        "has_argparse": true,
+        "imports": 8
+      },
+      "syntax": "OK",
+      "help": "OK",
+      "status": "OK"
+    },
+    {
+      "script": "ia_task_planner",
+      "errors": [],
+      "warnings": [],
+      "metrics": {
+        "functions": 7,
+        "classes": 0,
+        "lines": 219,
+        "has_docstring": true,
+        "has_main": true,
+        "has_argparse": true,
+        "imports": 10
+      },
+      "syntax": "OK",
+      "help": "OK",
+      "status": "OK"
+    },
+    {
+      "script": "ia_task_prioritizer",
+      "errors": [],
+      "warnings": [],
+      "metrics": {
+        "functions": 5,
+        "classes": 0,
+        "lines": 188,
+        "has_docstring": true,
+        "has_main": true,
+        "has_argparse": true,
+        "imports": 8
+      },
+      "syntax": "OK",
+      "help": "OK",
+      "status": "OK"
+    },
+    {
+      "script": "ia_teacher_student",
+      "errors": [],
+      "warnings": [],
+      "metrics": {
+        "functions": 11,
+        "classes": 0,
+        "lines": 312,
+        "has_docstring": true,
+        "has_main": true,
+        "has_argparse": true,
+        "imports": 5
+      },
+      "syntax": "OK",
+      "help": "OK",
+      "status": "OK"
+    },
+    {
+      "script": "ia_test_generator",
+      "errors": [],
+      "warnings": [],
+      "metrics": {
+        "functions": 9,
+        "classes": 0,
+        "lines": 349,
+        "has_docstring": true,
+        "has_main": true,
+        "has_argparse": true,
+        "imports": 9
+      },
+      "syntax": "OK",
+      "help": "OK",
+      "status": "OK"
+    },
+    {
+      "script": "ia_test_writer",
+      "errors": [],
+      "warnings": [],
+      "metrics": {
+        "functions": 6,
+        "classes": 0,
+        "lines": 155,
+        "has_docstring": true,
+        "has_main": true,
+        "has_argparse": true,
+        "imports": 9
+      },
+      "syntax": "OK",
+      "help": "OK",
+      "status": "OK"
+    },
+    {
+      "script": "ia_transfer_learner",
+      "errors": [],
+      "warnings": [],
+      "metrics": {
+        "functions": 6,
+        "classes": 0,
+        "lines": 277,
+        "has_docstring": true,
+        "has_main": true,
+        "has_argparse": true,
+        "imports": 3
+      },
+      "syntax": "OK",
+      "help": "OK",
+      "status": "OK"
+    },
+    {
+      "script": "ia_usage_predictor",
+      "errors": [],
+      "warnings": [],
+      "metrics": {
+        "functions": 6,
+        "classes": 0,
+        "lines": 164,
+        "has_docstring": true,
+        "has_main": true,
+        "has_argparse": true,
+        "imports": 9
+      },
+      "syntax": "OK",
+      "help": "OK",
+      "status": "OK"
+    },
+    {
+      "script": "ia_weight_calibrator",
+      "errors": [],
+      "warnings": [],
+      "metrics": {
+        "functions": 4,
+        "classes": 0,
+        "lines": 77,
+        "has_docstring": true,
+        "has_main": true,
+        "has_argparse": true,
+        "imports": 4
+      },
+      "syntax": "OK",
+      "help": "OK",
+      "status": "OK"
+    },
+    {
+      "script": "ia_workload_balancer",
+      "errors": [],
+      "warnings": [],
+      "metrics": {
+        "functions": 5,
+        "classes": 0,
+        "lines": 124,
+        "has_docstring": true,
+        "has_main": true,
+        "has_argparse": true,
+        "imports": 8
+      },
+      "syntax": "OK",
+      "help": "OK",
+      "status": "OK"
+    },
+    {
+      "script": "intent_classifier",
+      "errors": [],
+      "warnings": [],
+      "metrics": {
+        "functions": 6,
+        "classes": 0,
+        "lines": 221,
+        "has_docstring": true,
+        "has_main": true,
+        "has_argparse": true,
+        "imports": 9
+      },
+      "syntax": "OK",
+      "help": "OK",
+      "status": "OK"
+    },
+    {
+      "script": "interaction_predictor",
+      "errors": [],
+      "warnings": [],
+      "metrics": {
+        "functions": 10,
+        "classes": 0,
+        "lines": 414,
+        "has_docstring": true,
+        "has_main": true,
+        "has_argparse": true,
+        "imports": 10
+      },
+      "syntax": "OK",
+      "help": "OK",
+      "status": "OK"
+    },
+    {
+      "script": "jarvis_ab_tester",
+      "errors": [],
+      "warnings": [],
+      "metrics": {
+        "functions": 12,
+        "classes": 0,
+        "lines": 395,
+        "has_docstring": true,
+        "has_main": true,
+        "has_argparse": true,
+        "imports": 9
+      },
+      "syntax": "OK",
+      "help": "OK",
+      "status": "OK"
+    },
+    {
+      "script": "jarvis_api_gateway",
+      "errors": [],
+      "warnings": [],
+      "metrics": {
+        "functions": 5,
+        "classes": 0,
+        "lines": 145,
+        "has_docstring": true,
+        "has_main": true,
+        "has_argparse": true,
+        "imports": 8
+      },
+      "syntax": "OK",
+      "help": "OK",
+      "status": "OK"
+    },
+    {
+      "script": "jarvis_autonomy_engine",
+      "errors": [],
+      "warnings": [],
+      "metrics": {
+        "functions": 10,
+        "classes": 0,
+        "lines": 291,
+        "has_docstring": true,
+        "has_main": true,
+        "has_argparse": true,
+        "imports": 8
+      },
+      "syntax": "OK",
+      "help": "OK",
+      "status": "OK"
+    },
+    {
+      "script": "jarvis_autonomy_monitor",
+      "errors": [],
+      "warnings": [],
+      "metrics": {
+        "functions": 8,
+        "classes": 0,
+        "lines": 232,
+        "has_docstring": true,
+        "has_main": true,
+        "has_argparse": true,
+        "imports": 10
+      },
+      "syntax": "OK",
+      "help": "OK",
+      "status": "OK"
+    },
+    {
+      "script": "jarvis_backup_manager",
+      "errors": [],
+      "warnings": [],
+      "metrics": {
+        "functions": 5,
+        "classes": 0,
+        "lines": 149,
+        "has_docstring": true,
+        "has_main": true,
+        "has_argparse": true,
+        "imports": 9
+      },
+      "syntax": "OK",
+      "help": "OK",
+      "status": "OK"
+    },
+    {
+      "script": "jarvis_brain",
+      "errors": [],
+      "warnings": [],
+      "metrics": {
+        "functions": 6,
+        "classes": 0,
+        "lines": 192,
+        "has_docstring": true,
+        "has_main": true,
+        "has_argparse": true,
+        "imports": 6
+      },
+      "syntax": "OK",
+      "help": "OK",
+      "status": "OK"
+    },
+    {
+      "script": "jarvis_changelog_generator",
+      "errors": [],
+      "warnings": [],
+      "metrics": {
+        "functions": 6,
+        "classes": 0,
+        "lines": 172,
+        "has_docstring": true,
+        "has_main": true,
+        "has_argparse": true,
+        "imports": 10
+      },
+      "syntax": "OK",
+      "help": "OK",
+      "status": "OK"
+    },
+    {
+      "script": "jarvis_code_auditor",
+      "errors": [],
+      "warnings": [],
+      "metrics": {
+        "functions": 4,
+        "classes": 0,
+        "lines": 164,
+        "has_docstring": true,
+        "has_main": true,
+        "has_argparse": true,
+        "imports": 8
+      },
+      "syntax": "OK",
+      "help": "OK",
+      "status": "OK"
+    },
+    {
+      "script": "jarvis_command_predictor",
+      "errors": [],
+      "warnings": [],
+      "metrics": {
+        "functions": 5,
+        "classes": 0,
+        "lines": 127,
+        "has_docstring": true,
+        "has_main": true,
+        "has_argparse": true,
+        "imports": 8
+      },
+      "syntax": "OK",
+      "help": "OK",
+      "status": "OK"
+    },
+    {
+      "script": "jarvis_config_center",
+      "errors": [],
+      "warnings": [],
+      "metrics": {
+        "functions": 10,
+        "classes": 0,
+        "lines": 400,
+        "has_docstring": true,
+        "has_main": true,
+        "has_argparse": true,
+        "imports": 7
+      },
+      "syntax": "OK",
+      "help": "OK",
+      "status": "OK"
+    },
+    {
+      "script": "jarvis_config_validator",
+      "errors": [],
+      "warnings": [],
+      "metrics": {
+        "functions": 5,
+        "classes": 0,
+        "lines": 187,
+        "has_docstring": true,
+        "has_main": true,
+        "has_argparse": true,
+        "imports": 7
+      },
+      "syntax": "OK",
+      "help": "OK",
+      "status": "OK"
+    },
+    {
+      "script": "jarvis_context_engine",
+      "errors": [],
+      "warnings": [],
+      "metrics": {
+        "functions": 6,
+        "classes": 0,
+        "lines": 184,
+        "has_docstring": true,
+        "has_main": true,
+        "has_argparse": true,
+        "imports": 9
+      },
+      "syntax": "OK",
+      "help": "OK",
+      "status": "OK"
+    },
+    {
+      "script": "jarvis_conversation_analyzer",
+      "errors": [],
+      "warnings": [],
+      "metrics": {
+        "functions": 6,
+        "classes": 0,
+        "lines": 145,
+        "has_docstring": true,
+        "has_main": true,
+        "has_argparse": true,
+        "imports": 8
+      },
+      "syntax": "OK",
+      "help": "OK",
+      "status": "OK"
+    },
+    {
+      "script": "jarvis_conversation_memory",
+      "errors": [],
+      "warnings": [],
+      "metrics": {
+        "functions": 8,
+        "classes": 0,
+        "lines": 162,
+        "has_docstring": true,
+        "has_main": true,
+        "has_argparse": true,
+        "imports": 6
+      },
+      "syntax": "OK",
+      "help": "OK",
+      "status": "OK"
+    },
+    {
+      "script": "jarvis_cron_optimizer",
+      "errors": [],
+      "warnings": [],
+      "metrics": {
+        "functions": 5,
+        "classes": 0,
+        "lines": 142,
+        "has_docstring": true,
+        "has_main": true,
+        "has_argparse": true,
+        "imports": 9
+      },
+      "syntax": "OK",
+      "help": "OK",
+      "status": "OK"
+    },
+    {
+      "script": "jarvis_daily_briefing",
+      "errors": [],
+      "warnings": [],
+      "metrics": {
+        "functions": 10,
+        "classes": 0,
+        "lines": 189,
+        "has_docstring": true,
+        "has_main": true,
+        "has_argparse": true,
+        "imports": 10
+      },
+      "syntax": "OK",
+      "help": "OK",
+      "status": "OK"
+    },
+    {
+      "script": "jarvis_data_exporter",
+      "errors": [],
+      "warnings": [],
+      "metrics": {
+        "functions": 4,
+        "classes": 0,
+        "lines": 109,
+        "has_docstring": true,
+        "has_main": true,
+        "has_argparse": true,
+        "imports": 9
+      },
+      "syntax": "OK",
+      "help": "OK",
+      "status": "OK"
+    },
+    {
+      "script": "jarvis_db_migrator",
+      "errors": [],
+      "warnings": [],
+      "metrics": {
+        "functions": 5,
+        "classes": 0,
+        "lines": 105,
+        "has_docstring": true,
+        "has_main": true,
+        "has_argparse": true,
+        "imports": 8
+      },
+      "syntax": "OK",
+      "help": "OK",
+      "status": "OK"
+    },
+    {
+      "script": "jarvis_dependency_mapper",
+      "errors": [],
+      "warnings": [],
+      "metrics": {
+        "functions": 8,
+        "classes": 0,
+        "lines": 191,
+        "has_docstring": true,
+        "has_main": true,
+        "has_argparse": true,
+        "imports": 9
+      },
+      "syntax": "OK",
+      "help": "OK",
+      "status": "OK"
+    },
+    {
+      "script": "jarvis_dialog_manager",
+      "errors": [],
+      "warnings": [],
+      "metrics": {
+        "functions": 12,
+        "classes": 0,
+        "lines": 247,
+        "has_docstring": true,
+        "has_main": true,
+        "has_argparse": true,
+        "imports": 3
+      },
+      "syntax": "OK",
+      "help": "OK",
+      "status": "OK"
+    },
+    {
+      "script": "jarvis_dictation_mode",
+      "errors": [],
+      "warnings": [],
+      "metrics": {
+        "functions": 9,
+        "classes": 0,
+        "lines": 251,
+        "has_docstring": true,
+        "has_main": true,
+        "has_argparse": true,
+        "imports": 3
+      },
+      "syntax": "OK",
+      "help": "OK",
+      "status": "OK"
+    },
+    {
+      "script": "jarvis_ecosystem_map",
+      "errors": [],
+      "warnings": [],
+      "metrics": {
+        "functions": 6,
+        "classes": 0,
+        "lines": 146,
+        "has_docstring": true,
+        "has_main": true,
+        "has_argparse": true,
+        "imports": 9
+      },
+      "syntax": "OK",
+      "help": "OK",
+      "status": "OK"
+    },
+    {
+      "script": "jarvis_embedding_engine",
+      "errors": [],
+      "warnings": [],
+      "metrics": {
+        "functions": 7,
+        "classes": 0,
+        "lines": 137,
+        "has_docstring": true,
+        "has_main": true,
+        "has_argparse": true,
+        "imports": 10
+      },
+      "syntax": "OK",
+      "help": "OK",
+      "status": "OK"
+    },
+    {
+      "script": "jarvis_event_stream",
+      "errors": [],
+      "warnings": [],
+      "metrics": {
+        "functions": 8,
+        "classes": 0,
+        "lines": 365,
+        "has_docstring": true,
+        "has_main": true,
+        "has_argparse": true,
+        "imports": 6
+      },
+      "syntax": "OK",
+      "help": "OK",
+      "status": "OK"
+    },
+    {
+      "script": "jarvis_evolution_engine",
+      "errors": [],
+      "warnings": [],
+      "metrics": {
+        "functions": 10,
+        "classes": 0,
+        "lines": 390,
+        "has_docstring": true,
+        "has_main": true,
+        "has_argparse": true,
+        "imports": 4
+      },
+      "syntax": "OK",
+      "help": "OK",
+      "status": "OK"
+    },
+    {
+      "script": "jarvis_faq_builder",
+      "errors": [],
+      "warnings": [],
+      "metrics": {
+        "functions": 5,
+        "classes": 0,
+        "lines": 149,
+        "has_docstring": true,
+        "has_main": true,
+        "has_argparse": true,
+        "imports": 8
+      },
+      "syntax": "OK",
+      "help": "OK",
+      "status": "OK"
+    },
+    {
+      "script": "jarvis_feature_builder",
+      "errors": [],
+      "warnings": [],
+      "metrics": {
+        "functions": 5,
+        "classes": 0,
+        "lines": 156,
+        "has_docstring": true,
+        "has_main": true,
+        "has_argparse": true,
+        "imports": 8
+      },
+      "syntax": "OK",
+      "help": "OK",
+      "status": "OK"
+    },
+    {
+      "script": "jarvis_health_aggregator",
+      "errors": [],
+      "warnings": [],
+      "metrics": {
+        "functions": 7,
+        "classes": 0,
+        "lines": 340,
+        "has_docstring": true,
+        "has_main": true,
+        "has_argparse": true,
+        "imports": 7
+      },
+      "syntax": "OK",
+      "help": "OK",
+      "status": "OK"
+    },
+    {
+      "script": "jarvis_intent_classifier",
+      "errors": [],
+      "warnings": [],
+      "metrics": {
+        "functions": 6,
+        "classes": 0,
+        "lines": 177,
+        "has_docstring": true,
+        "has_main": true,
+        "has_argparse": true,
+        "imports": 10
+      },
+      "syntax": "OK",
+      "help": "OK",
+      "status": "OK"
+    },
+    {
+      "script": "jarvis_intent_predictor",
+      "errors": [],
+      "warnings": [],
+      "metrics": {
+        "functions": 8,
+        "classes": 0,
+        "lines": 315,
+        "has_docstring": true,
+        "has_main": true,
+        "has_argparse": true,
+        "imports": 10
+      },
+      "syntax": "OK",
+      "help": "OK",
+      "status": "OK"
+    },
+    {
+      "script": "jarvis_intent_router",
+      "errors": [],
+      "warnings": [],
+      "metrics": {
+        "functions": 7,
+        "classes": 0,
+        "lines": 323,
+        "has_docstring": true,
+        "has_main": true,
+        "has_argparse": true,
+        "imports": 7
+      },
+      "syntax": "OK",
+      "help": "OK",
+      "status": "OK"
+    },
+    {
+      "script": "jarvis_log_analyzer",
+      "errors": [],
+      "warnings": [],
+      "metrics": {
+        "functions": 4,
+        "classes": 0,
+        "lines": 108,
+        "has_docstring": true,
+        "has_main": true,
+        "has_argparse": true,
+        "imports": 8
+      },
+      "syntax": "OK",
+      "help": "OK",
+      "status": "OK"
+    },
+    {
+      "script": "jarvis_macro_recorder",
+      "errors": [],
+      "warnings": [],
+      "metrics": {
+        "functions": 5,
+        "classes": 0,
+        "lines": 127,
+        "has_docstring": true,
+        "has_main": true,
+        "has_argparse": true,
+        "imports": 7
+      },
+      "syntax": "OK",
+      "help": "OK",
+      "status": "OK"
+    },
+    {
+      "script": "jarvis_memory_optimizer",
+      "errors": [],
+      "warnings": [],
+      "metrics": {
+        "functions": 6,
+        "classes": 0,
+        "lines": 178,
+        "has_docstring": true,
+        "has_main": true,
+        "has_argparse": true,
+        "imports": 7
+      },
+      "syntax": "OK",
+      "help": "OK",
+      "status": "OK"
+    },
+    {
+      "script": "jarvis_message_router",
+      "errors": [],
+      "warnings": [],
+      "metrics": {
+        "functions": 8,
+        "classes": 0,
+        "lines": 160,
+        "has_docstring": true,
+        "has_main": true,
+        "has_argparse": true,
+        "imports": 8
+      },
+      "syntax": "OK",
+      "help": "OK",
+      "status": "OK"
+    },
+    {
+      "script": "jarvis_meta_dashboard",
+      "errors": [],
+      "warnings": [],
+      "metrics": {
+        "functions": 8,
+        "classes": 0,
+        "lines": 287,
+        "has_docstring": true,
+        "has_main": true,
+        "has_argparse": true,
+        "imports": 9
+      },
+      "syntax": "OK",
+      "help": "OK",
+      "status": "OK"
+    },
+    {
+      "script": "jarvis_multi_language",
+      "errors": [],
+      "warnings": [],
+      "metrics": {
+        "functions": 10,
+        "classes": 0,
+        "lines": 314,
+        "has_docstring": true,
+        "has_main": true,
+        "has_argparse": true,
+        "imports": 4
+      },
+      "syntax": "OK",
+      "help": "OK",
+      "status": "OK"
+    },
+    {
+      "script": "jarvis_night_ops",
+      "errors": [],
+      "warnings": [],
+      "metrics": {
+        "functions": 9,
+        "classes": 0,
+        "lines": 230,
+        "has_docstring": true,
+        "has_main": true,
+        "has_argparse": true,
+        "imports": 8
+      },
+      "syntax": "OK",
+      "help": "OK",
+      "status": "OK"
+    },
+    {
+      "script": "jarvis_nlp_enhancer",
+      "errors": [],
+      "warnings": [],
+      "metrics": {
+        "functions": 6,
+        "classes": 0,
+        "lines": 151,
+        "has_docstring": true,
+        "has_main": true,
+        "has_argparse": true,
+        "imports": 8
+      },
+      "syntax": "OK",
+      "help": "OK",
+      "status": "OK"
+    },
+    {
+      "script": "jarvis_notification_hub",
+      "errors": [],
+      "warnings": [],
+      "metrics": {
+        "functions": 11,
+        "classes": 0,
+        "lines": 246,
+        "has_docstring": true,
+        "has_main": true,
+        "has_argparse": true,
+        "imports": 6
+      },
+      "syntax": "OK",
+      "help": "OK",
+      "status": "OK"
+    },
+    {
+      "script": "jarvis_notification_router",
+      "errors": [],
+      "warnings": [],
+      "metrics": {
+        "functions": 13,
+        "classes": 0,
+        "lines": 317,
+        "has_docstring": true,
+        "has_main": true,
+        "has_argparse": true,
+        "imports": 7
+      },
+      "syntax": "OK",
+      "help": "OK",
+      "status": "OK"
+    },
+    {
+      "script": "jarvis_orchestrator_v3",
+      "errors": [],
+      "warnings": [],
+      "metrics": {
+        "functions": 12,
+        "classes": 0,
+        "lines": 411,
+        "has_docstring": true,
+        "has_main": true,
+        "has_argparse": true,
+        "imports": 3
+      },
+      "syntax": "OK",
+      "help": "OK",
+      "status": "OK"
+    },
+    {
+      "script": "jarvis_pattern_learner",
+      "errors": [],
+      "warnings": [],
+      "metrics": {
+        "functions": 5,
+        "classes": 0,
+        "lines": 160,
+        "has_docstring": true,
+        "has_main": true,
+        "has_argparse": true,
+        "imports": 8
+      },
+      "syntax": "OK",
+      "help": "OK",
+      "status": "OK"
+    },
+    {
+      "script": "jarvis_pattern_miner",
+      "errors": [],
+      "warnings": [],
+      "metrics": {
+        "functions": 10,
+        "classes": 0,
+        "lines": 391,
+        "has_docstring": true,
+        "has_main": true,
+        "has_argparse": true,
+        "imports": 9
+      },
+      "syntax": "OK",
+      "help": "OK",
+      "status": "OK"
+    },
+    {
+      "script": "jarvis_performance_tracker",
+      "errors": [],
+      "warnings": [],
+      "metrics": {
+        "functions": 9,
+        "classes": 0,
+        "lines": 258,
+        "has_docstring": true,
+        "has_main": true,
+        "has_argparse": true,
+        "imports": 3
+      },
+      "syntax": "OK",
+      "help": "OK",
+      "status": "OK"
+    },
+    {
+      "script": "jarvis_permission_auditor",
+      "errors": [],
+      "warnings": [],
+      "metrics": {
+        "functions": 4,
+        "classes": 0,
+        "lines": 157,
+        "has_docstring": true,
+        "has_main": true,
+        "has_argparse": true,
+        "imports": 8
+      },
+      "syntax": "OK",
+      "help": "OK",
+      "status": "OK"
+    },
+    {
+      "script": "jarvis_personality_engine",
+      "errors": [],
+      "warnings": [],
+      "metrics": {
+        "functions": 10,
+        "classes": 0,
+        "lines": 277,
+        "has_docstring": true,
+        "has_main": true,
+        "has_argparse": true,
+        "imports": 3
+      },
+      "syntax": "OK",
+      "help": "OK",
+      "status": "OK"
+    },
+    {
+      "script": "jarvis_pipeline_monitor",
+      "errors": [],
+      "warnings": [],
+      "metrics": {
+        "functions": 7,
+        "classes": 0,
+        "lines": 168,
+        "has_docstring": true,
+        "has_main": true,
+        "has_argparse": true,
+        "imports": 9
+      },
+      "syntax": "OK",
+      "help": "OK",
+      "status": "OK"
+    },
+    {
+      "script": "jarvis_plugin_tester",
+      "errors": [],
+      "warnings": [],
+      "metrics": {
+        "functions": 6,
+        "classes": 0,
+        "lines": 163,
+        "has_docstring": true,
+        "has_main": true,
+        "has_argparse": true,
+        "imports": 8
+      },
+      "syntax": "OK",
+      "help": "OK",
+      "status": "OK"
+    },
+    {
+      "script": "jarvis_preloader",
+      "errors": [],
+      "warnings": [],
+      "metrics": {
+        "functions": 10,
+        "classes": 0,
+        "lines": 302,
+        "has_docstring": true,
+        "has_main": true,
+        "has_argparse": true,
+        "imports": 7
+      },
+      "syntax": "OK",
+      "help": "OK",
+      "status": "OK"
+    },
+    {
+      "script": "jarvis_release_manager",
+      "errors": [],
+      "warnings": [],
+      "metrics": {
+        "functions": 9,
+        "classes": 0,
+        "lines": 302,
+        "has_docstring": true,
+        "has_main": true,
+        "has_argparse": true,
+        "imports": 9
+      },
+      "syntax": "OK",
+      "help": "OK",
+      "status": "OK"
+    },
+    {
+      "script": "jarvis_response_cache",
+      "errors": [],
+      "warnings": [],
+      "metrics": {
+        "functions": 10,
+        "classes": 0,
+        "lines": 283,
+        "has_docstring": true,
+        "has_main": true,
+        "has_argparse": true,
+        "imports": 7
+      },
+      "syntax": "OK",
+      "help": "OK",
+      "status": "OK"
+    },
+    {
+      "script": "jarvis_response_profiler",
+      "errors": [],
+      "warnings": [],
+      "metrics": {
+        "functions": 5,
+        "classes": 0,
+        "lines": 145,
+        "has_docstring": true,
+        "has_main": true,
+        "has_argparse": true,
+        "imports": 8
+      },
+      "syntax": "OK",
+      "help": "OK",
+      "status": "OK"
+    },
+    {
+      "script": "jarvis_roi_calculator",
+      "errors": [],
+      "warnings": [],
+      "metrics": {
+        "functions": 10,
+        "classes": 0,
+        "lines": 288,
+        "has_docstring": true,
+        "has_main": true,
+        "has_argparse": true,
+        "imports": 3
+      },
+      "syntax": "OK",
+      "help": "OK",
+      "status": "OK"
+    },
+    {
+      "script": "jarvis_rule_engine",
+      "errors": [],
+      "warnings": [],
+      "metrics": {
+        "functions": 8,
+        "classes": 0,
+        "lines": 324,
+        "has_docstring": true,
+        "has_main": true,
+        "has_argparse": true,
+        "imports": 10
+      },
+      "syntax": "OK",
+      "help": "OK",
+      "status": "OK"
+    },
+    {
+      "script": "jarvis_secret_scanner",
+      "errors": [],
+      "warnings": [],
+      "metrics": {
+        "functions": 5,
+        "classes": 0,
+        "lines": 141,
+        "has_docstring": true,
+        "has_main": true,
+        "has_argparse": true,
+        "imports": 8
+      },
+      "syntax": "OK",
+      "help": "OK",
+      "status": "OK"
+    },
+    {
+      "script": "jarvis_self_evolve",
+      "errors": [],
+      "warnings": [],
+      "metrics": {
+        "functions": 6,
+        "classes": 0,
+        "lines": 219,
+        "has_docstring": true,
+        "has_main": true,
+        "has_argparse": true,
+        "imports": 7
+      },
+      "syntax": "OK",
+      "help": "OK",
+      "status": "OK"
+    },
+    {
+      "script": "jarvis_self_improve",
+      "errors": [],
+      "warnings": [],
+      "metrics": {
+        "functions": 7,
+        "classes": 0,
+        "lines": 206,
+        "has_docstring": true,
+        "has_main": true,
+        "has_argparse": true,
+        "imports": 10
+      },
+      "syntax": "OK",
+      "help": "OK",
+      "status": "OK"
+    },
+    {
+      "script": "jarvis_self_improver",
+      "errors": [],
+      "warnings": [],
+      "metrics": {
+        "functions": 6,
+        "classes": 0,
+        "lines": 217,
+        "has_docstring": true,
+        "has_main": true,
+        "has_argparse": true,
+        "imports": 9
+      },
+      "syntax": "OK",
+      "help": "OK",
+      "status": "OK"
+    },
+    {
+      "script": "jarvis_self_test_suite",
+      "errors": [],
+      "warnings": [],
+      "metrics": {
+        "functions": 9,
+        "classes": 0,
+        "lines": 305,
+        "has_docstring": true,
+        "has_main": true,
+        "has_argparse": true,
+        "imports": 3
+      },
+      "syntax": "OK",
+      "help": "OK",
+      "status": "OK"
+    },
+    {
+      "script": "jarvis_sentiment_analyzer",
+      "errors": [],
+      "warnings": [],
+      "metrics": {
+        "functions": 4,
+        "classes": 0,
+        "lines": 134,
+        "has_docstring": true,
+        "has_main": true,
+        "has_argparse": true,
+        "imports": 7
+      },
+      "syntax": "OK",
+      "help": "OK",
+      "status": "OK"
+    },
+    {
+      "script": "jarvis_skill_generator",
+      "errors": [],
+      "warnings": [],
+      "metrics": {
+        "functions": 8,
+        "classes": 0,
+        "lines": 190,
+        "has_docstring": true,
+        "has_main": true,
+        "has_argparse": true,
+        "imports": 6
+      },
+      "syntax": "OK",
+      "help": "OK",
+      "status": "OK"
+    },
+    {
+      "script": "jarvis_skill_recommender",
+      "errors": [],
+      "warnings": [],
+      "metrics": {
+        "functions": 6,
+        "classes": 0,
+        "lines": 192,
+        "has_docstring": true,
+        "has_main": true,
+        "has_argparse": true,
+        "imports": 8
+      },
+      "syntax": "OK",
+      "help": "OK",
+      "status": "OK"
+    },
+    {
+      "script": "jarvis_state_machine",
+      "errors": [],
+      "warnings": [],
+      "metrics": {
+        "functions": 8,
+        "classes": 0,
+        "lines": 247,
+        "has_docstring": true,
+        "has_main": true,
+        "has_argparse": true,
+        "imports": 6
+      },
+      "syntax": "OK",
+      "help": "OK",
+      "status": "OK"
+    },
+    {
+      "script": "jarvis_telegram_enhanced",
+      "errors": [],
+      "warnings": [],
+      "metrics": {
+        "functions": 7,
+        "classes": 0,
+        "lines": 231,
+        "has_docstring": true,
+        "has_main": true,
+        "has_argparse": true,
+        "imports": 9
+      },
+      "syntax": "OK",
+      "help": "OK",
+      "status": "OK"
+    },
+    {
+      "script": "jarvis_template_engine",
+      "errors": [],
+      "warnings": [],
+      "metrics": {
+        "functions": 4,
+        "classes": 0,
+        "lines": 131,
+        "has_docstring": true,
+        "has_main": true,
+        "has_argparse": true,
+        "imports": 8
+      },
+      "syntax": "OK",
+      "help": "OK",
+      "status": "OK"
+    },
+    {
+      "script": "jarvis_test_generator",
+      "errors": [],
+      "warnings": [],
+      "metrics": {
+        "functions": 5,
+        "classes": 0,
+        "lines": 157,
+        "has_docstring": true,
+        "has_main": true,
+        "has_argparse": true,
+        "imports": 9
+      },
+      "syntax": "OK",
+      "help": "OK",
+      "status": "OK"
+    },
+    {
+      "script": "jarvis_tts_cache_manager",
+      "errors": [],
+      "warnings": [],
+      "metrics": {
+        "functions": 5,
+        "classes": 0,
+        "lines": 178,
+        "has_docstring": true,
+        "has_main": true,
+        "has_argparse": true,
+        "imports": 7
+      },
+      "syntax": "OK",
+      "help": "OK",
+      "status": "OK"
+    },
+    {
+      "script": "jarvis_update_checker",
+      "errors": [],
+      "warnings": [],
+      "metrics": {
+        "functions": 5,
+        "classes": 0,
+        "lines": 117,
+        "has_docstring": true,
+        "has_main": true,
+        "has_argparse": true,
+        "imports": 8
+      },
+      "syntax": "OK",
+      "help": "OK",
+      "status": "OK"
+    },
+    {
+      "script": "jarvis_usage_analytics",
+      "errors": [],
+      "warnings": [],
+      "metrics": {
+        "functions": 10,
+        "classes": 0,
+        "lines": 270,
+        "has_docstring": true,
+        "has_main": true,
+        "has_argparse": true,
+        "imports": 4
+      },
+      "syntax": "OK",
+      "help": "OK",
+      "status": "OK"
+    },
+    {
+      "script": "jarvis_voice_profile",
+      "errors": [],
+      "warnings": [],
+      "metrics": {
+        "functions": 8,
+        "classes": 0,
+        "lines": 273,
+        "has_docstring": true,
+        "has_main": true,
+        "has_argparse": true,
+        "imports": 3
+      },
+      "syntax": "OK",
+      "help": "OK",
+      "status": "OK"
+    },
+    {
+      "script": "jarvis_voice_trainer",
+      "errors": [],
+      "warnings": [],
+      "metrics": {
+        "functions": 6,
+        "classes": 0,
+        "lines": 147,
+        "has_docstring": true,
+        "has_main": true,
+        "has_argparse": true,
+        "imports": 8
+      },
+      "syntax": "OK",
+      "help": "OK",
+      "status": "OK"
+    },
+    {
+      "script": "jarvis_wake_word_tuner",
+      "errors": [],
+      "warnings": [],
+      "metrics": {
+        "functions": 9,
+        "classes": 0,
+        "lines": 284,
+        "has_docstring": true,
+        "has_main": true,
+        "has_argparse": true,
+        "imports": 3
+      },
+      "syntax": "OK",
+      "help": "OK",
+      "status": "OK"
+    },
+    {
+      "script": "jarvis_webhook_manager",
+      "errors": [],
+      "warnings": [],
+      "metrics": {
+        "functions": 8,
+        "classes": 0,
+        "lines": 232,
+        "has_docstring": true,
+        "has_main": true,
+        "has_argparse": true,
+        "imports": 11
+      },
+      "syntax": "OK",
+      "help": "OK",
+      "status": "OK"
+    },
+    {
+      "script": "jarvis_webhook_server",
+      "errors": [],
+      "warnings": [],
+      "metrics": {
+        "functions": 14,
+        "classes": 1,
+        "lines": 431,
+        "has_docstring": true,
+        "has_main": true,
+        "has_argparse": true,
+        "imports": 13
+      },
+      "syntax": "OK",
+      "help": "OK",
+      "status": "OK"
+    },
+    {
+      "script": "jarvis_wiki_engine",
+      "errors": [],
+      "warnings": [],
+      "metrics": {
+        "functions": 6,
+        "classes": 0,
+        "lines": 298,
+        "has_docstring": true,
+        "has_main": true,
+        "has_argparse": true,
+        "imports": 3
+      },
+      "syntax": "OK",
+      "help": "OK",
+      "status": "OK"
+    },
+    {
+      "script": "knowledge_graph",
+      "errors": [],
+      "warnings": [],
+      "metrics": {
+        "functions": 9,
+        "classes": 0,
+        "lines": 241,
+        "has_docstring": true,
+        "has_main": true,
+        "has_argparse": true,
+        "imports": 6
+      },
+      "syntax": "OK",
+      "help": "OK",
+      "status": "OK"
+    },
+    {
+      "script": "knowledge_updater",
+      "errors": [],
+      "warnings": [],
+      "metrics": {
+        "functions": 13,
+        "classes": 0,
+        "lines": 471,
+        "has_docstring": true,
+        "has_main": true,
+        "has_argparse": true,
+        "imports": 7
+      },
+      "syntax": "OK",
+      "help": "OK",
+      "status": "OK"
+    },
+    {
+      "script": "load_balancer",
+      "errors": [],
+      "warnings": [],
+      "metrics": {
+        "functions": 7,
+        "classes": 0,
+        "lines": 131,
+        "has_docstring": true,
+        "has_main": true,
+        "has_argparse": true,
+        "imports": 8
+      },
+      "syntax": "OK",
+      "help": "OK",
+      "status": "OK"
+    },
+    {
+      "script": "log_analyzer",
+      "errors": [],
+      "warnings": [],
+      "metrics": {
+        "functions": 3,
+        "classes": 0,
+        "lines": 78,
+        "has_docstring": false,
+        "has_main": true,
+        "has_argparse": true,
+        "imports": 7
+      },
+      "syntax": "OK",
+      "help": "OK",
+      "status": "OK"
+    },
+    {
+      "script": "log_rotator",
+      "errors": [],
+      "warnings": [
+        "Non-stdlib import: gzip"
+      ],
+      "metrics": {
+        "functions": 9,
+        "classes": 0,
+        "lines": 190,
+        "has_docstring": true,
+        "has_main": true,
+        "has_argparse": true,
+        "imports": 6
+      },
+      "syntax": "OK",
+      "help": "OK",
+      "status": "OK"
+    },
+    {
+      "script": "mcp_tool_tester",
+      "errors": [],
+      "warnings": [
+        "Non-stdlib import: importlib.util"
+      ],
+      "metrics": {
+        "functions": 6,
+        "classes": 0,
+        "lines": 163,
+        "has_docstring": true,
+        "has_main": true,
+        "has_argparse": true,
+        "imports": 8
+      },
+      "syntax": "OK",
+      "help": "OK",
+      "status": "OK"
+    },
+    {
+      "script": "memory_optimizer",
+      "errors": [],
+      "warnings": [],
+      "metrics": {
+        "functions": 16,
+        "classes": 0,
+        "lines": 1068,
+        "has_docstring": true,
+        "has_main": true,
+        "has_argparse": true,
+        "imports": 10
+      },
+      "syntax": "OK",
+      "help": "OK",
+      "status": "OK"
+    },
+    {
+      "script": "metrics_collector",
+      "errors": [],
+      "warnings": [],
+      "metrics": {
+        "functions": 10,
+        "classes": 0,
+        "lines": 208,
+        "has_docstring": true,
+        "has_main": true,
+        "has_argparse": true,
+        "imports": 9
+      },
+      "syntax": "OK",
+      "help": "OK",
+      "status": "OK"
+    },
+    {
+      "script": "model_benchmark",
+      "errors": [],
+      "warnings": [],
+      "metrics": {
+        "functions": 11,
+        "classes": 1,
+        "lines": 453,
+        "has_docstring": true,
+        "has_main": true,
+        "has_argparse": true,
+        "imports": 10
+      },
+      "syntax": "OK",
+      "help": "OK",
+      "status": "OK"
+    },
+    {
+      "script": "model_manager",
+      "errors": [],
+      "warnings": [],
+      "metrics": {
+        "functions": 8,
+        "classes": 0,
+        "lines": 150,
+        "has_docstring": true,
+        "has_main": true,
+        "has_argparse": true,
+        "imports": 7
+      },
+      "syntax": "OK",
+      "help": "OK",
+      "status": "OK"
+    },
+    {
+      "script": "model_rotator",
+      "errors": [],
+      "warnings": [],
+      "metrics": {
+        "functions": 10,
+        "classes": 0,
+        "lines": 160,
+        "has_docstring": true,
+        "has_main": true,
+        "has_argparse": true,
+        "imports": 7
+      },
+      "syntax": "OK",
+      "help": "OK",
+      "status": "OK"
+    },
+    {
+      "script": "multi_agent_coordinator",
+      "errors": [],
+      "warnings": [],
+      "metrics": {
+        "functions": 7,
+        "classes": 0,
+        "lines": 175,
+        "has_docstring": true,
+        "has_main": true,
+        "has_argparse": true,
+        "imports": 7
+      },
+      "syntax": "OK",
+      "help": "OK",
+      "status": "OK"
+    },
+    {
+      "script": "network_monitor",
+      "errors": [],
+      "warnings": [],
+      "metrics": {
+        "functions": 4,
+        "classes": 0,
+        "lines": 117,
+        "has_docstring": true,
+        "has_main": true,
+        "has_argparse": false,
+        "imports": 4
+      },
+      "syntax": "OK",
+      "status": "OK"
+    },
+    {
+      "script": "network_optimizer",
+      "errors": [],
+      "warnings": [],
+      "metrics": {
+        "functions": 20,
+        "classes": 0,
+        "lines": 1032,
+        "has_docstring": true,
+        "has_main": true,
+        "has_argparse": true,
+        "imports": 11
+      },
+      "syntax": "OK",
+      "help": "OK",
+      "status": "OK"
+    },
+    {
+      "script": "node_balancer",
+      "errors": [],
+      "warnings": [],
+      "metrics": {
+        "functions": 12,
+        "classes": 0,
+        "lines": 221,
+        "has_docstring": true,
+        "has_main": true,
+        "has_argparse": true,
+        "imports": 9
+      },
+      "syntax": "OK",
+      "help": "OK",
+      "status": "OK"
+    },
+    {
+      "script": "notification_hub",
+      "errors": [],
+      "warnings": [
+        "--help exit code: 1"
+      ],
+      "metrics": {
+        "functions": 8,
+        "classes": 0,
+        "lines": 178,
+        "has_docstring": true,
+        "has_main": true,
+        "has_argparse": true,
+        "imports": 12
+      },
+      "syntax": "OK",
+      "help": "FAIL",
+      "status": "OK"
+    },
+    {
+      "script": "openclaw_watchdog",
+      "errors": [],
+      "warnings": [
+        "Non-stdlib import: openclaw_watchdog"
+      ],
+      "metrics": {
+        "functions": 9,
+        "classes": 0,
+        "lines": 387,
+        "has_docstring": true,
+        "has_main": true,
+        "has_argparse": true,
+        "imports": 12
+      },
+      "syntax": "OK",
+      "help": "OK",
+      "status": "OK"
+    },
+    {
+      "script": "performance_profiler",
+      "errors": [],
+      "warnings": [
+        "Non-stdlib import: psutil"
+      ],
+      "metrics": {
+        "functions": 8,
+        "classes": 0,
+        "lines": 171,
+        "has_docstring": true,
+        "has_main": true,
+        "has_argparse": true,
+        "imports": 9
+      },
+      "syntax": "OK",
+      "help": "OK",
+      "status": "OK"
+    },
+    {
+      "script": "pipeline_orchestrator",
+      "errors": [],
+      "warnings": [],
+      "metrics": {
+        "functions": 4,
+        "classes": 0,
+        "lines": 212,
+        "has_docstring": true,
+        "has_main": true,
+        "has_argparse": true,
+        "imports": 9
+      },
+      "syntax": "OK",
+      "help": "OK",
+      "status": "OK"
+    },
+    {
+      "script": "portfolio_tracker",
+      "errors": [],
+      "warnings": [],
+      "metrics": {
+        "functions": 7,
+        "classes": 0,
+        "lines": 159,
+        "has_docstring": true,
+        "has_main": true,
+        "has_argparse": false,
+        "imports": 2
+      },
+      "syntax": "OK",
+      "status": "OK"
+    },
+    {
+      "script": "power_manager",
+      "errors": [],
+      "warnings": [],
+      "metrics": {
+        "functions": 7,
+        "classes": 0,
+        "lines": 134,
+        "has_docstring": true,
+        "has_main": true,
+        "has_argparse": true,
+        "imports": 6
+      },
+      "syntax": "OK",
+      "help": "OK",
+      "status": "OK"
+    },
+    {
+      "script": "prediction_trainer",
+      "errors": [],
+      "warnings": [],
+      "metrics": {
+        "functions": 8,
+        "classes": 0,
+        "lines": 253,
+        "has_docstring": true,
+        "has_main": true,
+        "has_argparse": true,
+        "imports": 8
+      },
+      "syntax": "OK",
+      "help": "OK",
+      "status": "OK"
+    },
+    {
+      "script": "proactive_agent",
+      "errors": [],
+      "warnings": [],
+      "metrics": {
+        "functions": 6,
+        "classes": 0,
+        "lines": 300,
+        "has_docstring": true,
+        "has_main": true,
+        "has_argparse": true,
+        "imports": 11
+      },
+      "syntax": "OK",
+      "help": "OK",
+      "status": "OK"
+    },
+    {
+      "script": "process_manager",
+      "errors": [],
+      "warnings": [
+        "Non-stdlib import: shlex"
+      ],
+      "metrics": {
+        "functions": 4,
+        "classes": 0,
+        "lines": 87,
+        "has_docstring": true,
+        "has_main": true,
+        "has_argparse": true,
+        "imports": 6
+      },
+      "syntax": "OK",
+      "help": "OK",
+      "status": "OK"
+    },
+    {
+      "script": "prompt_optimizer",
+      "errors": [],
+      "warnings": [
+        "--help exit code: 1"
+      ],
+      "metrics": {
+        "functions": 10,
+        "classes": 0,
+        "lines": 197,
+        "has_docstring": true,
+        "has_main": true,
+        "has_argparse": true,
+        "imports": 8
+      },
+      "syntax": "OK",
+      "help": "FAIL",
+      "status": "OK"
+    },
+    {
+      "script": "prompt_router",
+      "errors": [],
+      "warnings": [],
+      "metrics": {
+        "functions": 6,
+        "classes": 0,
+        "lines": 267,
+        "has_docstring": true,
+        "has_main": true,
+        "has_argparse": true,
+        "imports": 9
+      },
+      "syntax": "OK",
+      "help": "OK",
+      "status": "OK"
+    },
+    {
+      "script": "registry_manager",
+      "errors": [],
+      "warnings": [],
+      "metrics": {
+        "functions": 8,
+        "classes": 0,
+        "lines": 165,
+        "has_docstring": true,
+        "has_main": true,
+        "has_argparse": true,
+        "imports": 6
+      },
+      "syntax": "OK",
+      "help": "OK",
+      "status": "OK"
+    },
+    {
+      "script": "report_mailer",
+      "errors": [],
+      "warnings": [],
+      "metrics": {
+        "functions": 4,
+        "classes": 0,
+        "lines": 139,
+        "has_docstring": true,
+        "has_main": true,
+        "has_argparse": false,
+        "imports": 2
+      },
+      "syntax": "OK",
+      "status": "OK"
+    },
+    {
+      "script": "resource_forecaster",
+      "errors": [],
+      "warnings": [
+        "Non-stdlib import: statistics",
+        "--help exit code: 1"
+      ],
+      "metrics": {
+        "functions": 5,
+        "classes": 0,
+        "lines": 111,
+        "has_docstring": true,
+        "has_main": true,
+        "has_argparse": true,
+        "imports": 4
+      },
+      "syntax": "OK",
+      "help": "FAIL",
+      "status": "OK"
+    },
+    {
+      "script": "response_evaluator",
+      "errors": [],
+      "warnings": [
+        "Non-stdlib import: prompt_router"
+      ],
+      "metrics": {
+        "functions": 4,
+        "classes": 0,
+        "lines": 203,
+        "has_docstring": true,
+        "has_main": true,
+        "has_argparse": true,
+        "imports": 9
+      },
+      "syntax": "OK",
+      "help": "OK",
+      "status": "OK"
+    },
+    {
+      "script": "risk_manager",
+      "errors": [],
+      "warnings": [],
+      "metrics": {
+        "functions": 8,
+        "classes": 0,
+        "lines": 140,
+        "has_docstring": true,
+        "has_main": true,
+        "has_argparse": false,
+        "imports": 2
+      },
+      "syntax": "OK",
+      "status": "OK"
+    },
+    {
+      "script": "scheduled_task_creator",
+      "errors": [],
+      "warnings": [],
+      "metrics": {
+        "functions": 8,
+        "classes": 0,
+        "lines": 161,
+        "has_docstring": true,
+        "has_main": true,
+        "has_argparse": true,
+        "imports": 5
+      },
+      "syntax": "OK",
+      "help": "OK",
+      "status": "OK"
+    },
+    {
+      "script": "screenshot_tool",
+      "errors": [],
+      "warnings": [],
+      "metrics": {
+        "functions": 5,
+        "classes": 0,
+        "lines": 109,
+        "has_docstring": true,
+        "has_main": true,
+        "has_argparse": false,
+        "imports": 2
+      },
+      "syntax": "OK",
+      "status": "OK"
+    },
+    {
+      "script": "security_scanner",
+      "errors": [],
+      "warnings": [],
+      "metrics": {
+        "functions": 16,
+        "classes": 0,
+        "lines": 230,
+        "has_docstring": true,
+        "has_main": true,
+        "has_argparse": true,
+        "imports": 9
+      },
+      "syntax": "OK",
+      "help": "OK",
+      "status": "OK"
+    },
+    {
+      "script": "self_feeding_engine",
+      "errors": [],
+      "warnings": [],
+      "metrics": {
+        "functions": 9,
+        "classes": 0,
+        "lines": 384,
+        "has_docstring": true,
+        "has_main": true,
+        "has_argparse": true,
+        "imports": 11
+      },
+      "syntax": "OK",
+      "help": "OK",
+      "status": "OK"
+    },
+    {
+      "script": "self_improver",
+      "errors": [],
+      "warnings": [],
+      "metrics": {
+        "functions": 6,
+        "classes": 1,
+        "lines": 198,
+        "has_docstring": true,
+        "has_main": true,
+        "has_argparse": true,
+        "imports": 8
+      },
+      "syntax": "OK",
+      "help": "OK",
+      "status": "OK"
+    },
+    {
+      "script": "service_watchdog",
+      "errors": [],
+      "warnings": [],
+      "metrics": {
+        "functions": 10,
+        "classes": 0,
+        "lines": 225,
+        "has_docstring": true,
+        "has_main": true,
+        "has_argparse": true,
+        "imports": 9
+      },
+      "syntax": "OK",
+      "help": "OK",
+      "status": "OK"
+    },
+    {
+      "script": "service_watcher",
+      "errors": [],
+      "warnings": [],
+      "metrics": {
+        "functions": 13,
+        "classes": 0,
+        "lines": 207,
+        "has_docstring": true,
+        "has_main": true,
+        "has_argparse": true,
+        "imports": 10
+      },
+      "syntax": "OK",
+      "help": "OK",
+      "status": "OK"
+    },
+    {
+      "script": "signal_backtester",
+      "errors": [],
+      "warnings": [
+        "Non-stdlib import: statistics"
+      ],
+      "metrics": {
+        "functions": 5,
+        "classes": 0,
+        "lines": 175,
+        "has_docstring": true,
+        "has_main": true,
+        "has_argparse": false,
+        "imports": 3
+      },
+      "syntax": "OK",
+      "status": "OK"
+    },
+    {
+      "script": "smart_cron_manager",
+      "errors": [],
+      "warnings": [],
+      "metrics": {
+        "functions": 9,
+        "classes": 0,
+        "lines": 233,
+        "has_docstring": true,
+        "has_main": true,
+        "has_argparse": true,
+        "imports": 9
+      },
+      "syntax": "OK",
+      "help": "OK",
+      "status": "OK"
+    },
+    {
+      "script": "smart_launcher",
+      "errors": [],
+      "warnings": [],
+      "metrics": {
+        "functions": 10,
+        "classes": 0,
+        "lines": 162,
+        "has_docstring": true,
+        "has_main": true,
+        "has_argparse": true,
+        "imports": 5
+      },
+      "syntax": "OK",
+      "help": "OK",
+      "status": "OK"
+    },
+    {
+      "script": "startup_manager",
+      "errors": [],
+      "warnings": [],
+      "metrics": {
+        "functions": 8,
+        "classes": 0,
+        "lines": 157,
+        "has_docstring": true,
+        "has_main": true,
+        "has_argparse": true,
+        "imports": 6
+      },
+      "syntax": "OK",
+      "help": "OK",
+      "status": "OK"
+    },
+    {
+      "script": "system_benchmark",
+      "errors": [],
+      "warnings": [
+        "--help exit code: 1"
+      ],
+      "metrics": {
+        "functions": 11,
+        "classes": 0,
+        "lines": 270,
+        "has_docstring": true,
+        "has_main": true,
+        "has_argparse": true,
+        "imports": 8
+      },
+      "syntax": "OK",
+      "help": "FAIL",
+      "status": "OK"
+    },
+    {
+      "script": "system_restore",
+      "errors": [],
+      "warnings": [],
+      "metrics": {
+        "functions": 6,
+        "classes": 0,
+        "lines": 138,
+        "has_docstring": true,
+        "has_main": true,
+        "has_argparse": true,
+        "imports": 6
+      },
+      "syntax": "OK",
+      "help": "OK",
+      "status": "OK"
+    },
+    {
+      "script": "task_automator",
+      "errors": [],
+      "warnings": [],
+      "metrics": {
+        "functions": 10,
+        "classes": 0,
+        "lines": 221,
+        "has_docstring": true,
+        "has_main": true,
+        "has_argparse": true,
+        "imports": 7
+      },
+      "syntax": "OK",
+      "help": "OK",
+      "status": "OK"
+    },
+    {
+      "script": "task_learner",
+      "errors": [],
+      "warnings": [],
+      "metrics": {
+        "functions": 7,
+        "classes": 0,
+        "lines": 127,
+        "has_docstring": true,
+        "has_main": true,
+        "has_argparse": true,
+        "imports": 6
+      },
+      "syntax": "OK",
+      "help": "OK",
+      "status": "OK"
+    },
+    {
+      "script": "task_queue",
+      "errors": [],
+      "warnings": [],
+      "metrics": {
+        "functions": 7,
+        "classes": 0,
+        "lines": 149,
+        "has_docstring": true,
+        "has_main": true,
+        "has_argparse": false,
+        "imports": 3
+      },
+      "syntax": "OK",
+      "status": "OK"
+    },
+    {
+      "script": "telegram_bot_monitor",
+      "errors": [],
+      "warnings": [],
+      "metrics": {
+        "functions": 8,
+        "classes": 0,
+        "lines": 152,
+        "has_docstring": true,
+        "has_main": true,
+        "has_argparse": true,
+        "imports": 6
+      },
+      "syntax": "OK",
+      "help": "OK",
+      "status": "OK"
+    },
+    {
+      "script": "telegram_commander",
+      "errors": [],
+      "warnings": [],
+      "metrics": {
+        "functions": 12,
+        "classes": 0,
+        "lines": 334,
+        "has_docstring": true,
+        "has_main": true,
+        "has_argparse": false,
+        "imports": 5
+      },
+      "syntax": "OK",
+      "status": "OK"
+    },
+    {
+      "script": "telegram_scheduler",
+      "errors": [],
+      "warnings": [],
+      "metrics": {
+        "functions": 7,
+        "classes": 0,
+        "lines": 221,
+        "has_docstring": true,
+        "has_main": true,
+        "has_argparse": true,
+        "imports": 7
+      },
+      "syntax": "OK",
+      "help": "OK",
+      "status": "OK"
+    },
+    {
+      "script": "telegram_stats",
+      "errors": [],
+      "warnings": [],
+      "metrics": {
+        "functions": 12,
+        "classes": 0,
+        "lines": 652,
+        "has_docstring": true,
+        "has_main": true,
+        "has_argparse": true,
+        "imports": 8
+      },
+      "syntax": "OK",
+      "help": "OK",
+      "status": "OK"
+    },
+    {
+      "script": "test_generator",
+      "errors": [],
+      "warnings": [
+        "Non-stdlib import: importlib.util",
+        "Non-stdlib import: unittest"
+      ],
+      "metrics": {
+        "functions": 5,
+        "classes": 0,
+        "lines": 180,
+        "has_docstring": true,
+        "has_main": true,
+        "has_argparse": true,
+        "imports": 9
+      },
+      "syntax": "OK",
+      "help": "OK",
+      "status": "OK"
+    },
+    {
+      "script": "trading_intelligence",
+      "errors": [],
+      "warnings": [],
+      "metrics": {
+        "functions": 8,
+        "classes": 0,
+        "lines": 209,
+        "has_docstring": true,
+        "has_main": true,
+        "has_argparse": true,
+        "imports": 7
+      },
+      "syntax": "OK",
+      "help": "OK",
+      "status": "OK"
+    },
+    {
+      "script": "tts_cache_manager",
+      "errors": [],
+      "warnings": [],
+      "metrics": {
+        "functions": 3,
+        "classes": 0,
+        "lines": 123,
+        "has_docstring": true,
+        "has_main": true,
+        "has_argparse": false,
+        "imports": 2
+      },
+      "syntax": "OK",
+      "status": "OK"
+    },
+    {
+      "script": "usage_analytics",
+      "errors": [],
+      "warnings": [],
+      "metrics": {
+        "functions": 5,
+        "classes": 0,
+        "lines": 141,
+        "has_docstring": true,
+        "has_main": true,
+        "has_argparse": false,
+        "imports": 3
+      },
+      "syntax": "OK",
+      "status": "OK"
+    },
+    {
+      "script": "usb_monitor",
+      "errors": [],
+      "warnings": [],
+      "metrics": {
+        "functions": 9,
+        "classes": 0,
+        "lines": 151,
+        "has_docstring": true,
+        "has_main": true,
+        "has_argparse": true,
+        "imports": 10
+      },
+      "syntax": "OK",
+      "help": "OK",
+      "status": "OK"
+    },
+    {
+      "script": "voice_browser_nav",
+      "errors": [],
+      "warnings": [],
+      "metrics": {
+        "functions": 4,
+        "classes": 0,
+        "lines": 425,
+        "has_docstring": true,
+        "has_main": true,
+        "has_argparse": true,
+        "imports": 7
+      },
+      "syntax": "OK",
+      "help": "OK",
+      "status": "OK"
+    },
+    {
+      "script": "voice_enhancer",
+      "errors": [],
+      "warnings": [],
+      "metrics": {
+        "functions": 6,
+        "classes": 0,
+        "lines": 185,
+        "has_docstring": true,
+        "has_main": true,
+        "has_argparse": true,
+        "imports": 7
+      },
+      "syntax": "OK",
+      "help": "OK",
+      "status": "OK"
+    },
+    {
+      "script": "voice_gap_filler",
+      "errors": [],
+      "warnings": [],
+      "metrics": {
+        "functions": 9,
+        "classes": 0,
+        "lines": 271,
+        "has_docstring": true,
+        "has_main": true,
+        "has_argparse": true,
+        "imports": 9
+      },
+      "syntax": "OK",
+      "help": "OK",
+      "status": "OK"
+    },
+    {
+      "script": "voice_pipeline_optimizer",
+      "errors": [],
+      "warnings": [],
+      "metrics": {
+        "functions": 8,
+        "classes": 0,
+        "lines": 167,
+        "has_docstring": true,
+        "has_main": true,
+        "has_argparse": true,
+        "imports": 5
+      },
+      "syntax": "OK",
+      "help": "OK",
+      "status": "OK"
+    },
+    {
+      "script": "voice_trainer",
+      "errors": [],
+      "warnings": [],
+      "metrics": {
+        "functions": 5,
+        "classes": 0,
+        "lines": 147,
+        "has_docstring": true,
+        "has_main": true,
+        "has_argparse": false,
+        "imports": 3
+      },
+      "syntax": "OK",
+      "status": "OK"
+    },
+    {
+      "script": "wifi_manager",
+      "errors": [],
+      "warnings": [
+        "--help exit code: 1"
+      ],
+      "metrics": {
+        "functions": 8,
+        "classes": 0,
+        "lines": 148,
+        "has_docstring": true,
+        "has_main": true,
+        "has_argparse": true,
+        "imports": 5
+      },
+      "syntax": "OK",
+      "help": "FAIL",
+      "status": "OK"
+    },
+    {
+      "script": "win_accessibility_enhancer",
+      "errors": [],
+      "warnings": [],
+      "metrics": {
+        "functions": 8,
+        "classes": 0,
+        "lines": 157,
+        "has_docstring": true,
+        "has_main": true,
+        "has_argparse": true,
+        "imports": 10
+      },
+      "syntax": "OK",
+      "help": "OK",
+      "status": "OK"
+    },
+    {
+      "script": "win_ai_copilot",
+      "errors": [],
+      "warnings": [],
+      "metrics": {
+        "functions": 11,
+        "classes": 0,
+        "lines": 316,
+        "has_docstring": true,
+        "has_main": true,
+        "has_argparse": true,
+        "imports": 10
+      },
+      "syntax": "OK",
+      "help": "OK",
+      "status": "OK"
+    },
+    {
+      "script": "win_app_controller",
+      "errors": [],
+      "warnings": [],
+      "metrics": {
+        "functions": 10,
+        "classes": 0,
+        "lines": 178,
+        "has_docstring": true,
+        "has_main": true,
+        "has_argparse": true,
+        "imports": 9
+      },
+      "syntax": "OK",
+      "help": "OK",
+      "status": "OK"
+    },
+    {
+      "script": "win_app_usage_tracker",
+      "errors": [],
+      "warnings": [],
+      "metrics": {
+        "functions": 9,
+        "classes": 0,
+        "lines": 268,
+        "has_docstring": true,
+        "has_main": true,
+        "has_argparse": true,
+        "imports": 3
+      },
+      "syntax": "OK",
+      "help": "OK",
+      "status": "OK"
+    },
+    {
+      "script": "win_audio_controller",
+      "errors": [],
+      "warnings": [],
+      "metrics": {
+        "functions": 5,
+        "classes": 0,
+        "lines": 101,
+        "has_docstring": true,
+        "has_main": true,
+        "has_argparse": true,
+        "imports": 8
+      },
+      "syntax": "OK",
+      "help": "OK",
+      "status": "OK"
+    },
+    {
+      "script": "win_backup",
+      "errors": [],
+      "warnings": [
+        "Non-stdlib import: zipfile"
+      ],
+      "metrics": {
+        "functions": 3,
+        "classes": 0,
+        "lines": 123,
+        "has_docstring": true,
+        "has_main": true,
+        "has_argparse": false,
+        "imports": 4
+      },
+      "syntax": "OK",
+      "status": "OK"
+    },
+    {
+      "script": "win_backup_manager",
+      "errors": [],
+      "warnings": [],
+      "metrics": {
+        "functions": 7,
+        "classes": 0,
+        "lines": 320,
+        "has_docstring": true,
+        "has_main": true,
+        "has_argparse": true,
+        "imports": 3
+      },
+      "syntax": "OK",
+      "help": "OK",
+      "status": "OK"
+    },
+    {
+      "script": "win_battery_monitor",
+      "errors": [],
+      "warnings": [],
+      "metrics": {
+        "functions": 9,
+        "classes": 0,
+        "lines": 310,
+        "has_docstring": true,
+        "has_main": true,
+        "has_argparse": true,
+        "imports": 3
+      },
+      "syntax": "OK",
+      "help": "OK",
+      "status": "OK"
+    },
+    {
+      "script": "win_boot_optimizer",
+      "errors": [],
+      "warnings": [],
+      "metrics": {
+        "functions": 6,
+        "classes": 0,
+        "lines": 171,
+        "has_docstring": true,
+        "has_main": true,
+        "has_argparse": true,
+        "imports": 8
+      },
+      "syntax": "OK",
+      "help": "OK",
+      "status": "OK"
+    },
+    {
+      "script": "win_certificate_checker",
+      "errors": [],
+      "warnings": [],
+      "metrics": {
+        "functions": 4,
+        "classes": 0,
+        "lines": 124,
+        "has_docstring": true,
+        "has_main": true,
+        "has_argparse": true,
+        "imports": 8
+      },
+      "syntax": "OK",
+      "help": "OK",
+      "status": "OK"
+    },
+    {
+      "script": "win_clipboard_ai",
+      "errors": [],
+      "warnings": [],
+      "metrics": {
+        "functions": 8,
+        "classes": 0,
+        "lines": 167,
+        "has_docstring": true,
+        "has_main": true,
+        "has_argparse": true,
+        "imports": 9
+      },
+      "syntax": "OK",
+      "help": "OK",
+      "status": "OK"
+    },
+    {
+      "script": "win_clipboard_history",
+      "errors": [],
+      "warnings": [],
+      "metrics": {
+        "functions": 10,
+        "classes": 0,
+        "lines": 216,
+        "has_docstring": true,
+        "has_main": true,
+        "has_argparse": true,
+        "imports": 4
+      },
+      "syntax": "OK",
+      "help": "OK",
+      "status": "OK"
+    },
+    {
+      "script": "win_context_menu",
+      "errors": [],
+      "warnings": [],
+      "metrics": {
+        "functions": 8,
+        "classes": 0,
+        "lines": 271,
+        "has_docstring": true,
+        "has_main": true,
+        "has_argparse": true,
+        "imports": 7
+      },
+      "syntax": "OK",
+      "help": "OK",
+      "status": "OK"
+    },
+    {
+      "script": "win_copilot_bridge",
+      "errors": [],
+      "warnings": [],
+      "metrics": {
+        "functions": 5,
+        "classes": 0,
+        "lines": 112,
+        "has_docstring": true,
+        "has_main": true,
+        "has_argparse": true,
+        "imports": 8
+      },
+      "syntax": "OK",
+      "help": "OK",
+      "status": "OK"
+    },
+    {
+      "script": "win_crash_analyzer",
+      "errors": [],
+      "warnings": [],
+      "metrics": {
+        "functions": 9,
+        "classes": 0,
+        "lines": 341,
+        "has_docstring": true,
+        "has_main": true,
+        "has_argparse": true,
+        "imports": 4
+      },
+      "syntax": "OK",
+      "help": "OK",
+      "status": "OK"
+    },
+    {
+      "script": "win_defender_monitor",
+      "errors": [],
+      "warnings": [],
+      "metrics": {
+        "functions": 5,
+        "classes": 0,
+        "lines": 130,
+        "has_docstring": true,
+        "has_main": true,
+        "has_argparse": true,
+        "imports": 8
+      },
+      "syntax": "OK",
+      "help": "OK",
+      "status": "OK"
+    },
+    {
+      "script": "win_defrag_scheduler",
+      "errors": [],
+      "warnings": [],
+      "metrics": {
+        "functions": 9,
+        "classes": 0,
+        "lines": 260,
+        "has_docstring": true,
+        "has_main": true,
+        "has_argparse": true,
+        "imports": 4
+      },
+      "syntax": "OK",
+      "help": "OK",
+      "status": "OK"
+    },
+    {
+      "script": "win_disk_analyzer",
+      "errors": [],
+      "warnings": [],
+      "metrics": {
+        "functions": 7,
+        "classes": 0,
+        "lines": 206,
+        "has_docstring": true,
+        "has_main": true,
+        "has_argparse": true,
+        "imports": 9
+      },
+      "syntax": "OK",
+      "help": "OK",
+      "status": "OK"
+    },
+    {
+      "script": "win_display_manager",
+      "errors": [],
+      "warnings": [],
+      "metrics": {
+        "functions": 11,
+        "classes": 1,
+        "lines": 257,
+        "has_docstring": true,
+        "has_main": true,
+        "has_argparse": true,
+        "imports": 3
+      },
+      "syntax": "OK",
+      "help": "OK",
+      "status": "OK"
+    },
+    {
+      "script": "win_dns_cache_manager",
+      "errors": [],
+      "warnings": [],
+      "metrics": {
+        "functions": 5,
+        "classes": 0,
+        "lines": 98,
+        "has_docstring": true,
+        "has_main": true,
+        "has_argparse": true,
+        "imports": 9
+      },
+      "syntax": "OK",
+      "help": "OK",
+      "status": "OK"
+    },
+    {
+      "script": "win_driver_checker",
+      "errors": [],
+      "warnings": [],
+      "metrics": {
+        "functions": 4,
+        "classes": 0,
+        "lines": 144,
+        "has_docstring": true,
+        "has_main": true,
+        "has_argparse": true,
+        "imports": 10
+      },
+      "syntax": "OK",
+      "help": "OK",
+      "status": "OK"
+    },
+    {
+      "script": "win_env_auditor",
+      "errors": [],
+      "warnings": [],
+      "metrics": {
+        "functions": 5,
+        "classes": 0,
+        "lines": 160,
+        "has_docstring": true,
+        "has_main": true,
+        "has_argparse": true,
+        "imports": 8
+      },
+      "syntax": "OK",
+      "help": "OK",
+      "status": "OK"
+    },
+    {
+      "script": "win_event_monitor",
+      "errors": [],
+      "warnings": [],
+      "metrics": {
+        "functions": 4,
+        "classes": 0,
+        "lines": 163,
+        "has_docstring": true,
+        "has_main": true,
+        "has_argparse": true,
+        "imports": 8
+      },
+      "syntax": "OK",
+      "help": "OK",
+      "status": "OK"
+    },
+    {
+      "script": "win_event_watcher",
+      "errors": [],
+      "warnings": [
+        "Non-stdlib import: shlex"
+      ],
+      "metrics": {
+        "functions": 7,
+        "classes": 0,
+        "lines": 164,
+        "has_docstring": true,
+        "has_main": true,
+        "has_argparse": true,
+        "imports": 10
+      },
+      "syntax": "OK",
+      "help": "OK",
+      "status": "OK"
+    },
+    {
+      "script": "win_file_watcher",
+      "errors": [],
+      "warnings": [],
+      "metrics": {
+        "functions": 10,
+        "classes": 0,
+        "lines": 332,
+        "has_docstring": true,
+        "has_main": true,
+        "has_argparse": true,
+        "imports": 8
+      },
+      "syntax": "OK",
+      "help": "OK",
+      "status": "OK"
+    },
+    {
+      "script": "win_file_watcher_v2",
+      "errors": [],
+      "warnings": [],
+      "metrics": {
+        "functions": 9,
+        "classes": 0,
+        "lines": 309,
+        "has_docstring": true,
+        "has_main": true,
+        "has_argparse": true,
+        "imports": 4
+      },
+      "syntax": "OK",
+      "help": "OK",
+      "status": "OK"
+    },
+    {
+      "script": "win_firewall_analyzer",
+      "errors": [],
+      "warnings": [],
+      "metrics": {
+        "functions": 5,
+        "classes": 0,
+        "lines": 151,
+        "has_docstring": true,
+        "has_main": true,
+        "has_argparse": true,
+        "imports": 9
+      },
+      "syntax": "OK",
+      "help": "OK",
+      "status": "OK"
+    },
+    {
+      "script": "win_firewall_manager",
+      "errors": [],
+      "warnings": [],
+      "metrics": {
+        "functions": 6,
+        "classes": 0,
+        "lines": 147,
+        "has_docstring": true,
+        "has_main": true,
+        "has_argparse": true,
+        "imports": 5
+      },
+      "syntax": "OK",
+      "help": "OK",
+      "status": "OK"
+    },
+    {
+      "script": "win_focus_timer",
+      "errors": [],
+      "warnings": [],
+      "metrics": {
+        "functions": 4,
+        "classes": 0,
+        "lines": 115,
+        "has_docstring": true,
+        "has_main": true,
+        "has_argparse": true,
+        "imports": 8
+      },
+      "syntax": "OK",
+      "help": "OK",
+      "status": "OK"
+    },
+    {
+      "script": "win_font_manager",
+      "errors": [],
+      "warnings": [],
+      "metrics": {
+        "functions": 5,
+        "classes": 0,
+        "lines": 144,
+        "has_docstring": true,
+        "has_main": true,
+        "has_argparse": true,
+        "imports": 8
+      },
+      "syntax": "OK",
+      "help": "OK",
+      "status": "OK"
+    },
+    {
+      "script": "win_game_mode_manager",
+      "errors": [],
+      "warnings": [],
+      "metrics": {
+        "functions": 12,
+        "classes": 0,
+        "lines": 281,
+        "has_docstring": true,
+        "has_main": true,
+        "has_argparse": true,
+        "imports": 3
+      },
+      "syntax": "OK",
+      "help": "OK",
+      "status": "OK"
+    },
+    {
+      "script": "win_gesture_detector",
+      "errors": [],
+      "warnings": [],
+      "metrics": {
+        "functions": 11,
+        "classes": 1,
+        "lines": 285,
+        "has_docstring": true,
+        "has_main": true,
+        "has_argparse": true,
+        "imports": 3
+      },
+      "syntax": "OK",
+      "help": "OK",
+      "status": "OK"
+    },
+    {
+      "script": "win_hotkey_engine",
+      "errors": [],
+      "warnings": [],
+      "metrics": {
+        "functions": 6,
+        "classes": 0,
+        "lines": 152,
+        "has_docstring": true,
+        "has_main": true,
+        "has_argparse": true,
+        "imports": 7
+      },
+      "syntax": "OK",
+      "help": "OK",
+      "status": "OK"
+    },
+    {
+      "script": "win_io_analyzer",
+      "errors": [],
+      "warnings": [],
+      "metrics": {
+        "functions": 5,
+        "classes": 0,
+        "lines": 137,
+        "has_docstring": true,
+        "has_main": true,
+        "has_argparse": true,
+        "imports": 8
+      },
+      "syntax": "OK",
+      "help": "OK",
+      "status": "OK"
+    },
+    {
+      "script": "win_media_organizer",
+      "errors": [],
+      "warnings": [],
+      "metrics": {
+        "functions": 9,
+        "classes": 0,
+        "lines": 311,
+        "has_docstring": true,
+        "has_main": true,
+        "has_argparse": true,
+        "imports": 3
+      },
+      "syntax": "OK",
+      "help": "OK",
+      "status": "OK"
+    },
+    {
+      "script": "win_memory_profiler",
+      "errors": [],
+      "warnings": [],
+      "metrics": {
+        "functions": 6,
+        "classes": 0,
+        "lines": 159,
+        "has_docstring": true,
+        "has_main": true,
+        "has_argparse": true,
+        "imports": 8
+      },
+      "syntax": "OK",
+      "help": "OK",
+      "status": "OK"
+    },
+    {
+      "script": "win_network_analyzer",
+      "errors": [],
+      "warnings": [],
+      "metrics": {
+        "functions": 6,
+        "classes": 0,
+        "lines": 180,
+        "has_docstring": true,
+        "has_main": true,
+        "has_argparse": true,
+        "imports": 10
+      },
+      "syntax": "OK",
+      "help": "OK",
+      "status": "OK"
+    },
+    {
+      "script": "win_network_guard",
+      "errors": [],
+      "warnings": [],
+      "metrics": {
+        "functions": 5,
+        "classes": 0,
+        "lines": 141,
+        "has_docstring": true,
+        "has_main": true,
+        "has_argparse": true,
+        "imports": 8
+      },
+      "syntax": "OK",
+      "help": "OK",
+      "status": "OK"
+    },
+    {
+      "script": "win_notification_ai",
+      "errors": [],
+      "warnings": [],
+      "metrics": {
+        "functions": 5,
+        "classes": 0,
+        "lines": 115,
+        "has_docstring": true,
+        "has_main": true,
+        "has_argparse": true,
+        "imports": 9
+      },
+      "syntax": "OK",
+      "help": "OK",
+      "status": "OK"
+    },
+    {
+      "script": "win_notify",
+      "errors": [],
+      "warnings": [],
+      "metrics": {
+        "functions": 4,
+        "classes": 0,
+        "lines": 92,
+        "has_docstring": true,
+        "has_main": true,
+        "has_argparse": false,
+        "imports": 2
+      },
+      "syntax": "OK",
+      "status": "OK"
+    },
+    {
+      "script": "win_optimizer",
+      "errors": [],
+      "warnings": [],
+      "metrics": {
+        "functions": 7,
+        "classes": 0,
+        "lines": 136,
+        "has_docstring": true,
+        "has_main": true,
+        "has_argparse": false,
+        "imports": 4
+      },
+      "syntax": "OK",
+      "status": "OK"
+    },
+    {
+      "script": "win_pagefile_optimizer",
+      "errors": [],
+      "warnings": [],
+      "metrics": {
+        "functions": 9,
+        "classes": 1,
+        "lines": 352,
+        "has_docstring": true,
+        "has_main": true,
+        "has_argparse": true,
+        "imports": 8
+      },
+      "syntax": "OK",
+      "help": "OK",
+      "status": "OK"
+    },
+    {
+      "script": "win_performance_tuner",
+      "errors": [],
+      "warnings": [],
+      "metrics": {
+        "functions": 8,
+        "classes": 0,
+        "lines": 199,
+        "has_docstring": true,
+        "has_main": true,
+        "has_argparse": true,
+        "imports": 6
+      },
+      "syntax": "OK",
+      "help": "OK",
+      "status": "OK"
+    },
+    {
+      "script": "win_peripheral_manager",
+      "errors": [],
+      "warnings": [],
+      "metrics": {
+        "functions": 10,
+        "classes": 0,
+        "lines": 320,
+        "has_docstring": true,
+        "has_main": true,
+        "has_argparse": true,
+        "imports": 3
+      },
+      "syntax": "OK",
+      "help": "OK",
+      "status": "OK"
+    },
+    {
+      "script": "win_power_optimizer",
+      "errors": [],
+      "warnings": [],
+      "metrics": {
+        "functions": 8,
+        "classes": 0,
+        "lines": 170,
+        "has_docstring": true,
+        "has_main": true,
+        "has_argparse": true,
+        "imports": 8
+      },
+      "syntax": "OK",
+      "help": "OK",
+      "status": "OK"
+    },
+    {
+      "script": "win_power_plan_manager",
+      "errors": [],
+      "warnings": [],
+      "metrics": {
+        "functions": 11,
+        "classes": 0,
+        "lines": 437,
+        "has_docstring": true,
+        "has_main": true,
+        "has_argparse": true,
+        "imports": 8
+      },
+      "syntax": "OK",
+      "help": "OK",
+      "status": "OK"
+    },
+    {
+      "script": "win_printer_manager",
+      "errors": [],
+      "warnings": [],
+      "metrics": {
+        "functions": 11,
+        "classes": 0,
+        "lines": 213,
+        "has_docstring": true,
+        "has_main": true,
+        "has_argparse": true,
+        "imports": 3
+      },
+      "syntax": "OK",
+      "help": "OK",
+      "status": "OK"
+    },
+    {
+      "script": "win_privacy_guard",
+      "errors": [],
+      "warnings": [],
+      "metrics": {
+        "functions": 4,
+        "classes": 0,
+        "lines": 124,
+        "has_docstring": true,
+        "has_main": true,
+        "has_argparse": true,
+        "imports": 8
+      },
+      "syntax": "OK",
+      "help": "OK",
+      "status": "OK"
+    },
+    {
+      "script": "win_process_analyzer",
+      "errors": [],
+      "warnings": [],
+      "metrics": {
+        "functions": 10,
+        "classes": 0,
+        "lines": 322,
+        "has_docstring": true,
+        "has_main": true,
+        "has_argparse": true,
+        "imports": 10
+      },
+      "syntax": "OK",
+      "help": "OK",
+      "status": "OK"
+    },
+    {
+      "script": "win_process_guardian",
+      "errors": [],
+      "warnings": [],
+      "metrics": {
+        "functions": 4,
+        "classes": 0,
+        "lines": 167,
+        "has_docstring": true,
+        "has_main": true,
+        "has_argparse": true,
+        "imports": 8
+      },
+      "syntax": "OK",
+      "help": "OK",
+      "status": "OK"
+    },
+    {
+      "script": "win_quick_actions",
+      "errors": [],
+      "warnings": [],
+      "metrics": {
+        "functions": 8,
+        "classes": 0,
+        "lines": 257,
+        "has_docstring": true,
+        "has_main": true,
+        "has_argparse": true,
+        "imports": 3
+      },
+      "syntax": "OK",
+      "help": "OK",
+      "status": "OK"
+    },
+    {
+      "script": "win_recycle_bin_manager",
+      "errors": [],
+      "warnings": [],
+      "metrics": {
+        "functions": 9,
+        "classes": 0,
+        "lines": 232,
+        "has_docstring": true,
+        "has_main": true,
+        "has_argparse": true,
+        "imports": 3
+      },
+      "syntax": "OK",
+      "help": "OK",
+      "status": "OK"
+    },
+    {
+      "script": "win_registry_guard",
+      "errors": [],
+      "warnings": [],
+      "metrics": {
+        "functions": 5,
+        "classes": 0,
+        "lines": 156,
+        "has_docstring": true,
+        "has_main": true,
+        "has_argparse": true,
+        "imports": 8
+      },
+      "syntax": "OK",
+      "help": "OK",
+      "status": "OK"
+    },
+    {
+      "script": "win_registry_guardian",
+      "errors": [],
+      "warnings": [],
+      "metrics": {
+        "functions": 7,
+        "classes": 0,
+        "lines": 180,
+        "has_docstring": true,
+        "has_main": true,
+        "has_argparse": true,
+        "imports": 7
+      },
+      "syntax": "OK",
+      "help": "OK",
+      "status": "OK"
+    },
+    {
+      "script": "win_scheduled_task_auditor",
+      "errors": [],
+      "warnings": [],
+      "metrics": {
+        "functions": 5,
+        "classes": 0,
+        "lines": 134,
+        "has_docstring": true,
+        "has_main": true,
+        "has_argparse": true,
+        "imports": 10
+      },
+      "syntax": "OK",
+      "help": "OK",
+      "status": "OK"
+    },
+    {
+      "script": "win_screen_analyzer",
+      "errors": [],
+      "warnings": [],
+      "metrics": {
+        "functions": 5,
+        "classes": 0,
+        "lines": 97,
+        "has_docstring": true,
+        "has_main": true,
+        "has_argparse": true,
+        "imports": 8
+      },
+      "syntax": "OK",
+      "help": "OK",
+      "status": "OK"
+    },
+    {
+      "script": "win_screen_recorder",
+      "errors": [],
+      "warnings": [],
+      "metrics": {
+        "functions": 10,
+        "classes": 0,
+        "lines": 238,
+        "has_docstring": true,
+        "has_main": true,
+        "has_argparse": true,
+        "imports": 3
+      },
+      "syntax": "OK",
+      "help": "OK",
+      "status": "OK"
+    },
+    {
+      "script": "win_service_analyzer",
+      "errors": [],
+      "warnings": [],
+      "metrics": {
+        "functions": 5,
+        "classes": 0,
+        "lines": 151,
+        "has_docstring": true,
+        "has_main": true,
+        "has_argparse": true,
+        "imports": 8
+      },
+      "syntax": "OK",
+      "help": "OK",
+      "status": "OK"
+    },
+    {
+      "script": "win_service_monitor",
+      "errors": [],
+      "warnings": [],
+      "metrics": {
+        "functions": 9,
+        "classes": 0,
+        "lines": 282,
+        "has_docstring": true,
+        "has_main": true,
+        "has_argparse": true,
+        "imports": 9
+      },
+      "syntax": "OK",
+      "help": "OK",
+      "status": "OK"
+    },
+    {
+      "script": "win_service_watchdog",
+      "errors": [],
+      "warnings": [],
+      "metrics": {
+        "functions": 7,
+        "classes": 0,
+        "lines": 262,
+        "has_docstring": true,
+        "has_main": true,
+        "has_argparse": true,
+        "imports": 7
+      },
+      "syntax": "OK",
+      "help": "OK",
+      "status": "OK"
+    },
+    {
+      "script": "win_shortcut_manager",
+      "errors": [],
+      "warnings": [],
+      "metrics": {
+        "functions": 4,
+        "classes": 0,
+        "lines": 124,
+        "has_docstring": true,
+        "has_main": true,
+        "has_argparse": true,
+        "imports": 8
+      },
+      "syntax": "OK",
+      "help": "OK",
+      "status": "OK"
+    },
+    {
+      "script": "win_smart_launcher",
+      "errors": [],
+      "warnings": [],
+      "metrics": {
+        "functions": 6,
+        "classes": 0,
+        "lines": 134,
+        "has_docstring": true,
+        "has_main": true,
+        "has_argparse": true,
+        "imports": 9
+      },
+      "syntax": "OK",
+      "help": "OK",
+      "status": "OK"
+    },
+    {
+      "script": "win_smart_launcher_v2",
+      "errors": [],
+      "warnings": [],
+      "metrics": {
+        "functions": 8,
+        "classes": 0,
+        "lines": 292,
+        "has_docstring": true,
+        "has_main": true,
+        "has_argparse": true,
+        "imports": 9
+      },
+      "syntax": "OK",
+      "help": "OK",
+      "status": "OK"
+    },
+    {
+      "script": "win_sound_mixer",
+      "errors": [],
+      "warnings": [],
+      "metrics": {
+        "functions": 10,
+        "classes": 0,
+        "lines": 231,
+        "has_docstring": true,
+        "has_main": true,
+        "has_argparse": true,
+        "imports": 3
+      },
+      "syntax": "OK",
+      "help": "OK",
+      "status": "OK"
+    },
+    {
+      "script": "win_startup_optimizer",
+      "errors": [],
+      "warnings": [],
+      "metrics": {
+        "functions": 11,
+        "classes": 0,
+        "lines": 319,
+        "has_docstring": true,
+        "has_main": true,
+        "has_argparse": true,
+        "imports": 9
+      },
+      "syntax": "OK",
+      "help": "OK",
+      "status": "OK"
+    },
+    {
+      "script": "win_startup_profiler",
+      "errors": [],
+      "warnings": [],
+      "metrics": {
+        "functions": 10,
+        "classes": 0,
+        "lines": 412,
+        "has_docstring": true,
+        "has_main": true,
+        "has_argparse": true,
+        "imports": 9
+      },
+      "syntax": "OK",
+      "help": "OK",
+      "status": "OK"
+    },
+    {
+      "script": "win_system_restore_manager",
+      "errors": [],
+      "warnings": [],
+      "metrics": {
+        "functions": 8,
+        "classes": 0,
+        "lines": 267,
+        "has_docstring": true,
+        "has_main": true,
+        "has_argparse": true,
+        "imports": 8
+      },
+      "syntax": "OK",
+      "help": "OK",
+      "status": "OK"
+    },
+    {
+      "script": "win_task_automator",
+      "errors": [],
+      "warnings": [
+        "--help exit code: 1"
+      ],
+      "metrics": {
+        "functions": 7,
+        "classes": 0,
+        "lines": 149,
+        "has_docstring": true,
+        "has_main": true,
+        "has_argparse": true,
+        "imports": 1
+      },
+      "syntax": "OK",
+      "help": "FAIL",
+      "status": "OK"
+    },
+    {
+      "script": "win_task_scheduler_pro",
+      "errors": [],
+      "warnings": [],
+      "metrics": {
+        "functions": 7,
+        "classes": 0,
+        "lines": 272,
+        "has_docstring": true,
+        "has_main": true,
+        "has_argparse": true,
+        "imports": 3
+      },
+      "syntax": "OK",
+      "help": "OK",
+      "status": "OK"
+    },
+    {
+      "script": "win_temp_cleaner",
+      "errors": [],
+      "warnings": [],
+      "metrics": {
+        "functions": 5,
+        "classes": 0,
+        "lines": 181,
+        "has_docstring": true,
+        "has_main": true,
+        "has_argparse": true,
+        "imports": 7
+      },
+      "syntax": "OK",
+      "help": "OK",
+      "status": "OK"
+    },
+    {
+      "script": "win_thermal_monitor",
+      "errors": [],
+      "warnings": [],
+      "metrics": {
+        "functions": 7,
+        "classes": 0,
+        "lines": 170,
+        "has_docstring": true,
+        "has_main": true,
+        "has_argparse": true,
+        "imports": 9
+      },
+      "syntax": "OK",
+      "help": "OK",
+      "status": "OK"
+    },
+    {
+      "script": "win_tts",
+      "errors": [],
+      "warnings": [],
+      "metrics": {
+        "functions": 6,
+        "classes": 0,
+        "lines": 146,
+        "has_docstring": true,
+        "has_main": true,
+        "has_argparse": true,
+        "imports": 7
+      },
+      "syntax": "OK",
+      "help": "OK",
+      "status": "OK"
+    },
+    {
+      "script": "win_update_tracker",
+      "errors": [],
+      "warnings": [],
+      "metrics": {
+        "functions": 5,
+        "classes": 0,
+        "lines": 154,
+        "has_docstring": true,
+        "has_main": true,
+        "has_argparse": true,
+        "imports": 8
+      },
+      "syntax": "OK",
+      "help": "OK",
+      "status": "OK"
+    },
+    {
+      "script": "win_virtual_desktop",
+      "errors": [],
+      "warnings": [],
+      "metrics": {
+        "functions": 5,
+        "classes": 0,
+        "lines": 116,
+        "has_docstring": true,
+        "has_main": true,
+        "has_argparse": true,
+        "imports": 9
+      },
+      "syntax": "OK",
+      "help": "OK",
+      "status": "OK"
+    },
+    {
+      "script": "win_vpn_monitor",
+      "errors": [],
+      "warnings": [],
+      "metrics": {
+        "functions": 5,
+        "classes": 0,
+        "lines": 114,
+        "has_docstring": true,
+        "has_main": true,
+        "has_argparse": true,
+        "imports": 8
+      },
+      "syntax": "OK",
+      "help": "OK",
+      "status": "OK"
+    },
+    {
+      "script": "win_wifi_analyzer",
+      "errors": [],
+      "warnings": [],
+      "metrics": {
+        "functions": 5,
+        "classes": 0,
+        "lines": 129,
+        "has_docstring": true,
+        "has_main": true,
+        "has_argparse": true,
+        "imports": 10
+      },
+      "syntax": "OK",
+      "help": "OK",
+      "status": "OK"
+    },
+    {
+      "script": "win_window_manager",
+      "errors": [],
+      "warnings": [],
+      "metrics": {
+        "functions": 5,
+        "classes": 0,
+        "lines": 104,
+        "has_docstring": true,
+        "has_main": true,
+        "has_argparse": true,
+        "imports": 9
+      },
+      "syntax": "OK",
+      "help": "OK",
+      "status": "OK"
+    },
+    {
+      "script": "win_workspace_profiles",
+      "errors": [],
+      "warnings": [],
+      "metrics": {
+        "functions": 6,
+        "classes": 0,
+        "lines": 136,
+        "has_docstring": true,
+        "has_main": true,
+        "has_argparse": true,
+        "imports": 9
+      },
+      "syntax": "OK",
+      "help": "OK",
+      "status": "OK"
+    },
+    {
+      "script": "win_wsl_manager",
+      "errors": [],
+      "warnings": [],
+      "metrics": {
+        "functions": 5,
+        "classes": 0,
+        "lines": 109,
+        "has_docstring": true,
+        "has_main": true,
+        "has_argparse": true,
+        "imports": 8
+      },
+      "syntax": "OK",
+      "help": "OK",
+      "status": "OK"
+    },
+    {
+      "script": "window_manager",
+      "errors": [],
+      "warnings": [],
+      "metrics": {
+        "functions": 15,
+        "classes": 2,
+        "lines": 344,
+        "has_docstring": true,
+        "has_main": true,
+        "has_argparse": true,
+        "imports": 8
+      },
+      "syntax": "OK",
+      "help": "OK",
+      "status": "OK"
+    },
+    {
+      "script": "windows_integration_agent",
+      "errors": [],
+      "warnings": [],
+      "metrics": {
+        "functions": 7,
+        "classes": 0,
+        "lines": 200,
+        "has_docstring": true,
+        "has_main": true,
+        "has_argparse": true,
+        "imports": 8
+      },
+      "syntax": "OK",
+      "help": "OK",
+      "status": "OK"
+    },
+    {
+      "script": "windows_service_hardener",
+      "errors": [],
+      "warnings": [],
+      "metrics": {
+        "functions": 6,
+        "classes": 0,
+        "lines": 193,
+        "has_docstring": true,
+        "has_main": true,
+        "has_argparse": true,
+        "imports": 7
+      },
+      "syntax": "OK",
+      "help": "OK",
+      "status": "OK"
+    },
+    {
+      "script": "workspace_analyzer",
+      "errors": [],
+      "warnings": [],
+      "metrics": {
+        "functions": 7,
+        "classes": 0,
+        "lines": 364,
+        "has_docstring": true,
+        "has_main": true,
+        "has_argparse": true,
+        "imports": 9
+      },
+      "syntax": "OK",
+      "help": "OK",
+      "status": "OK"
+    },
+    {
+      "script": "workspace_sync",
+      "errors": [],
+      "warnings": [],
+      "metrics": {
+        "functions": 4,
+        "classes": 0,
+        "lines": 66,
+        "has_docstring": true,
+        "has_main": true,
+        "has_argparse": false,
+        "imports": 2
+      },
+      "syntax": "OK",
+      "status": "OK"
+    }
+  ]
+}

@@ -3,12 +3,13 @@
 UTILS v1.0 - Fonctions communes pour TRADING_V2_PRODUCTION
 Elimine les doublons entre scripts (send_telegram, fetch_json, ema, log, etc.)
 """
+import os
 import json
 import urllib.request
 from datetime import datetime
 
 # === DEFAULTS (overridable par chaque script) ===
-DEFAULT_TELEGRAM_TOKEN = '8369376863:AAF-7YGDbun8mXWwqYJFj-eX6P78DeIu9Aw'
+DEFAULT_TELEGRAM_TOKEN = os.environ.get("TELEGRAM_TOKEN", "")
 DEFAULT_TELEGRAM_CHAT = '2010747443'
 
 

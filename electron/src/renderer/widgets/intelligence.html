@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <style>
+    body {
+      margin: 0; padding: 15px;
+      background: rgba(10, 14, 20, 0.5);
+      border-left: 3px solid #00ffff;
+      color: #00ffff;
+      font-family: 'Ubuntu Mono', monospace;
+      overflow: hidden;
+      backdrop-filter: blur(10px);
+    }
+    .header { font-size: 14px; font-weight: bold; margin-bottom: 10px; display: flex; align-items: center; }
+    .pulse { width: 8px; height: 8px; background: #00ffff; border-radius: 50%; margin-right: 10px; animation: pulse 2s infinite; }
+    @keyframes pulse { 0% { opacity: 1; } 50% { opacity: 0.3; } 100% { opacity: 1; } }
+    #stream { font-size: 12px; line-height: 1.4; height: 350px; overflow-y: auto; }
+    .log-entry { margin-bottom: 5px; border-bottom: 1px solid rgba(0, 255, 255, 0.1); padding-bottom: 2px; }
+    .log-time { color: rgba(0, 255, 255, 0.5); font-size: 10px; }
+    .log-tag { font-weight: bold; margin-right: 5px; }
+    .tag-ai { color: #ff00ff; }
+    .tag-sys { color: #00ff88; }
+  </style>
+</head>
+<body>
+  <div class="header"><div class="pulse"></div> JARVIS INTELLIGENCE STREAM</div>
+  <div id="stream">
+    <div class="log-entry"><span class="log-time">05:15:01</span> <span class="log-tag tag-sys">[SYS]</span> Nucleus fused with Linux Kernel.</div>
+    <div class="log-entry"><span class="log-time">05:15:02</span> <span class="log-tag tag-ai">[M1]</span> Analysis of 473 scripts complete. Optimization level: MAX.</div>
+    <div class="log-entry"><span class="log-time">05:15:05</span> <span class="log-tag tag-sys">[OCW]</span> Routing intent 'coding' to local agent...</div>
+  </div>
+  <script>
+    const stream = document.getElementById('stream');
+    const buffer = [];
+    
+    // Connexion au WebSocket JARVIS
+    const ws = new WebSocket('ws://127.0.0.1:9742/ws');
+    
+    ws.onmessage = (event) => {
+      try {
+        const data = JSON.parse(event.data);
+        buffer.push(data);
+      } catch(e) {}
+    };
+
+    // Traitement du buffer toutes les 500ms pour stabiliser l'affichage
+    setInterval(() => {
+      if (buffer.length > 0) {
+        const data = buffer.shift();
+        const entry = document.createElement('div');
+        entry.className = 'log-entry';
+        const now = new Date().toLocaleTimeString();
+        entry.innerHTML = `<span class="log-time">${now}</span> <span class="log-tag tag-ai">[${data.source || 'AI'}]</span> ${data.message || (typeof data === 'string' ? data : JSON.stringify(data))}`;
+        stream.prepend(entry);
+        if (stream.childNodes.length > 30) stream.lastChild.remove();
+      }
+    }, 500);
+
+    ws.onerror = () => {
+      const entry = document.createElement('div');
+      entry.innerHTML = '<span style="color:red">CONNECTION TO NUCLEUS LOST</span>';
+      stream.prepend(entry);
+    };
+  </script>
+</body>
+</html>

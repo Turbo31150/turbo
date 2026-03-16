@@ -96,6 +96,20 @@ app.include_router(devops_pipeline_router, prefix="/api")
 async def health():
     return JSONResponse({"status": "ok", "service": "jarvis-ws", "port": 9742})
 
+@app.get("/api/brain/reflection")
+async def get_reflection():
+    from src.reflection_engine import reflection_engine
+    return JSONResponse(reflection_engine.get_health_report())
+
+@app.get("/api/brain/tuning")
+async def get_tuning():
+    from src.self_improvement import self_improver
+    return JSONResponse(self_improver.get_current_tuning())
+
+@app.get("/api/brain/memory")
+async def get_memory(limit: int = 10):
+    from src.agent_memory import agent_memory
+    return JSONResponse({"context": agent_memory.get_context("", limit=limit)})
 
 @app.post("/api/tts")
 async def api_tts(request: Request):
@@ -186,6 +200,117 @@ async def api_voice_transcribe_blob(request: Request):
         pathlib.Path(tmp_path).unlink(missing_ok=True)
         if wav_path != tmp_path:
             pathlib.Path(wav_path).unlink(missing_ok=True)
+
+
+# ── Voice Metrics Dashboard ──────────────────────────────────────────────
+
+@app.get("/api/voice/stats")
+async def api_voice_stats(period: str = "24h"):
+    """Aggregated voice pipeline metrics.
+
+    Query params:
+        period: "1h", "24h", "7d" (default "24h")
+    """
+    import sqlite3
+    from pathlib import Path
+    from datetime import datetime, timedelta
+
+    db_path = Path(__file__).resolve().parent.parent / "data" / "jarvis.db"
+
+    hours_map = {"1h": 1, "24h": 24, "7d": 168}
+    hours = hours_map.get(period, 24)
+    cutoff = (datetime.now() - timedelta(hours=hours)).isoformat()
+
+    try:
+        conn = sqlite3.connect(str(db_path), timeout=3)
+        conn.row_factory = sqlite3.Row
+
+        # Total events in period
+        rows = conn.execute(
+            "SELECT * FROM voice_analytics WHERE timestamp >= ? ORDER BY id DESC",
+            (cutoff,),
+        ).fetchall()
+        events = [dict(r) for r in rows]
+        conn.close()
+
+        total = len(events)
+        if total == 0:
+            return JSONResponse({
+                "period": period, "total_events": 0,
+                "success_rate": 0, "avg_latency_ms": {},
+                "method_distribution": {}, "top_commands": [],
+                "hourly_activity": {},
+            })
+
+        # Success rate
+        successes = sum(1 for e in events if e.get("success"))
+        success_rate = round(successes / total * 100, 1)
+
+        # Average latency by stage
+        avg_latency = {}
+        for stage in ("stt", "correction", "execution"):
+            latencies = [e["latency_ms"] for e in events
+                         if e.get("stage") == stage and (e.get("latency_ms") or 0) > 0]
+            if latencies:
+                avg_latency[stage] = {
+                    "avg": round(sum(latencies) / len(latencies), 1),
+                    "min": round(min(latencies), 1),
+                    "max": round(max(latencies), 1),
+                    "p95": round(sorted(latencies)[int(len(latencies) * 0.95)], 1),
+                    "count": len(latencies),
+                }
+
+        # Method distribution
+        methods = {}
+        for e in events:
+            if e.get("stage") == "correction":
+                m = e.get("method") or "unknown"
+                methods[m] = methods.get(m, 0) + 1
+
+        # Top commands (most frequent intents)
+        intents = {}
+        for e in events:
+            if e.get("stage") == "execution" and e.get("text"):
+                t = e["text"]
+                intents[t] = intents.get(t, 0) + 1
+        top_commands = sorted(intents.items(), key=lambda x: -x[1])[:15]
+
+        # Hourly activity
+        hourly = {}
+        for e in events:
+            ts = e.get("timestamp", "")
+            if len(ts) >= 13:
+                hour_key = ts[:13]  # "2026-03-13T14"
+                hourly[hour_key] = hourly.get(hour_key, 0) + 1
+
+        # Confirmation stats
+        confirmations = [e for e in events if e.get("stage") == "confirmation"]
+        confirm_stats = {}
+        if confirmations:
+            confirmed = sum(1 for c in confirmations if c.get("success"))
+            confirm_stats = {
+                "total": len(confirmations),
+                "confirmed": confirmed,
+                "rejected": len(confirmations) - confirmed,
+                "confirm_rate": round(confirmed / len(confirmations) * 100, 1),
+            }
+
+        return JSONResponse({
+            "period": period,
+            "total_events": total,
+            "success_rate": success_rate,
+            "avg_latency_ms": avg_latency,
+            "method_distribution": methods,
+            "top_commands": [{"intent": k, "count": v} for k, v in top_commands],
+            "hourly_activity": hourly,
+            "confirmation_stats": confirm_stats,
+            "stages": {s: sum(1 for e in events if e.get("stage") == s)
+                       for s in set(e.get("stage", "?") for e in events)},
+        })
+
+    except Exception as exc:
+        logger.warning("voice stats failed: %s", exc)
+        return JSONResponse({"error": str(exc)[:300]}, status_code=500)
 
 
 # ── Phase 4 REST API v2 ──────────────────────────────────────────────────
@@ -3687,9 +3812,12 @@ def _start_global_ptt_hook(loop: asyncio.AbstractEventLoop) -> None:
             _ptt_active = False
             asyncio.run_coroutine_threadsafe(_broadcast_ptt("ptt_stop"), loop)
 
-    kb.on_press(on_ptt_press)
-    kb.on_release(on_ptt_release)
-    logger.info("Global PTT hook started (Right-CTRL)")
+    try:
+        kb.on_press(on_ptt_press)
+        kb.on_release(on_ptt_release)
+        logger.info("Global PTT hook started (Right-CTRL)")
+    except Exception as e:
+        logger.warning(f"Failed to start keyboard hook (probably missing root): {e}")
 
 
 async def _broadcast_event(channel: str, event: str, payload: dict[str, Any]) -> None:
@@ -3783,7 +3911,10 @@ async def _setup_ptt_and_wake():
 
     loop = asyncio.get_running_loop()
     _start_global_ptt_hook(loop)
-    _start_wake_word(loop)
+    try:
+        _start_wake_word(loop)
+    except Exception as e:
+        logger.warning(f"Failed to start wake word (non-fatal): {e}")
     # Phase 4: initialize orchestrator_v2 + initial health check
     await _startup_orchestrator()
     # Phase 5: start automation hub (autonomous_loop + task_scheduler + queue processor)

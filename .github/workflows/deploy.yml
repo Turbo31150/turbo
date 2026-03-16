@@ -1,0 +1,15 @@
+name: JARVIS Cluster Deploy
+
+on:
+  push:
+    branches: [ main, master ]
+
+jobs:
+  deploy:
+    runs-on: self-hosted
+    steps:
+      - name: Update Code
+        run: |
+          cd ~/jarvis
+          ./jarvis-ctl.sh update
+          ./jarvis-ctl.sh restart

@@ -1,0 +1,14 @@
+{
+  "jarvis-auditor": {
+    "file": ".claude-plugin/agents/jarvis-auditor.md",
+    "color": "yellow"
+  },
+  "jarvis-code-reviewer": {
+    "file": ".claude-plugin/agents/jarvis-code-reviewer.md",
+    "color": "cyan"
+  },
+  "jarvis-auto-improver": {
+    "file": ".claude-plugin/agents/jarvis-auto-improver.md",
+    "color": "green"
+  }
+}

@@ -38,7 +38,7 @@ def ps(command: str) -> str:
     """
     try:
         out = subprocess.check_output([
-            "powershell", "-NoProfile", "-Command", command
+            "bash", "-NoProfile", "-Command", command
         ], text=True, timeout=15)
         return out.strip()
     except subprocess.CalledProcessError:

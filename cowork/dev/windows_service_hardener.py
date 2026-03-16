@@ -57,7 +57,7 @@ def get_services():
     )
     try:
         r = subprocess.run(
-            ["powershell", "-NoProfile", "-Command", ps],
+            ["bash", "-NoProfile", "-Command", ps],
             capture_output=True, text=True, timeout=15)
         if r.returncode == 0:
             data = json.loads(r.stdout)
@@ -73,7 +73,7 @@ def get_service_memory(name):
     ps = f"(Get-Process -Id (Get-WmiObject Win32_Service -Filter \"Name='{name}'\").ProcessId -ErrorAction SilentlyContinue).WorkingSet64 / 1MB"
     try:
         r = subprocess.run(
-            ["powershell", "-NoProfile", "-Command", ps],
+            ["bash", "-NoProfile", "-Command", ps],
             capture_output=True, text=True, timeout=5)
         if r.returncode == 0 and r.stdout.strip():
             return float(r.stdout.strip())

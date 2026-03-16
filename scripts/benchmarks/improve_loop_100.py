@@ -194,7 +194,11 @@ def _query_node(node: dict, prompt: str) -> dict[str, Any]:
 
         elif node["type"] == "gemini":
             r = subprocess.run(
+<<<<<<< Updated upstream
                 ["node", "/home/turbo/jarvis-m1-ops/gemini-proxy.js", prompt[:2000]],
+=======
+                ["node", "/home/turbo/jarvis/gemini-proxy.js", prompt[:2000]],
+>>>>>>> Stashed changes
                 capture_output=True, text=True, timeout=timeout,
             )
             if r.returncode == 0 and r.stdout.strip():
@@ -206,7 +210,11 @@ def _query_node(node: dict, prompt: str) -> dict[str, Any]:
 
         elif node["type"] == "claude":
             r = subprocess.run(
+<<<<<<< Updated upstream
                 ["node", "/home/turbo/jarvis-m1-ops/claude-proxy.js", prompt[:2000]],
+=======
+                ["node", "/home/turbo/jarvis/claude-proxy.js", prompt[:2000]],
+>>>>>>> Stashed changes
                 capture_output=True, text=True, timeout=timeout,
             )
             if r.returncode == 0 and r.stdout.strip():

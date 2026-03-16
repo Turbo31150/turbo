@@ -1,0 +1,9 @@
+audio_path	transcription	original	type
+audio_000000.wav	ouvre firefox	ouvre firefox	success
+audio_000001.wav	lance firefox	lance firefox	success
+audio_000002.wav	firefox stp	firefox stp	success
+audio_000003.wav	ouvre le terminal	ouvre le terminal	success
+audio_000004.wav	firefox	fire fox	correction
+audio_000005.wav	firefox	fire fox	correction
+audio_000006.wav	firefox	fire fox	correction
+audio_000007.wav	terminal	terminale	correction

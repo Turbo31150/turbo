@@ -26,7 +26,7 @@ from _paths import ETOILE_DB
 # Known app categories
 APP_CATEGORIES = {
     "code.exe": "dev", "code - insiders.exe": "dev",
-    "windowsterminal.exe": "dev", "cmd.exe": "dev", "powershell.exe": "dev",
+    "windowsterminal.exe": "dev", "cmd.exe": "dev", "bash.exe": "dev",
     "chrome.exe": "web", "msedge.exe": "web", "firefox.exe": "web",
     "explorer.exe": "files", "notepad.exe": "edit", "notepad++.exe": "edit",
     "discord.exe": "communication", "telegram.exe": "communication",

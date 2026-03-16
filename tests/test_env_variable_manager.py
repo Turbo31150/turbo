@@ -26,12 +26,12 @@ from src.env_variable_manager import (
 
 
 SYSTEM_VARS_JSON = json.dumps([
-    {"Key": "ComSpec", "Value": "/\Windows/system32/cmd.exe"},
+    {"Key": "ComSpec", "Value": "C:\\Windows\\system32\\cmd.exe"},
     {"Key": "OS", "Value": "Windows_NT"},
 ])
 
 USER_VARS_JSON = json.dumps([
-    {"Key": "TEMP", "Value": "/\Users/test/AppData/Local/Temp"},
+    {"Key": "TEMP", "Value": "C:\\Users\\test\\AppData\\Local\\Temp"},
 ])
 
 
@@ -113,7 +113,7 @@ class TestGetVar:
 class TestSearch:
     def test_search(self):
         evm = EnvVariableManager()
-        fake_sys = [{"name": "ComSpec", "value": "/\Windows/system32/cmd.exe", "scope": "System"},
+        fake_sys = [{"name": "ComSpec", "value": "C:\\Windows\\system32\\cmd.exe", "scope": "System"},
                     {"name": "OS", "value": "Windows_NT", "scope": "System"}]
         with patch.object(evm, "list_system_vars", return_value=fake_sys), \
              patch.object(evm, "list_user_vars", return_value=[]):

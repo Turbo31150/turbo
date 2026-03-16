@@ -248,7 +248,11 @@ STRATEGIES = {
 # ============================================================
 
 async def run_benchmark(quick=False):
+<<<<<<< Updated upstream
     db = sqlite3.connect("/home/turbo/jarvis-m1-ops/etoile.db")
+=======
+    db = sqlite3.connect("/home/turbo/jarvis/etoile.db")
+>>>>>>> Stashed changes
     cursor = db.cursor()
 
     results = []
@@ -379,7 +383,11 @@ async def run_benchmark(quick=False):
         "total": total, "ok": ok_count, "rate": f"{100*ok_count/max(1,total):.0f}%",
         "results": results,
     }
+<<<<<<< Updated upstream
     with open("/home/turbo/jarvis-m1-ops/data/pattern_dispatch_report.json", "w") as f:
+=======
+    with open("/home/turbo/jarvis/data/pattern_dispatch_report.json", "w") as f:
+>>>>>>> Stashed changes
         json.dump(report, f, indent=2, default=str)
 
     print(f"\nRapport sauve: data/pattern_dispatch_report.json")

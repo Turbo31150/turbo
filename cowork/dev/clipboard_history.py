@@ -18,12 +18,12 @@ def init_db():
 
 def get_clipboard():
     try:
-        r = subprocess.run(["powershell", "-Command", "Get-Clipboard"], capture_output=True, text=True, timeout=5)
+        r = subprocess.run(["bash", "-Command", "Get-Clipboard"], capture_output=True, text=True, timeout=5)
         return r.stdout.strip() if r.returncode == 0 else None
     except: return None
 
 def set_clipboard(text):
-    subprocess.run(["powershell", "-Command", f"Set-Clipboard -Value '{text}'"], timeout=5)
+    subprocess.run(["bash", "-Command", f"Set-Clipboard -Value '{text}'"], timeout=5)
 
 def detect_type(text):
     if not text: return "empty"

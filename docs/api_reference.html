@@ -1,0 +1,764 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>JARVIS Linux API — Reference</title>
+<style>
+:root {
+  --bg: #0d1117;
+  --surface: #161b22;
+  --border: #30363d;
+  --text: #e6edf3;
+  --muted: #8b949e;
+  --accent: #58a6ff;
+  --green: #3fb950;
+  --orange: #d29922;
+  --red: #f85149;
+  --blue: #58a6ff;
+  --purple: #bc8cff;
+  --cyan: #39d2c0;
+}
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body {
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, sans-serif;
+  background: var(--bg); color: var(--text); line-height: 1.6;
+}
+a { color: var(--accent); text-decoration: none; }
+a:hover { text-decoration: underline; }
+
+/* Header */
+.header {
+  background: linear-gradient(135deg, #0d1117 0%, #1a1f2e 100%);
+  border-bottom: 1px solid var(--border);
+  padding: 2rem;
+  text-align: center;
+}
+.header h1 { font-size: 2.2rem; font-weight: 700; margin-bottom: 0.5rem; }
+.header h1 span { color: var(--cyan); }
+.header p { color: var(--muted); font-size: 1.1rem; }
+.header .badge {
+  display: inline-block; padding: 4px 12px; border-radius: 12px;
+  font-size: 0.8rem; font-weight: 600; margin: 0.5rem 0.25rem;
+}
+.badge-green { background: rgba(63,185,80,.15); color: var(--green); border: 1px solid rgba(63,185,80,.3); }
+.badge-blue { background: rgba(88,166,255,.15); color: var(--blue); border: 1px solid rgba(88,166,255,.3); }
+.badge-purple { background: rgba(188,140,255,.15); color: var(--purple); border: 1px solid rgba(188,140,255,.3); }
+
+/* Layout */
+.container { max-width: 1200px; margin: 0 auto; padding: 1.5rem; }
+.grid { display: grid; grid-template-columns: 280px 1fr; gap: 1.5rem; }
+@media (max-width: 900px) { .grid { grid-template-columns: 1fr; } }
+
+/* Sidebar */
+.sidebar {
+  position: sticky; top: 1rem; max-height: calc(100vh - 2rem); overflow-y: auto;
+  background: var(--surface); border: 1px solid var(--border); border-radius: 8px;
+  padding: 1rem;
+}
+.sidebar h3 { font-size: 0.85rem; text-transform: uppercase; color: var(--muted); margin: 1rem 0 0.5rem; letter-spacing: 0.05em; }
+.sidebar h3:first-child { margin-top: 0; }
+.sidebar a {
+  display: block; padding: 5px 8px; border-radius: 4px;
+  color: var(--text); font-size: 0.9rem; transition: background 0.15s;
+}
+.sidebar a:hover { background: rgba(88,166,255,.1); text-decoration: none; }
+.sidebar .method { font-weight: 700; font-size: 0.75rem; margin-right: 6px; }
+.m-get { color: var(--green); }
+.m-post { color: var(--orange); }
+
+/* Endpoint card */
+.endpoint {
+  background: var(--surface); border: 1px solid var(--border);
+  border-radius: 8px; margin-bottom: 1.5rem; overflow: hidden;
+}
+.endpoint-header {
+  display: flex; align-items: center; gap: 12px;
+  padding: 1rem 1.25rem; border-bottom: 1px solid var(--border);
+  cursor: pointer; user-select: none;
+}
+.endpoint-header:hover { background: rgba(88,166,255,.04); }
+.method-badge {
+  padding: 3px 10px; border-radius: 4px; font-size: 0.8rem;
+  font-weight: 700; text-transform: uppercase; flex-shrink: 0;
+}
+.method-badge.get { background: rgba(63,185,80,.15); color: var(--green); }
+.method-badge.post { background: rgba(210,153,34,.15); color: var(--orange); }
+.endpoint-path { font-family: 'SF Mono', 'Fira Code', monospace; font-size: 0.95rem; font-weight: 600; }
+.endpoint-desc { color: var(--muted); font-size: 0.85rem; margin-left: auto; }
+.endpoint-body { padding: 1.25rem; display: none; }
+.endpoint.open .endpoint-body { display: block; }
+.endpoint.open .endpoint-header { background: rgba(88,166,255,.06); }
+
+.section-label { font-size: 0.8rem; text-transform: uppercase; color: var(--muted); margin: 1rem 0 0.5rem; letter-spacing: 0.04em; font-weight: 600; }
+.section-label:first-child { margin-top: 0; }
+
+/* Code blocks */
+pre {
+  background: #0d1117; border: 1px solid var(--border); border-radius: 6px;
+  padding: 1rem; overflow-x: auto; font-size: 0.85rem; line-height: 1.5;
+  font-family: 'SF Mono', 'Fira Code', Consolas, monospace;
+}
+code { font-family: inherit; }
+.json-key { color: #79c0ff; }
+.json-str { color: #a5d6ff; }
+.json-num { color: #d2a8ff; }
+.json-bool { color: #ff7b72; }
+
+/* Params table */
+table {
+  width: 100%; border-collapse: collapse; margin: 0.5rem 0;
+  font-size: 0.9rem;
+}
+th, td { padding: 8px 12px; text-align: left; border-bottom: 1px solid var(--border); }
+th { color: var(--muted); font-weight: 600; font-size: 0.8rem; text-transform: uppercase; }
+td code { background: rgba(88,166,255,.1); padding: 2px 6px; border-radius: 3px; font-size: 0.85rem; }
+
+/* Try-it panel */
+.try-panel { background: #0d1117; border: 1px solid var(--border); border-radius: 6px; padding: 1rem; margin-top: 1rem; }
+.try-panel input, .try-panel textarea {
+  background: var(--surface); border: 1px solid var(--border); border-radius: 4px;
+  color: var(--text); padding: 8px 12px; font-family: 'SF Mono', monospace; font-size: 0.85rem;
+  width: 100%; margin: 0.25rem 0;
+}
+.try-panel textarea { min-height: 60px; resize: vertical; }
+.try-btn {
+  background: var(--accent); color: #fff; border: none; border-radius: 4px;
+  padding: 8px 20px; font-weight: 600; cursor: pointer; margin-top: 0.5rem;
+  font-size: 0.9rem; transition: opacity 0.15s;
+}
+.try-btn:hover { opacity: 0.85; }
+.try-result {
+  margin-top: 0.75rem; max-height: 300px; overflow: auto;
+  background: var(--surface); border: 1px solid var(--border);
+  border-radius: 4px; padding: 0.75rem; font-family: monospace; font-size: 0.8rem;
+  white-space: pre-wrap; display: none;
+}
+.try-result.visible { display: block; }
+
+/* Footer */
+.footer { text-align: center; padding: 2rem; color: var(--muted); font-size: 0.85rem; border-top: 1px solid var(--border); margin-top: 2rem; }
+</style>
+</head>
+<body>
+
+<div class="header">
+  <h1><span>JARVIS</span> Linux API Reference</h1>
+  <p>REST API exposant toutes les fonctionnalites JARVIS — 20 endpoints</p>
+  <div>
+    <span class="badge badge-green">v1.0</span>
+    <span class="badge badge-blue">Port 8080</span>
+    <span class="badge badge-purple">Flask Blueprint</span>
+  </div>
+  <p style="margin-top:0.5rem;font-size:0.9rem;">Base URL : <code style="color:var(--cyan)">http://127.0.0.1:8080/api/linux</code></p>
+</div>
+
+<div class="container">
+<div class="grid">
+
+<!-- Sidebar -->
+<nav class="sidebar">
+  <h3>Systeme</h3>
+  <a href="#health"><span class="method m-get">GET</span> /health</a>
+  <a href="#performance"><span class="method m-get">GET</span> /performance</a>
+  <a href="#report-today"><span class="method m-get">GET</span> /report/today</a>
+  <a href="#stats"><span class="method m-get">GET</span> /stats</a>
+
+  <h3>Skills</h3>
+  <a href="#skills"><span class="method m-get">GET</span> /skills</a>
+  <a href="#skills-detail"><span class="method m-get">GET</span> /skills/{name}</a>
+  <a href="#skills-execute"><span class="method m-post">POST</span> /skills/execute</a>
+
+  <h3>Voice</h3>
+  <a href="#voice-commands"><span class="method m-get">GET</span> /voice/commands</a>
+  <a href="#voice-corrections"><span class="method m-get">GET</span> /voice/corrections</a>
+  <a href="#voice-aliases"><span class="method m-get">GET</span> /voice/aliases</a>
+  <a href="#voice-macros"><span class="method m-get">GET</span> /voice/macros</a>
+
+  <h3>Brain</h3>
+  <a href="#brain-status"><span class="method m-get">GET</span> /brain/status</a>
+  <a href="#brain-predictions"><span class="method m-get">GET</span> /brain/predictions</a>
+
+  <h3>Cluster</h3>
+  <a href="#cluster-status"><span class="method m-get">GET</span> /cluster/status</a>
+
+  <h3>Dominos</h3>
+  <a href="#dominos"><span class="method m-get">GET</span> /dominos</a>
+  <a href="#dominos-execute"><span class="method m-post">POST</span> /dominos/execute</a>
+
+  <h3>Profils</h3>
+  <a href="#profiles"><span class="method m-get">GET</span> /profiles</a>
+  <a href="#profiles-activate"><span class="method m-post">POST</span> /profiles/activate</a>
+
+  <h3>Autres</h3>
+  <a href="#notifications"><span class="method m-get">GET</span> /notifications</a>
+  <a href="#faq"><span class="method m-get">GET</span> /faq</a>
+</nav>
+
+<!-- Content -->
+<main>
+
+<!-- ================================================================== -->
+<!-- 1. HEALTH -->
+<!-- ================================================================== -->
+<div class="endpoint open" id="health">
+  <div class="endpoint-header" onclick="toggle(this)">
+    <span class="method-badge get">GET</span>
+    <span class="endpoint-path">/api/linux/health</span>
+    <span class="endpoint-desc">Sante complete du systeme</span>
+  </div>
+  <div class="endpoint-body">
+    <p>Retourne CPU, RAM, GPU (nvidia-smi), disque et nombre de services systemd actifs.</p>
+    <p class="section-label">Reponse</p>
+    <pre><code>{
+  <span class="json-key">"status"</span>: <span class="json-str">"ok"</span>,
+  <span class="json-key">"data"</span>: {
+    <span class="json-key">"hostname"</span>: <span class="json-str">"m1-jarvis"</span>,
+    <span class="json-key">"kernel"</span>: <span class="json-str">"6.17.0-19-generic"</span>,
+    <span class="json-key">"cpu"</span>: { <span class="json-key">"cores"</span>: <span class="json-num">16</span>, <span class="json-key">"usage_pct"</span>: <span class="json-num">12.3</span> },
+    <span class="json-key">"ram"</span>: { <span class="json-key">"total_mb"</span>: <span class="json-num">47104</span>, <span class="json-key">"usage_pct"</span>: <span class="json-num">42.1</span> },
+    <span class="json-key">"gpus"</span>: [{ <span class="json-key">"name"</span>: <span class="json-str">"RTX 2060"</span>, <span class="json-key">"temp_c"</span>: <span class="json-num">58</span> }],
+    <span class="json-key">"disk"</span>: { <span class="json-key">"total_gb"</span>: <span class="json-num">931.5</span>, <span class="json-key">"usage_pct"</span>: <span class="json-num">61.2</span> }
+  }
+}</code></pre>
+    <div class="try-panel">
+      <p class="section-label">Essayer</p>
+      <button class="try-btn" onclick="tryIt(this, 'GET', '/api/linux/health')">Envoyer</button>
+      <div class="try-result"></div>
+    </div>
+  </div>
+</div>
+
+<!-- ================================================================== -->
+<!-- 2. SKILLS LIST -->
+<!-- ================================================================== -->
+<div class="endpoint" id="skills">
+  <div class="endpoint-header" onclick="toggle(this)">
+    <span class="method-badge get">GET</span>
+    <span class="endpoint-path">/api/linux/skills</span>
+    <span class="endpoint-desc">Liste de tous les skills</span>
+  </div>
+  <div class="endpoint-body">
+    <p>Retourne la liste complete des skills avec triggers, categorie et statistiques d'usage.</p>
+    <p class="section-label">Reponse</p>
+    <pre><code>{
+  <span class="json-key">"data"</span>: {
+    <span class="json-key">"count"</span>: <span class="json-num">203</span>,
+    <span class="json-key">"skills"</span>: [{
+      <span class="json-key">"name"</span>: <span class="json-str">"mode_gaming"</span>,
+      <span class="json-key">"triggers"</span>: [<span class="json-str">"mode gaming"</span>, <span class="json-str">"lance les jeux"</span>],
+      <span class="json-key">"steps_count"</span>: <span class="json-num">3</span>,
+      <span class="json-key">"usage_count"</span>: <span class="json-num">12</span>
+    }]
+  }
+}</code></pre>
+    <div class="try-panel">
+      <button class="try-btn" onclick="tryIt(this, 'GET', '/api/linux/skills')">Envoyer</button>
+      <div class="try-result"></div>
+    </div>
+  </div>
+</div>
+
+<!-- ================================================================== -->
+<!-- 3. SKILL DETAIL -->
+<!-- ================================================================== -->
+<div class="endpoint" id="skills-detail">
+  <div class="endpoint-header" onclick="toggle(this)">
+    <span class="method-badge get">GET</span>
+    <span class="endpoint-path">/api/linux/skills/{name}</span>
+    <span class="endpoint-desc">Detail d'un skill</span>
+  </div>
+  <div class="endpoint-body">
+    <p>Retourne le detail complet d'un skill : steps, triggers, categorie, stats.</p>
+    <p class="section-label">Parametres</p>
+    <table>
+      <tr><th>Param</th><th>Type</th><th>Description</th></tr>
+      <tr><td><code>name</code></td><td>path</td><td>Nom du skill</td></tr>
+    </table>
+    <div class="try-panel">
+      <input type="text" id="skill-name-input" placeholder="Nom du skill (ex: mode_gaming)" value="status">
+      <button class="try-btn" onclick="tryIt(this, 'GET', '/api/linux/skills/' + document.getElementById('skill-name-input').value)">Envoyer</button>
+      <div class="try-result"></div>
+    </div>
+  </div>
+</div>
+
+<!-- ================================================================== -->
+<!-- 4. SKILLS EXECUTE -->
+<!-- ================================================================== -->
+<div class="endpoint" id="skills-execute">
+  <div class="endpoint-header" onclick="toggle(this)">
+    <span class="method-badge post">POST</span>
+    <span class="endpoint-path">/api/linux/skills/execute</span>
+    <span class="endpoint-desc">Executer un skill</span>
+  </div>
+  <div class="endpoint-body">
+    <p>Execute un skill par nom. Le skill est mis en file d'attente pour execution asynchrone.</p>
+    <p class="section-label">Body (JSON)</p>
+    <pre><code>{ <span class="json-key">"skill"</span>: <span class="json-str">"mode_gaming"</span> }</code></pre>
+    <p class="section-label">Reponse</p>
+    <pre><code>{
+  <span class="json-key">"data"</span>: {
+    <span class="json-key">"skill"</span>: <span class="json-str">"mode_gaming"</span>,
+    <span class="json-key">"status"</span>: <span class="json-str">"queued"</span>,
+    <span class="json-key">"steps"</span>: [{ <span class="json-key">"tool"</span>: <span class="json-str">"close_app"</span>, <span class="json-key">"args"</span>: {} }]
+  }
+}</code></pre>
+    <div class="try-panel">
+      <textarea id="skill-exec-body">{"skill": "status"}</textarea>
+      <button class="try-btn" onclick="tryItPost(this, '/api/linux/skills/execute', document.getElementById('skill-exec-body').value)">Envoyer</button>
+      <div class="try-result"></div>
+    </div>
+  </div>
+</div>
+
+<!-- ================================================================== -->
+<!-- 5. VOICE COMMANDS -->
+<!-- ================================================================== -->
+<div class="endpoint" id="voice-commands">
+  <div class="endpoint-header" onclick="toggle(this)">
+    <span class="method-badge get">GET</span>
+    <span class="endpoint-path">/api/linux/voice/commands</span>
+    <span class="endpoint-desc">Commandes vocales</span>
+  </div>
+  <div class="endpoint-body">
+    <p>Liste des commandes vocales enregistrees, avec filtrage optionnel par categorie.</p>
+    <p class="section-label">Query params</p>
+    <table>
+      <tr><th>Param</th><th>Type</th><th>Description</th></tr>
+      <tr><td><code>category</code></td><td>string</td><td>Filtrer par categorie (optionnel)</td></tr>
+    </table>
+    <div class="try-panel">
+      <input type="text" id="voice-cat" placeholder="Categorie (vide = toutes)">
+      <button class="try-btn" onclick="tryIt(this, 'GET', '/api/linux/voice/commands' + (document.getElementById('voice-cat').value ? '?category=' + document.getElementById('voice-cat').value : ''))">Envoyer</button>
+      <div class="try-result"></div>
+    </div>
+  </div>
+</div>
+
+<!-- ================================================================== -->
+<!-- 6. VOICE CORRECTIONS -->
+<!-- ================================================================== -->
+<div class="endpoint" id="voice-corrections">
+  <div class="endpoint-header" onclick="toggle(this)">
+    <span class="method-badge get">GET</span>
+    <span class="endpoint-path">/api/linux/voice/corrections</span>
+    <span class="endpoint-desc">Corrections STT</span>
+  </div>
+  <div class="endpoint-body">
+    <p>Liste des corrections Speech-to-Text (wrong &rarr; correct) pour ameliorer la reconnaissance vocale.</p>
+    <pre><code>{
+  <span class="json-key">"data"</span>: {
+    <span class="json-key">"count"</span>: <span class="json-num">398</span>,
+    <span class="json-key">"corrections"</span>: [
+      { <span class="json-key">"wrong"</span>: <span class="json-str">"jarvi"</span>, <span class="json-key">"correct"</span>: <span class="json-str">"jarvis"</span> }
+    ]
+  }
+}</code></pre>
+    <div class="try-panel">
+      <button class="try-btn" onclick="tryIt(this, 'GET', '/api/linux/voice/corrections')">Envoyer</button>
+      <div class="try-result"></div>
+    </div>
+  </div>
+</div>
+
+<!-- ================================================================== -->
+<!-- 7. VOICE ALIASES -->
+<!-- ================================================================== -->
+<div class="endpoint" id="voice-aliases">
+  <div class="endpoint-header" onclick="toggle(this)">
+    <span class="method-badge get">GET</span>
+    <span class="endpoint-path">/api/linux/voice/aliases</span>
+    <span class="endpoint-desc">Aliases sites & apps</span>
+  </div>
+  <div class="endpoint-body">
+    <p>Aliases des applications (APP_PATHS) et sites web (SITE_ALIASES) utilises par les commandes vocales.</p>
+    <div class="try-panel">
+      <button class="try-btn" onclick="tryIt(this, 'GET', '/api/linux/voice/aliases')">Envoyer</button>
+      <div class="try-result"></div>
+    </div>
+  </div>
+</div>
+
+<!-- ================================================================== -->
+<!-- 8. VOICE MACROS -->
+<!-- ================================================================== -->
+<div class="endpoint" id="voice-macros">
+  <div class="endpoint-header" onclick="toggle(this)">
+    <span class="method-badge get">GET</span>
+    <span class="endpoint-path">/api/linux/voice/macros</span>
+    <span class="endpoint-desc">Macros vocales</span>
+  </div>
+  <div class="endpoint-body">
+    <p>Liste des macros : chaines de commandes executees en sequence.</p>
+    <div class="try-panel">
+      <button class="try-btn" onclick="tryIt(this, 'GET', '/api/linux/voice/macros')">Envoyer</button>
+      <div class="try-result"></div>
+    </div>
+  </div>
+</div>
+
+<!-- ================================================================== -->
+<!-- 9. BRAIN STATUS -->
+<!-- ================================================================== -->
+<div class="endpoint" id="brain-status">
+  <div class="endpoint-header" onclick="toggle(this)">
+    <span class="method-badge get">GET</span>
+    <span class="endpoint-path">/api/linux/brain/status</span>
+    <span class="endpoint-desc">Etat du brain</span>
+  </div>
+  <div class="endpoint-body">
+    <p>Etat complet du cerveau JARVIS : nombre de skills, patterns detectes, cycles d'apprentissage, metriques qualite.</p>
+    <pre><code>{
+  <span class="json-key">"data"</span>: {
+    <span class="json-key">"total_skills"</span>: <span class="json-num">203</span>,
+    <span class="json-key">"auto_learned"</span>: <span class="json-num">45</span>,
+    <span class="json-key">"total_actions"</span>: <span class="json-num">1250</span>,
+    <span class="json-key">"total_analyses"</span>: <span class="json-num">89</span>,
+    <span class="json-key">"quality"</span>: { <span class="json-key">"avg_confidence"</span>: <span class="json-num">0.78</span> }
+  }
+}</code></pre>
+    <div class="try-panel">
+      <button class="try-btn" onclick="tryIt(this, 'GET', '/api/linux/brain/status')">Envoyer</button>
+      <div class="try-result"></div>
+    </div>
+  </div>
+</div>
+
+<!-- ================================================================== -->
+<!-- 10. BRAIN PREDICTIONS -->
+<!-- ================================================================== -->
+<div class="endpoint" id="brain-predictions">
+  <div class="endpoint-header" onclick="toggle(this)">
+    <span class="method-badge get">GET</span>
+    <span class="endpoint-path">/api/linux/brain/predictions</span>
+    <span class="endpoint-desc">Predictions Markov</span>
+  </div>
+  <div class="endpoint-body">
+    <p>Suggestions predictives basees sur les patterns d'utilisation (Markov + heuristiques contextuelles).</p>
+    <pre><code>{
+  <span class="json-key">"data"</span>: {
+    <span class="json-key">"suggestions"</span>: [{
+      <span class="json-key">"reason"</span>: <span class="json-str">"morning_routine"</span>,
+      <span class="json-key">"skills"</span>: [<span class="json-str">"status"</span>, <span class="json-str">"gpu"</span>],
+      <span class="json-key">"label"</span>: <span class="json-str">"Routine matinale"</span>
+    }],
+    <span class="json-key">"detected_patterns"</span>: [{
+      <span class="json-key">"sequence"</span>: [<span class="json-str">"gpu_status"</span>, <span class="json-str">"trading_scan"</span>],
+      <span class="json-key">"count"</span>: <span class="json-num">7</span>,
+      <span class="json-key">"confidence"</span>: <span class="json-num">0.85</span>
+    }]
+  }
+}</code></pre>
+    <div class="try-panel">
+      <button class="try-btn" onclick="tryIt(this, 'GET', '/api/linux/brain/predictions')">Envoyer</button>
+      <div class="try-result"></div>
+    </div>
+  </div>
+</div>
+
+<!-- ================================================================== -->
+<!-- 11. CLUSTER STATUS -->
+<!-- ================================================================== -->
+<div class="endpoint" id="cluster-status">
+  <div class="endpoint-header" onclick="toggle(this)">
+    <span class="method-badge get">GET</span>
+    <span class="endpoint-path">/api/linux/cluster/status</span>
+    <span class="endpoint-desc">Etat du cluster IA</span>
+  </div>
+  <div class="endpoint-body">
+    <p>Etat des noeuds LM Studio (M1/M2/M3) et Ollama (OL1) : modeles charges, GPU, VRAM.</p>
+    <pre><code>{
+  <span class="json-key">"data"</span>: {
+    <span class="json-key">"lm_nodes"</span>: [{
+      <span class="json-key">"name"</span>: <span class="json-str">"M1"</span>,
+      <span class="json-key">"url"</span>: <span class="json-str">"http://127.0.0.1:1234"</span>,
+      <span class="json-key">"gpus"</span>: <span class="json-num">6</span>,
+      <span class="json-key">"vram_gb"</span>: <span class="json-num">46</span>,
+      <span class="json-key">"default_model"</span>: <span class="json-str">"qwen3-8b"</span>
+    }],
+    <span class="json-key">"ollama_nodes"</span>: [...]
+  }
+}</code></pre>
+    <div class="try-panel">
+      <button class="try-btn" onclick="tryIt(this, 'GET', '/api/linux/cluster/status')">Envoyer</button>
+      <div class="try-result"></div>
+    </div>
+  </div>
+</div>
+
+<!-- ================================================================== -->
+<!-- 12. DOMINOS LIST -->
+<!-- ================================================================== -->
+<div class="endpoint" id="dominos">
+  <div class="endpoint-header" onclick="toggle(this)">
+    <span class="method-badge get">GET</span>
+    <span class="endpoint-path">/api/linux/dominos</span>
+    <span class="endpoint-desc">Liste des dominos</span>
+  </div>
+  <div class="endpoint-body">
+    <p>Liste des dominos (learned actions) avec filtrage optionnel par categorie.</p>
+    <p class="section-label">Query params</p>
+    <table>
+      <tr><th>Param</th><th>Type</th><th>Description</th></tr>
+      <tr><td><code>category</code></td><td>string</td><td>Filtrer par categorie : system, cluster, dev, trading, voice</td></tr>
+    </table>
+    <div class="try-panel">
+      <input type="text" id="domino-cat" placeholder="Categorie (vide = toutes)">
+      <button class="try-btn" onclick="tryIt(this, 'GET', '/api/linux/dominos' + (document.getElementById('domino-cat').value ? '?category=' + document.getElementById('domino-cat').value : ''))">Envoyer</button>
+      <div class="try-result"></div>
+    </div>
+  </div>
+</div>
+
+<!-- ================================================================== -->
+<!-- 13. DOMINOS EXECUTE -->
+<!-- ================================================================== -->
+<div class="endpoint" id="dominos-execute">
+  <div class="endpoint-header" onclick="toggle(this)">
+    <span class="method-badge post">POST</span>
+    <span class="endpoint-path">/api/linux/dominos/execute</span>
+    <span class="endpoint-desc">Executer un domino</span>
+  </div>
+  <div class="endpoint-body">
+    <p>Execute un domino par ID. Accepte un ID numerique ou au format <code>domino_XXX</code>.</p>
+    <p class="section-label">Body (JSON)</p>
+    <pre><code>{ <span class="json-key">"id"</span>: <span class="json-str">"domino_42"</span> }
+<span class="json-str">// ou</span>
+{ <span class="json-key">"id"</span>: <span class="json-num">42</span> }</code></pre>
+    <div class="try-panel">
+      <textarea id="domino-exec-body">{"id": 1}</textarea>
+      <button class="try-btn" onclick="tryItPost(this, '/api/linux/dominos/execute', document.getElementById('domino-exec-body').value)">Envoyer</button>
+      <div class="try-result"></div>
+    </div>
+  </div>
+</div>
+
+<!-- ================================================================== -->
+<!-- 14. PROFILES -->
+<!-- ================================================================== -->
+<div class="endpoint" id="profiles">
+  <div class="endpoint-header" onclick="toggle(this)">
+    <span class="method-badge get">GET</span>
+    <span class="endpoint-path">/api/linux/profiles</span>
+    <span class="endpoint-desc">Profils vocaux</span>
+  </div>
+  <div class="endpoint-body">
+    <p>Liste des profils vocaux disponibles (builtin + custom).</p>
+    <pre><code>{
+  <span class="json-key">"data"</span>: {
+    <span class="json-key">"profiles"</span>: [
+      { <span class="json-key">"name"</span>: <span class="json-str">"default"</span>, <span class="json-key">"active"</span>: <span class="json-bool">true</span> },
+      { <span class="json-key">"name"</span>: <span class="json-str">"dev"</span>, <span class="json-key">"active"</span>: <span class="json-bool">false</span> },
+      { <span class="json-key">"name"</span>: <span class="json-str">"trading"</span>, <span class="json-key">"active"</span>: <span class="json-bool">false</span> }
+    ]
+  }
+}</code></pre>
+    <div class="try-panel">
+      <button class="try-btn" onclick="tryIt(this, 'GET', '/api/linux/profiles')">Envoyer</button>
+      <div class="try-result"></div>
+    </div>
+  </div>
+</div>
+
+<!-- ================================================================== -->
+<!-- 15. PROFILES ACTIVATE -->
+<!-- ================================================================== -->
+<div class="endpoint" id="profiles-activate">
+  <div class="endpoint-header" onclick="toggle(this)">
+    <span class="method-badge post">POST</span>
+    <span class="endpoint-path">/api/linux/profiles/activate</span>
+    <span class="endpoint-desc">Activer un profil</span>
+  </div>
+  <div class="endpoint-body">
+    <p>Active un profil vocal. Persiste le choix dans <code>data/active_profile.json</code>.</p>
+    <p class="section-label">Body (JSON)</p>
+    <pre><code>{ <span class="json-key">"profile"</span>: <span class="json-str">"dev"</span> }</code></pre>
+    <div class="try-panel">
+      <textarea id="profile-body">{"profile": "dev"}</textarea>
+      <button class="try-btn" onclick="tryItPost(this, '/api/linux/profiles/activate', document.getElementById('profile-body').value)">Envoyer</button>
+      <div class="try-result"></div>
+    </div>
+  </div>
+</div>
+
+<!-- ================================================================== -->
+<!-- 16. NOTIFICATIONS -->
+<!-- ================================================================== -->
+<div class="endpoint" id="notifications">
+  <div class="endpoint-header" onclick="toggle(this)">
+    <span class="method-badge get">GET</span>
+    <span class="endpoint-path">/api/linux/notifications</span>
+    <span class="endpoint-desc">Historique notifications</span>
+  </div>
+  <div class="endpoint-body">
+    <p>Historique des notifications JARVIS depuis la base SQLite.</p>
+    <p class="section-label">Query params</p>
+    <table>
+      <tr><th>Param</th><th>Type</th><th>Default</th><th>Description</th></tr>
+      <tr><td><code>limit</code></td><td>int</td><td>50</td><td>Nombre max de notifications</td></tr>
+    </table>
+    <div class="try-panel">
+      <button class="try-btn" onclick="tryIt(this, 'GET', '/api/linux/notifications?limit=10')">Envoyer (limit=10)</button>
+      <div class="try-result"></div>
+    </div>
+  </div>
+</div>
+
+<!-- ================================================================== -->
+<!-- 17. PERFORMANCE -->
+<!-- ================================================================== -->
+<div class="endpoint" id="performance">
+  <div class="endpoint-header" onclick="toggle(this)">
+    <span class="method-badge get">GET</span>
+    <span class="endpoint-path">/api/linux/performance</span>
+    <span class="endpoint-desc">Metriques temps reel</span>
+  </div>
+  <div class="endpoint-body">
+    <p>Metriques performance temps reel : load average, IO disque, reseau, temperatures CPU.</p>
+    <pre><code>{
+  <span class="json-key">"data"</span>: {
+    <span class="json-key">"load_avg"</span>: { <span class="json-key">"1m"</span>: <span class="json-num">1.23</span>, <span class="json-key">"5m"</span>: <span class="json-num">0.98</span> },
+    <span class="json-key">"network"</span>: { <span class="json-key">"eth0"</span>: { <span class="json-key">"rx_bytes"</span>: <span class="json-num">123456</span> } },
+    <span class="json-key">"cpu_temps_c"</span>: [<span class="json-num">52.0</span>, <span class="json-num">54.0</span>],
+    <span class="json-key">"process_count"</span>: <span class="json-num">312</span>
+  }
+}</code></pre>
+    <div class="try-panel">
+      <button class="try-btn" onclick="tryIt(this, 'GET', '/api/linux/performance')">Envoyer</button>
+      <div class="try-result"></div>
+    </div>
+  </div>
+</div>
+
+<!-- ================================================================== -->
+<!-- 18. REPORT TODAY -->
+<!-- ================================================================== -->
+<div class="endpoint" id="report-today">
+  <div class="endpoint-header" onclick="toggle(this)">
+    <span class="method-badge get">GET</span>
+    <span class="endpoint-path">/api/linux/report/today</span>
+    <span class="endpoint-desc">Rapport quotidien</span>
+  </div>
+  <div class="endpoint-body">
+    <p>Rapport du jour : actions executees, resume brain, GPU, charge systeme.</p>
+    <div class="try-panel">
+      <button class="try-btn" onclick="tryIt(this, 'GET', '/api/linux/report/today')">Envoyer</button>
+      <div class="try-result"></div>
+    </div>
+  </div>
+</div>
+
+<!-- ================================================================== -->
+<!-- 19. FAQ -->
+<!-- ================================================================== -->
+<div class="endpoint" id="faq">
+  <div class="endpoint-header" onclick="toggle(this)">
+    <span class="method-badge get">GET</span>
+    <span class="endpoint-path">/api/linux/faq</span>
+    <span class="endpoint-desc">Recherche FAQ</span>
+  </div>
+  <div class="endpoint-body">
+    <p>Recherche fuzzy dans la FAQ integree JARVIS.</p>
+    <p class="section-label">Query params</p>
+    <table>
+      <tr><th>Param</th><th>Type</th><th>Description</th></tr>
+      <tr><td><code>q</code></td><td>string</td><td>Question de recherche (requis)</td></tr>
+    </table>
+    <div class="try-panel">
+      <input type="text" id="faq-q" placeholder="Votre question" value="comment ajouter un skill">
+      <button class="try-btn" onclick="tryIt(this, 'GET', '/api/linux/faq?q=' + encodeURIComponent(document.getElementById('faq-q').value))">Envoyer</button>
+      <div class="try-result"></div>
+    </div>
+  </div>
+</div>
+
+<!-- ================================================================== -->
+<!-- 20. STATS -->
+<!-- ================================================================== -->
+<div class="endpoint" id="stats">
+  <div class="endpoint-header" onclick="toggle(this)">
+    <span class="method-badge get">GET</span>
+    <span class="endpoint-path">/api/linux/stats</span>
+    <span class="endpoint-desc">Statistiques completes</span>
+  </div>
+  <div class="endpoint-body">
+    <p>Vue d'ensemble complete : skills, commandes vocales, dominos, brain, cluster, modules Linux, bases de donnees.</p>
+    <pre><code>{
+  <span class="json-key">"data"</span>: {
+    <span class="json-key">"skills"</span>: { <span class="json-key">"total"</span>: <span class="json-num">203</span>, <span class="json-key">"categories"</span>: {...} },
+    <span class="json-key">"voice"</span>: { <span class="json-key">"total_commands"</span>: <span class="json-num">336</span>, <span class="json-key">"total_corrections"</span>: <span class="json-num">398</span> },
+    <span class="json-key">"dominos"</span>: { <span class="json-key">"total"</span>: <span class="json-num">494</span>, <span class="json-key">"success_rate"</span>: <span class="json-num">0.92</span> },
+    <span class="json-key">"brain"</span>: { <span class="json-key">"total_skills"</span>: <span class="json-num">203</span> },
+    <span class="json-key">"cluster"</span>: { <span class="json-key">"total_gpus"</span>: <span class="json-num">10</span>, <span class="json-key">"total_vram_gb"</span>: <span class="json-num">78</span> },
+    <span class="json-key">"linux_modules"</span>: { <span class="json-key">"count"</span>: <span class="json-num">21</span> },
+    <span class="json-key">"databases"</span>: { <span class="json-key">"count"</span>: <span class="json-num">64</span> }
+  }
+}</code></pre>
+    <div class="try-panel">
+      <button class="try-btn" onclick="tryIt(this, 'GET', '/api/linux/stats')">Envoyer</button>
+      <div class="try-result"></div>
+    </div>
+  </div>
+</div>
+
+</main>
+</div><!-- grid -->
+</div><!-- container -->
+
+<div class="footer">
+  JARVIS Linux API v1.0 &mdash; 20 endpoints &mdash; Port 8080<br>
+  Blueprint Flask : <code>src/api_linux_endpoints.py</code><br>
+  Genere automatiquement &mdash; 2026
+</div>
+
+<script>
+const BASE = 'http://127.0.0.1:8080';
+
+function toggle(header) {
+  header.parentElement.classList.toggle('open');
+}
+
+function tryIt(btn, method, path) {
+  const panel = btn.closest('.try-panel');
+  const result = panel.querySelector('.try-result');
+  result.textContent = 'Chargement...';
+  result.classList.add('visible');
+
+  fetch(BASE + path, { method: method })
+    .then(r => r.json())
+    .then(data => { result.textContent = JSON.stringify(data, null, 2); })
+    .catch(err => { result.textContent = 'Erreur: ' + err.message; });
+}
+
+function tryItPost(btn, path, body) {
+  const panel = btn.closest('.try-panel');
+  const result = panel.querySelector('.try-result');
+  result.textContent = 'Chargement...';
+  result.classList.add('visible');
+
+  fetch(BASE + path, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: body
+  })
+    .then(r => r.json())
+    .then(data => { result.textContent = JSON.stringify(data, null, 2); })
+    .catch(err => { result.textContent = 'Erreur: ' + err.message; });
+}
+
+// Ouvrir le premier endpoint par defaut, fermer les autres au clic sidebar
+document.querySelectorAll('.sidebar a').forEach(link => {
+  link.addEventListener('click', function(e) {
+    const id = this.getAttribute('href').substring(1);
+    const target = document.getElementById(id);
+    if (target && !target.classList.contains('open')) {
+      target.classList.add('open');
+    }
+    // Scroll smooth
+    target && target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  });
+});
+</script>
+</body>
+</html>

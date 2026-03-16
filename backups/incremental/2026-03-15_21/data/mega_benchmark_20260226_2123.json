@@ -1,0 +1,809 @@
+{
+  "timestamp": "2026-02-26T21:23:01.461385",
+  "ranking": [
+    {
+      "rank": 1,
+      "node": "M1",
+      "score": 0.8030303030303031,
+      "latency_ms": 2843,
+      "success": 1.0,
+      "weighted": 1.4454545454545455,
+      "grade": "A"
+    },
+    {
+      "rank": 2,
+      "node": "M2",
+      "score": 0.7848484848484848,
+      "latency_ms": 5718,
+      "success": 1.0,
+      "weighted": 1.0987878787878786,
+      "grade": "A"
+    },
+    {
+      "rank": 3,
+      "node": "OL1",
+      "score": 0.7083333333333334,
+      "latency_ms": 14289,
+      "success": 0.7272727272727273,
+      "weighted": 0.9208333333333334,
+      "grade": "A"
+    },
+    {
+      "rank": 4,
+      "node": "M3",
+      "score": 0.6272727272727273,
+      "latency_ms": 7613,
+      "success": 1.0,
+      "weighted": 0.6272727272727273,
+      "grade": "B"
+    }
+  ],
+  "phases": {
+    "1.Latence": {
+      "M1": 1.0,
+      "M2": 1.0,
+      "M3": 1.0,
+      "OL1": 0.5
+    },
+    "2.Python": {
+      "M1": 1.0,
+      "M2": 1.0,
+      "M3": 1.0,
+      "OL1": 0.3333333333333333
+    },
+    "3.JavaScript": {
+      "M1": 1.0,
+      "M2": 1.0,
+      "M3": 1.0,
+      "OL1": 0.5
+    },
+    "4.Logique": {
+      "M1": 0.6666666666666666,
+      "M2": 0.3333333333333333,
+      "M3": 0.0,
+      "OL1": 0.0
+    },
+    "5.Math": {
+      "M1": 0.6666666666666666,
+      "M2": 1.0,
+      "M3": 0.6666666666666666,
+      "OL1": 1.0
+    },
+    "6.Trading": {
+      "M1": 1.0,
+      "M2": 0.5,
+      "M3": 1.0,
+      "OL1": 0.5
+    },
+    "7.Systeme": {
+      "M1": 1.0,
+      "M2": 0.8333333333333333,
+      "M3": 0.16666666666666666,
+      "OL1": 1.0
+    },
+    "8.Archi": {
+      "M1": 0.3333333333333333,
+      "M2": 0.5,
+      "M3": 0.3333333333333333,
+      "OL1": 0.16666666666666666
+    },
+    "9.Generation": {
+      "M1": 0.0,
+      "M2": 0.6,
+      "M3": 0.8,
+      "OL1": 0.0
+    },
+    "10.Multi": {
+      "M1": 1.0,
+      "M2": 1.0,
+      "M3": 0.5,
+      "OL1": 1.0
+    }
+  },
+  "raw": [
+    {
+      "phase": "1.Latence",
+      "task": "ping",
+      "node": "M1",
+      "score": 1.0,
+      "latency": 790,
+      "success": true
+    },
+    {
+      "phase": "1.Latence",
+      "task": "ping",
+      "node": "M2",
+      "score": 1.0,
+      "latency": 461,
+      "success": true
+    },
+    {
+      "phase": "1.Latence",
+      "task": "ping",
+      "node": "M3",
+      "score": 1.0,
+      "latency": 453,
+      "success": true
+    },
+    {
+      "phase": "1.Latence",
+      "task": "ping",
+      "node": "OL1",
+      "score": 0.0,
+      "latency": 12620,
+      "success": true
+    },
+    {
+      "phase": "1.Latence",
+      "task": "echo",
+      "node": "M1",
+      "score": 1.0,
+      "latency": 592,
+      "success": true
+    },
+    {
+      "phase": "1.Latence",
+      "task": "echo",
+      "node": "M2",
+      "score": 1.0,
+      "latency": 1195,
+      "success": true
+    },
+    {
+      "phase": "1.Latence",
+      "task": "echo",
+      "node": "M3",
+      "score": 1.0,
+      "latency": 749,
+      "success": true
+    },
+    {
+      "phase": "1.Latence",
+      "task": "echo",
+      "node": "OL1",
+      "score": 1.0,
+      "latency": 20172,
+      "success": true
+    },
+    {
+      "phase": "2.Python",
+      "task": "fibonacci",
+      "node": "M1",
+      "score": 1.0,
+      "latency": 966,
+      "success": true
+    },
+    {
+      "phase": "2.Python",
+      "task": "fibonacci",
+      "node": "M2",
+      "score": 1.0,
+      "latency": 2402,
+      "success": true
+    },
+    {
+      "phase": "2.Python",
+      "task": "fibonacci",
+      "node": "M3",
+      "score": 1.0,
+      "latency": 10897,
+      "success": true
+    },
+    {
+      "phase": "2.Python",
+      "task": "fibonacci",
+      "node": "OL1",
+      "score": 0,
+      "latency": 25407,
+      "success": false
+    },
+    {
+      "phase": "2.Python",
+      "task": "quicksort",
+      "node": "M1",
+      "score": 1.0,
+      "latency": 1618,
+      "success": true
+    },
+    {
+      "phase": "2.Python",
+      "task": "quicksort",
+      "node": "M2",
+      "score": 1.0,
+      "latency": 3182,
+      "success": true
+    },
+    {
+      "phase": "2.Python",
+      "task": "quicksort",
+      "node": "M3",
+      "score": 1.0,
+      "latency": 10306,
+      "success": true
+    },
+    {
+      "phase": "2.Python",
+      "task": "quicksort",
+      "node": "OL1",
+      "score": 0,
+      "latency": 25358,
+      "success": false
+    },
+    {
+      "phase": "2.Python",
+      "task": "async_fetch",
+      "node": "M1",
+      "score": 1.0,
+      "latency": 1276,
+      "success": true
+    },
+    {
+      "phase": "2.Python",
+      "task": "async_fetch",
+      "node": "M2",
+      "score": 1.0,
+      "latency": 5191,
+      "success": true
+    },
+    {
+      "phase": "2.Python",
+      "task": "async_fetch",
+      "node": "M3",
+      "score": 1.0,
+      "latency": 11807,
+      "success": true
+    },
+    {
+      "phase": "2.Python",
+      "task": "async_fetch",
+      "node": "OL1",
+      "score": 1.0,
+      "latency": 24814,
+      "success": true
+    },
+    {
+      "phase": "3.JavaScript",
+      "task": "debounce",
+      "node": "M1",
+      "score": 1.0,
+      "latency": 1171,
+      "success": true
+    },
+    {
+      "phase": "3.JavaScript",
+      "task": "debounce",
+      "node": "M2",
+      "score": 1.0,
+      "latency": 2791,
+      "success": true
+    },
+    {
+      "phase": "3.JavaScript",
+      "task": "debounce",
+      "node": "M3",
+      "score": 1.0,
+      "latency": 7015,
+      "success": true
+    },
+    {
+      "phase": "3.JavaScript",
+      "task": "debounce",
+      "node": "OL1",
+      "score": 1.0,
+      "latency": 16938,
+      "success": true
+    },
+    {
+      "phase": "3.JavaScript",
+      "task": "retry",
+      "node": "M1",
+      "score": 1.0,
+      "latency": 2262,
+      "success": true
+    },
+    {
+      "phase": "3.JavaScript",
+      "task": "retry",
+      "node": "M2",
+      "score": 1.0,
+      "latency": 7604,
+      "success": true
+    },
+    {
+      "phase": "3.JavaScript",
+      "task": "retry",
+      "node": "M3",
+      "score": 1.0,
+      "latency": 14788,
+      "success": true
+    },
+    {
+      "phase": "3.JavaScript",
+      "task": "retry",
+      "node": "OL1",
+      "score": 0,
+      "latency": 25393,
+      "success": false
+    },
+    {
+      "phase": "4.Logique",
+      "task": "syllogisme",
+      "node": "M1",
+      "score": 1.0,
+      "latency": 2562,
+      "success": true
+    },
+    {
+      "phase": "4.Logique",
+      "task": "syllogisme",
+      "node": "M2",
+      "score": 0.0,
+      "latency": 5991,
+      "success": true
+    },
+    {
+      "phase": "4.Logique",
+      "task": "syllogisme",
+      "node": "M3",
+      "score": 0.0,
+      "latency": 1466,
+      "success": true
+    },
+    {
+      "phase": "4.Logique",
+      "task": "syllogisme",
+      "node": "OL1",
+      "score": 0,
+      "latency": 25373,
+      "success": false
+    },
+    {
+      "phase": "4.Logique",
+      "task": "escargot",
+      "node": "M1",
+      "score": 0.0,
+      "latency": 535,
+      "success": true
+    },
+    {
+      "phase": "4.Logique",
+      "task": "escargot",
+      "node": "M2",
+      "score": 0.0,
+      "latency": 8375,
+      "success": true
+    },
+    {
+      "phase": "4.Logique",
+      "task": "escargot",
+      "node": "M3",
+      "score": 0.0,
+      "latency": 13440,
+      "success": true
+    },
+    {
+      "phase": "4.Logique",
+      "task": "escargot",
+      "node": "OL1",
+      "score": 0,
+      "latency": 25445,
+      "success": false
+    },
+    {
+      "phase": "4.Logique",
+      "task": "course",
+      "node": "M1",
+      "score": 1.0,
+      "latency": 748,
+      "success": true
+    },
+    {
+      "phase": "4.Logique",
+      "task": "course",
+      "node": "M2",
+      "score": 1.0,
+      "latency": 1832,
+      "success": true
+    },
+    {
+      "phase": "4.Logique",
+      "task": "course",
+      "node": "M3",
+      "score": 0.0,
+      "latency": 1386,
+      "success": true
+    },
+    {
+      "phase": "4.Logique",
+      "task": "course",
+      "node": "OL1",
+      "score": 0.0,
+      "latency": 3793,
+      "success": true
+    },
+    {
+      "phase": "5.Math",
+      "task": "calcul",
+      "node": "M1",
+      "score": 1.0,
+      "latency": 2356,
+      "success": true
+    },
+    {
+      "phase": "5.Math",
+      "task": "calcul",
+      "node": "M2",
+      "score": 1.0,
+      "latency": 6207,
+      "success": true
+    },
+    {
+      "phase": "5.Math",
+      "task": "calcul",
+      "node": "M3",
+      "score": 0.0,
+      "latency": 6746,
+      "success": true
+    },
+    {
+      "phase": "5.Math",
+      "task": "calcul",
+      "node": "OL1",
+      "score": 1.0,
+      "latency": 13313,
+      "success": true
+    },
+    {
+      "phase": "5.Math",
+      "task": "derivee",
+      "node": "M1",
+      "score": 1.0,
+      "latency": 3444,
+      "success": true
+    },
+    {
+      "phase": "5.Math",
+      "task": "derivee",
+      "node": "M2",
+      "score": 1.0,
+      "latency": 9263,
+      "success": true
+    },
+    {
+      "phase": "5.Math",
+      "task": "derivee",
+      "node": "M3",
+      "score": 1.0,
+      "latency": 9483,
+      "success": true
+    },
+    {
+      "phase": "5.Math",
+      "task": "derivee",
+      "node": "OL1",
+      "score": 1.0,
+      "latency": 12921,
+      "success": true
+    },
+    {
+      "phase": "5.Math",
+      "task": "moyenne",
+      "node": "M1",
+      "score": 0.0,
+      "latency": 806,
+      "success": true
+    },
+    {
+      "phase": "5.Math",
+      "task": "moyenne",
+      "node": "M2",
+      "score": 1.0,
+      "latency": 7123,
+      "success": true
+    },
+    {
+      "phase": "5.Math",
+      "task": "moyenne",
+      "node": "M3",
+      "score": 1.0,
+      "latency": 3458,
+      "success": true
+    },
+    {
+      "phase": "5.Math",
+      "task": "moyenne",
+      "node": "OL1",
+      "score": 1.0,
+      "latency": 21035,
+      "success": true
+    },
+    {
+      "phase": "6.Trading",
+      "task": "signal",
+      "node": "M1",
+      "score": 1.0,
+      "latency": 2661,
+      "success": true
+    },
+    {
+      "phase": "6.Trading",
+      "task": "signal",
+      "node": "M2",
+      "score": 0.0,
+      "latency": 10223,
+      "success": true
+    },
+    {
+      "phase": "6.Trading",
+      "task": "signal",
+      "node": "M3",
+      "score": 1.0,
+      "latency": 11496,
+      "success": true
+    },
+    {
+      "phase": "6.Trading",
+      "task": "signal",
+      "node": "OL1",
+      "score": 1.0,
+      "latency": 12409,
+      "success": true
+    },
+    {
+      "phase": "6.Trading",
+      "task": "risk",
+      "node": "M1",
+      "score": 1.0,
+      "latency": 5894,
+      "success": true
+    },
+    {
+      "phase": "6.Trading",
+      "task": "risk",
+      "node": "M2",
+      "score": 1.0,
+      "latency": 8876,
+      "success": true
+    },
+    {
+      "phase": "6.Trading",
+      "task": "risk",
+      "node": "M3",
+      "score": 1.0,
+      "latency": 9004,
+      "success": true
+    },
+    {
+      "phase": "6.Trading",
+      "task": "risk",
+      "node": "OL1",
+      "score": 0,
+      "latency": 25410,
+      "success": false
+    },
+    {
+      "phase": "7.Systeme",
+      "task": "powershell",
+      "node": "M1",
+      "score": 1.0,
+      "latency": 5074,
+      "success": true
+    },
+    {
+      "phase": "7.Systeme",
+      "task": "powershell",
+      "node": "M2",
+      "score": 0.6666666666666666,
+      "latency": 9674,
+      "success": true
+    },
+    {
+      "phase": "7.Systeme",
+      "task": "powershell",
+      "node": "M3",
+      "score": 0.3333333333333333,
+      "latency": 7577,
+      "success": true
+    },
+    {
+      "phase": "7.Systeme",
+      "task": "powershell",
+      "node": "OL1",
+      "score": 1.0,
+      "latency": 19464,
+      "success": true
+    },
+    {
+      "phase": "7.Systeme",
+      "task": "netstat",
+      "node": "M1",
+      "score": 1.0,
+      "latency": 5971,
+      "success": true
+    },
+    {
+      "phase": "7.Systeme",
+      "task": "netstat",
+      "node": "M2",
+      "score": 1.0,
+      "latency": 10073,
+      "success": true
+    },
+    {
+      "phase": "7.Systeme",
+      "task": "netstat",
+      "node": "M3",
+      "score": 0.0,
+      "latency": 12507,
+      "success": true
+    },
+    {
+      "phase": "7.Systeme",
+      "task": "netstat",
+      "node": "OL1",
+      "score": 1.0,
+      "latency": 17164,
+      "success": true
+    },
+    {
+      "phase": "8.Archi",
+      "task": "mcp",
+      "node": "M1",
+      "score": 0.3333333333333333,
+      "latency": 1386,
+      "success": true
+    },
+    {
+      "phase": "8.Archi",
+      "task": "mcp",
+      "node": "M2",
+      "score": 0.3333333333333333,
+      "latency": 2637,
+      "success": true
+    },
+    {
+      "phase": "8.Archi",
+      "task": "mcp",
+      "node": "M3",
+      "score": 0.3333333333333333,
+      "latency": 2890,
+      "success": true
+    },
+    {
+      "phase": "8.Archi",
+      "task": "mcp",
+      "node": "OL1",
+      "score": 0.3333333333333333,
+      "latency": 4121,
+      "success": true
+    },
+    {
+      "phase": "8.Archi",
+      "task": "consensus",
+      "node": "M1",
+      "score": 0.3333333333333333,
+      "latency": 10017,
+      "success": true
+    },
+    {
+      "phase": "8.Archi",
+      "task": "consensus",
+      "node": "M2",
+      "score": 0.6666666666666666,
+      "latency": 10023,
+      "success": true
+    },
+    {
+      "phase": "8.Archi",
+      "task": "consensus",
+      "node": "M3",
+      "score": 0.3333333333333333,
+      "latency": 10820,
+      "success": true
+    },
+    {
+      "phase": "8.Archi",
+      "task": "consensus",
+      "node": "OL1",
+      "score": 0.0,
+      "latency": 21532,
+      "success": true
+    },
+    {
+      "phase": "9.Generation",
+      "task": "plan",
+      "node": "M1",
+      "score": 0.0,
+      "latency": 10885,
+      "success": true
+    },
+    {
+      "phase": "9.Generation",
+      "task": "plan",
+      "node": "M2",
+      "score": 0.6,
+      "latency": 10303,
+      "success": true
+    },
+    {
+      "phase": "9.Generation",
+      "task": "plan",
+      "node": "M3",
+      "score": 0.8,
+      "latency": 17486,
+      "success": true
+    },
+    {
+      "phase": "9.Generation",
+      "task": "plan",
+      "node": "OL1",
+      "score": 0.0,
+      "latency": 18090,
+      "success": true
+    },
+    {
+      "phase": "10.Multi",
+      "task": "traduction",
+      "node": "M1",
+      "score": 1.0,
+      "latency": 701,
+      "success": true
+    },
+    {
+      "phase": "10.Multi",
+      "task": "traduction",
+      "node": "M2",
+      "score": 1.0,
+      "latency": 855,
+      "success": true
+    },
+    {
+      "phase": "10.Multi",
+      "task": "traduction",
+      "node": "M3",
+      "score": 1.0,
+      "latency": 1203,
+      "success": true
+    },
+    {
+      "phase": "10.Multi",
+      "task": "traduction",
+      "node": "OL1",
+      "score": 1.0,
+      "latency": 7795,
+      "success": true
+    },
+    {
+      "phase": "10.Multi",
+      "task": "json",
+      "node": "M1",
+      "score": 1.0,
+      "latency": 838,
+      "success": true
+    },
+    {
+      "phase": "10.Multi",
+      "task": "json",
+      "node": "M2",
+      "score": 1.0,
+      "latency": 1518,
+      "success": true
+    },
+    {
+      "phase": "10.Multi",
+      "task": "json",
+      "node": "M3",
+      "score": 0.0,
+      "latency": 2525,
+      "success": true
+    },
+    {
+      "phase": "10.Multi",
+      "task": "json",
+      "node": "OL1",
+      "score": 1.0,
+      "latency": 2452,
+      "success": true
+    }
+  ]
+}

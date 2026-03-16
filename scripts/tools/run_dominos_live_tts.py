@@ -128,7 +128,7 @@ def execute_step_live(step: DominoStep) -> tuple[str, str]:
         action = step.action
         atype = step.action_type
 
-        if atype == "powershell":
+        if atype == "bash":
             cmd = action.replace("powershell:", "", 1) if action.startswith("powershell:") else action
             return "PASS", ps(cmd, step.timeout_s)
 

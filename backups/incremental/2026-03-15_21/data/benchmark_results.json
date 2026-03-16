@@ -1,0 +1,23 @@
+{
+  "timestamp": "2026-03-08 03:06:12",
+  "total": 5,
+  "success": 5,
+  "errors": 0,
+  "elapsed_s": 13.6,
+  "throughput_rps": 0.37,
+  "latency": {
+    "classify_avg_ms": 1241,
+    "generate_avg_ms": 3998,
+    "pipeline_avg_ms": 10740,
+    "classify_p95_ms": 2831,
+    "generate_p95_ms": 5683,
+    "pipeline_p95_ms": 13126
+  },
+  "intents": {
+    "question": 4,
+    "code": 1
+  },
+  "classification_accuracy": 80.0,
+  "model": "qwen3:1.7b",
+  "parallel": 2
+}

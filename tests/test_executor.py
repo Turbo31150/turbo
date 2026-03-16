@@ -14,6 +14,9 @@ from dataclasses import dataclass
 from unittest.mock import patch, MagicMock, AsyncMock
 
 import pytest
+import sys
+
+IS_LINUX = sys.platform == "linux"
 
 PROJECT_ROOT = Path(__file__).parent.parent
 if str(PROJECT_ROOT) not in sys.path:
@@ -26,6 +29,7 @@ from src.commands import JarvisCommand
 # PS script generators (pure functions, no mocks)
 # ===========================================================================
 
+@pytest.mark.skipif(IS_LINUX, reason="Windows specific")
 class TestPSScriptGenerators:
     def test_win_hotkey_ps(self):
         from src.executor import _win_hotkey_ps
@@ -70,6 +74,7 @@ class TestPSScriptGenerators:
 # HOTKEY_MAP structure
 # ===========================================================================
 
+@pytest.mark.skipif(IS_LINUX, reason="Windows specific")
 class TestHotkeyMap:
     def test_map_not_empty(self):
         from src.executor import HOTKEY_MAP
@@ -107,6 +112,7 @@ class TestHotkeyMap:
 # _execute_hotkey
 # ===========================================================================
 
+@pytest.mark.skipif(IS_LINUX, reason="Windows specific")
 class TestExecuteHotkey:
     def test_known_hotkey(self):
         from src.executor import _execute_hotkey

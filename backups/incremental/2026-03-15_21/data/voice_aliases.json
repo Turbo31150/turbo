@@ -1,0 +1,1002 @@
+[
+  {
+    "short": "ça va",
+    "full": "jarvis_self_diagnostic",
+    "category": "jarvis",
+    "action_type": "skill",
+    "description": "Auto-diagnostic JARVIS complet",
+    "usage_count": 0,
+    "last_used": 0.0,
+    "enabled": true
+  },
+  {
+    "short": "quoi de neuf",
+    "full": "rapport_systeme_linux",
+    "category": "jarvis",
+    "action_type": "skill",
+    "description": "Rapport systeme global",
+    "usage_count": 0,
+    "last_used": 0.0,
+    "enabled": true
+  },
+  {
+    "short": "santé",
+    "full": "health_summary",
+    "category": "jarvis",
+    "action_type": "skill",
+    "description": "Resume sante du systeme",
+    "usage_count": 0,
+    "last_used": 0.0,
+    "enabled": true
+  },
+  {
+    "short": "état",
+    "full": "diagnostics_quick",
+    "category": "jarvis",
+    "action_type": "skill",
+    "description": "Diagnostic rapide",
+    "usage_count": 0,
+    "last_used": 0.0,
+    "enabled": true
+  },
+  {
+    "short": "version",
+    "full": "cat /home/turbo/jarvis/VERSION 2>/dev/null || echo 'JARVIS v12.4'",
+    "category": "jarvis",
+    "action_type": "bash",
+    "description": "Version JARVIS",
+    "usage_count": 0,
+    "last_used": 0.0,
+    "enabled": true
+  },
+  {
+    "short": "boot",
+    "full": "jarvis_boot_status",
+    "category": "jarvis",
+    "action_type": "skill",
+    "description": "Statut de demarrage JARVIS",
+    "usage_count": 0,
+    "last_used": 0.0,
+    "enabled": true
+  },
+  {
+    "short": "aide",
+    "full": "list_skills",
+    "category": "jarvis",
+    "action_type": "skill",
+    "description": "Liste des skills disponibles",
+    "usage_count": 0,
+    "last_used": 0.0,
+    "enabled": true
+  },
+  {
+    "short": "rappel",
+    "full": "memory_list",
+    "category": "jarvis",
+    "action_type": "skill",
+    "description": "Liste des souvenirs JARVIS",
+    "usage_count": 0,
+    "last_used": 0.0,
+    "enabled": true
+  },
+  {
+    "short": "cerveau",
+    "full": "brain_status",
+    "category": "jarvis",
+    "action_type": "skill",
+    "description": "Statut du brain JARVIS",
+    "usage_count": 0,
+    "last_used": 0.0,
+    "enabled": true
+  },
+  {
+    "short": "apprends",
+    "full": "brain_learn",
+    "category": "jarvis",
+    "action_type": "skill",
+    "description": "Apprentissage brain",
+    "usage_count": 0,
+    "last_used": 0.0,
+    "enabled": true
+  },
+  {
+    "short": "up",
+    "full": "uptime -p",
+    "category": "system",
+    "action_type": "bash",
+    "description": "Uptime systeme",
+    "usage_count": 0,
+    "last_used": 0.0,
+    "enabled": true
+  },
+  {
+    "short": "ram",
+    "full": "free -h",
+    "category": "system",
+    "action_type": "bash",
+    "description": "Usage memoire RAM",
+    "usage_count": 1,
+    "last_used": 1773602445.5490599,
+    "enabled": true
+  },
+  {
+    "short": "cpu",
+    "full": "mpstat 1 1 2>/dev/null || top -bn1 | head -5",
+    "category": "system",
+    "action_type": "bash",
+    "description": "Usage CPU",
+    "usage_count": 0,
+    "last_used": 0.0,
+    "enabled": true
+  },
+  {
+    "short": "charge",
+    "full": "cat /proc/loadavg",
+    "category": "system",
+    "action_type": "bash",
+    "description": "Load average systeme",
+    "usage_count": 0,
+    "last_used": 0.0,
+    "enabled": true
+  },
+  {
+    "short": "swap",
+    "full": "swapon --show && free -h | grep Swap",
+    "category": "system",
+    "action_type": "bash",
+    "description": "Usage swap",
+    "usage_count": 0,
+    "last_used": 0.0,
+    "enabled": true
+  },
+  {
+    "short": "kernel",
+    "full": "uname -r",
+    "category": "system",
+    "action_type": "bash",
+    "description": "Version du kernel",
+    "usage_count": 0,
+    "last_used": 0.0,
+    "enabled": true
+  },
+  {
+    "short": "who",
+    "full": "who && w",
+    "category": "system",
+    "action_type": "bash",
+    "description": "Utilisateurs connectes",
+    "usage_count": 0,
+    "last_used": 0.0,
+    "enabled": true
+  },
+  {
+    "short": "log",
+    "full": "journalctl --user -n 30 --no-pager",
+    "category": "system",
+    "action_type": "bash",
+    "description": "30 derniers logs utilisateur",
+    "usage_count": 0,
+    "last_used": 0.0,
+    "enabled": true
+  },
+  {
+    "short": "err",
+    "full": "journalctl -p err --since '1 hour ago' --no-pager -n 20",
+    "category": "system",
+    "action_type": "bash",
+    "description": "Erreurs de la derniere heure",
+    "usage_count": 0,
+    "last_used": 0.0,
+    "enabled": true
+  },
+  {
+    "short": "date",
+    "full": "date '+%A %d %B %Y, %H:%M:%S'",
+    "category": "system",
+    "action_type": "bash",
+    "description": "Date et heure actuelles",
+    "usage_count": 0,
+    "last_used": 0.0,
+    "enabled": true
+  },
+  {
+    "short": "chaud",
+    "full": "optimise_gpu_linux",
+    "category": "gpu",
+    "action_type": "skill",
+    "description": "Temperatures et optimisation GPU",
+    "usage_count": 0,
+    "last_used": 0.0,
+    "enabled": true
+  },
+  {
+    "short": "gpu",
+    "full": "gpu_info",
+    "category": "gpu",
+    "action_type": "skill",
+    "description": "Infos GPU completes",
+    "usage_count": 0,
+    "last_used": 0.0,
+    "enabled": true
+  },
+  {
+    "short": "vram",
+    "full": "nvidia-smi --query-gpu=memory.used,memory.total --format=csv,noheader",
+    "category": "gpu",
+    "action_type": "bash",
+    "description": "Usage VRAM",
+    "usage_count": 0,
+    "last_used": 0.0,
+    "enabled": true
+  },
+  {
+    "short": "nvidia",
+    "full": "nvidia-smi",
+    "category": "gpu",
+    "action_type": "bash",
+    "description": "Dashboard nvidia-smi complet",
+    "usage_count": 0,
+    "last_used": 0.0,
+    "enabled": true
+  },
+  {
+    "short": "thermal",
+    "full": "sensors 2>/dev/null || nvidia-smi --query-gpu=temperature.gpu --format=csv,noheader",
+    "category": "gpu",
+    "action_type": "bash",
+    "description": "Temperatures capteurs",
+    "usage_count": 0,
+    "last_used": 0.0,
+    "enabled": true
+  },
+  {
+    "short": "fan",
+    "full": "sensors 2>/dev/null | grep -i fan || echo 'Pas de capteur fan'",
+    "category": "gpu",
+    "action_type": "bash",
+    "description": "Vitesse ventilateurs",
+    "usage_count": 0,
+    "last_used": 0.0,
+    "enabled": true
+  },
+  {
+    "short": "watts",
+    "full": "nvidia-smi --query-gpu=power.draw --format=csv,noheader",
+    "category": "gpu",
+    "action_type": "bash",
+    "description": "Consommation GPU en watts",
+    "usage_count": 0,
+    "last_used": 0.0,
+    "enabled": true
+  },
+  {
+    "short": "clock",
+    "full": "nvidia-smi --query-gpu=clocks.gr,clocks.mem --format=csv,noheader",
+    "category": "gpu",
+    "action_type": "bash",
+    "description": "Frequences GPU",
+    "usage_count": 0,
+    "last_used": 0.0,
+    "enabled": true
+  },
+  {
+    "short": "cuda",
+    "full": "nvcc --version 2>/dev/null || echo 'CUDA non installe'",
+    "category": "gpu",
+    "action_type": "bash",
+    "description": "Version CUDA",
+    "usage_count": 0,
+    "last_used": 0.0,
+    "enabled": true
+  },
+  {
+    "short": "driver",
+    "full": "nvidia-smi --query-gpu=driver_version --format=csv,noheader",
+    "category": "gpu",
+    "action_type": "bash",
+    "description": "Version driver GPU",
+    "usage_count": 0,
+    "last_used": 0.0,
+    "enabled": true
+  },
+  {
+    "short": "place",
+    "full": "disk_analysis_linux",
+    "category": "disk",
+    "action_type": "skill",
+    "description": "Analyse espace disque",
+    "usage_count": 0,
+    "last_used": 0.0,
+    "enabled": true
+  },
+  {
+    "short": "df",
+    "full": "df -h --type=ext4 --type=btrfs --type=xfs --type=tmpfs 2>/dev/null || df -h",
+    "category": "disk",
+    "action_type": "bash",
+    "description": "Espace disque par partition",
+    "usage_count": 0,
+    "last_used": 0.0,
+    "enabled": true
+  },
+  {
+    "short": "io",
+    "full": "iostat -x 1 1 2>/dev/null || cat /proc/diskstats | head -10",
+    "category": "disk",
+    "action_type": "bash",
+    "description": "I/O disque en cours",
+    "usage_count": 0,
+    "last_used": 0.0,
+    "enabled": true
+  },
+  {
+    "short": "gros",
+    "full": "du -sh /home/turbo/* 2>/dev/null | sort -rh | head -10",
+    "category": "disk",
+    "action_type": "bash",
+    "description": "Plus gros dossiers home",
+    "usage_count": 0,
+    "last_used": 0.0,
+    "enabled": true
+  },
+  {
+    "short": "tmp",
+    "full": "du -sh /tmp/* 2>/dev/null | sort -rh | head -10",
+    "category": "disk",
+    "action_type": "bash",
+    "description": "Contenu de /tmp",
+    "usage_count": 0,
+    "last_used": 0.0,
+    "enabled": true
+  },
+  {
+    "short": "mount",
+    "full": "findmnt --real --noheadings",
+    "category": "disk",
+    "action_type": "bash",
+    "description": "Points de montage actifs",
+    "usage_count": 0,
+    "last_used": 0.0,
+    "enabled": true
+  },
+  {
+    "short": "trash",
+    "full": "du -sh ~/.local/share/Trash/files/ 2>/dev/null || echo 'Corbeille vide'",
+    "category": "disk",
+    "action_type": "bash",
+    "description": "Taille de la corbeille",
+    "usage_count": 0,
+    "last_used": 0.0,
+    "enabled": true
+  },
+  {
+    "short": "zap",
+    "full": "nettoyage_profond_linux",
+    "category": "disk",
+    "action_type": "skill",
+    "description": "Nettoyage profond systeme",
+    "usage_count": 0,
+    "last_used": 0.0,
+    "enabled": true
+  },
+  {
+    "short": "net",
+    "full": "diagnostic_reseau_linux",
+    "category": "network",
+    "action_type": "skill",
+    "description": "Diagnostic reseau complet",
+    "usage_count": 0,
+    "last_used": 0.0,
+    "enabled": true
+  },
+  {
+    "short": "ip",
+    "full": "ip -br addr show",
+    "category": "network",
+    "action_type": "bash",
+    "description": "Adresses IP locales",
+    "usage_count": 0,
+    "last_used": 0.0,
+    "enabled": true
+  },
+  {
+    "short": "port",
+    "full": "ss -tlnp",
+    "category": "network",
+    "action_type": "bash",
+    "description": "Ports en ecoute",
+    "usage_count": 0,
+    "last_used": 0.0,
+    "enabled": true
+  },
+  {
+    "short": "ping",
+    "full": "ping -c 3 8.8.8.8",
+    "category": "network",
+    "action_type": "bash",
+    "description": "Ping Google DNS",
+    "usage_count": 0,
+    "last_used": 0.0,
+    "enabled": true
+  },
+  {
+    "short": "wifi",
+    "full": "nmcli dev wifi list 2>/dev/null || iwconfig 2>/dev/null",
+    "category": "network",
+    "action_type": "bash",
+    "description": "Reseaux WiFi visibles",
+    "usage_count": 0,
+    "last_used": 0.0,
+    "enabled": true
+  },
+  {
+    "short": "dns",
+    "full": "cat /etc/resolv.conf | grep nameserver",
+    "category": "network",
+    "action_type": "bash",
+    "description": "Serveurs DNS configures",
+    "usage_count": 0,
+    "last_used": 0.0,
+    "enabled": true
+  },
+  {
+    "short": "routes",
+    "full": "ip route show",
+    "category": "network",
+    "action_type": "bash",
+    "description": "Table de routage",
+    "usage_count": 0,
+    "last_used": 0.0,
+    "enabled": true
+  },
+  {
+    "short": "speed",
+    "full": "speedtest-cli --simple 2>/dev/null || curl -s https://raw.githubusercontent.com/sivel/speedtest-cli/master/speedtest.py | python3",
+    "category": "network",
+    "action_type": "bash",
+    "description": "Test de vitesse internet",
+    "usage_count": 0,
+    "last_used": 0.0,
+    "enabled": true
+  },
+  {
+    "short": "connexions",
+    "full": "ss -tunp | head -20",
+    "category": "network",
+    "action_type": "bash",
+    "description": "Connexions reseau actives",
+    "usage_count": 0,
+    "last_used": 0.0,
+    "enabled": true
+  },
+  {
+    "short": "pub",
+    "full": "curl -s ifconfig.me",
+    "category": "network",
+    "action_type": "bash",
+    "description": "Adresse IP publique",
+    "usage_count": 0,
+    "last_used": 0.0,
+    "enabled": true
+  },
+  {
+    "short": "safe",
+    "full": "securite_audit_linux",
+    "category": "security",
+    "action_type": "skill",
+    "description": "Audit de securite complet",
+    "usage_count": 0,
+    "last_used": 0.0,
+    "enabled": true
+  },
+  {
+    "short": "fw",
+    "full": "sudo ufw status verbose 2>/dev/null || sudo iptables -L -n 2>/dev/null | head -20",
+    "category": "security",
+    "action_type": "bash",
+    "description": "Statut firewall",
+    "usage_count": 0,
+    "last_used": 0.0,
+    "enabled": true
+  },
+  {
+    "short": "fail",
+    "full": "sudo fail2ban-client status 2>/dev/null || echo 'fail2ban non installe'",
+    "category": "security",
+    "action_type": "bash",
+    "description": "Statut fail2ban",
+    "usage_count": 0,
+    "last_used": 0.0,
+    "enabled": true
+  },
+  {
+    "short": "auth",
+    "full": "journalctl -u ssh --since '1 hour ago' --no-pager -n 15 2>/dev/null || tail -15 /var/log/auth.log 2>/dev/null",
+    "category": "security",
+    "action_type": "bash",
+    "description": "Tentatives d'authentification",
+    "usage_count": 0,
+    "last_used": 0.0,
+    "enabled": true
+  },
+  {
+    "short": "scan",
+    "full": "security_scan",
+    "category": "security",
+    "action_type": "skill",
+    "description": "Scan securite rapide",
+    "usage_count": 0,
+    "last_used": 0.0,
+    "enabled": true
+  },
+  {
+    "short": "score",
+    "full": "security_score",
+    "category": "security",
+    "action_type": "skill",
+    "description": "Score de securite",
+    "usage_count": 0,
+    "last_used": 0.0,
+    "enabled": true
+  },
+  {
+    "short": "lock",
+    "full": "loginctl lock-session",
+    "category": "security",
+    "action_type": "bash",
+    "description": "Verrouiller l'ecran",
+    "usage_count": 0,
+    "last_used": 0.0,
+    "enabled": true
+  },
+  {
+    "short": "top",
+    "full": "ps aux --sort=-%cpu | head -12",
+    "category": "process",
+    "action_type": "bash",
+    "description": "Top processus CPU",
+    "usage_count": 0,
+    "last_used": 0.0,
+    "enabled": true
+  },
+  {
+    "short": "mem",
+    "full": "ps aux --sort=-%mem | head -12",
+    "category": "process",
+    "action_type": "bash",
+    "description": "Top processus memoire",
+    "usage_count": 0,
+    "last_used": 0.0,
+    "enabled": true
+  },
+  {
+    "short": "kill",
+    "full": "list_processes",
+    "category": "process",
+    "action_type": "skill",
+    "description": "Liste processus pour kill",
+    "usage_count": 0,
+    "last_used": 0.0,
+    "enabled": true
+  },
+  {
+    "short": "zombie",
+    "full": "ps aux | grep -w Z | grep -v grep || echo 'Pas de zombie'",
+    "category": "process",
+    "action_type": "bash",
+    "description": "Processus zombies",
+    "usage_count": 0,
+    "last_used": 0.0,
+    "enabled": true
+  },
+  {
+    "short": "jobs",
+    "full": "systemctl --user list-units --type=service --state=running --no-pager",
+    "category": "process",
+    "action_type": "bash",
+    "description": "Services utilisateur actifs",
+    "usage_count": 0,
+    "last_used": 0.0,
+    "enabled": true
+  },
+  {
+    "short": "test",
+    "full": "cd /home/turbo/jarvis && uv run pytest --tb=short -q 2>&1 | tail -20",
+    "category": "dev",
+    "action_type": "bash",
+    "description": "Lancer les tests pytest",
+    "usage_count": 0,
+    "last_used": 0.0,
+    "enabled": true
+  },
+  {
+    "short": "lint",
+    "full": "cd /home/turbo/jarvis && ruff check src/ --statistics 2>&1 | tail -15",
+    "category": "dev",
+    "action_type": "bash",
+    "description": "Verifier le code avec ruff",
+    "usage_count": 0,
+    "last_used": 0.0,
+    "enabled": true
+  },
+  {
+    "short": "build",
+    "full": "cd /home/turbo/jarvis && npm run build 2>&1 | tail -10",
+    "category": "dev",
+    "action_type": "bash",
+    "description": "Build Electron",
+    "usage_count": 0,
+    "last_used": 0.0,
+    "enabled": true
+  },
+  {
+    "short": "format",
+    "full": "cd /home/turbo/jarvis && ruff format src/ --check 2>&1 | tail -10",
+    "category": "dev",
+    "action_type": "bash",
+    "description": "Verifier formatage ruff",
+    "usage_count": 0,
+    "last_used": 0.0,
+    "enabled": true
+  },
+  {
+    "short": "type",
+    "full": "cd /home/turbo/jarvis && mypy src/ --ignore-missing-imports 2>&1 | tail -15",
+    "category": "dev",
+    "action_type": "bash",
+    "description": "Verification types mypy",
+    "usage_count": 0,
+    "last_used": 0.0,
+    "enabled": true
+  },
+  {
+    "short": "pip",
+    "full": "pip list --outdated 2>/dev/null | head -15",
+    "category": "dev",
+    "action_type": "bash",
+    "description": "Packages pip obsoletes",
+    "usage_count": 0,
+    "last_used": 0.0,
+    "enabled": true
+  },
+  {
+    "short": "node",
+    "full": "node --version && npm --version",
+    "category": "dev",
+    "action_type": "bash",
+    "description": "Versions Node.js et npm",
+    "usage_count": 0,
+    "last_used": 0.0,
+    "enabled": true
+  },
+  {
+    "short": "py",
+    "full": "python3 --version && uv --version",
+    "category": "dev",
+    "action_type": "bash",
+    "description": "Versions Python et uv",
+    "usage_count": 0,
+    "last_used": 0.0,
+    "enabled": true
+  },
+  {
+    "short": "todo",
+    "full": "grep -rn 'TODO\\|FIXME\\|HACK\\|XXX' /home/turbo/jarvis/src/ 2>/dev/null | wc -l",
+    "category": "dev",
+    "action_type": "bash",
+    "description": "Nombre de TODO dans le code",
+    "usage_count": 0,
+    "last_used": 0.0,
+    "enabled": true
+  },
+  {
+    "short": "lines",
+    "full": "find /home/turbo/jarvis/src -name '*.py' | xargs wc -l 2>/dev/null | tail -1",
+    "category": "dev",
+    "action_type": "bash",
+    "description": "Total lignes de code Python",
+    "usage_count": 0,
+    "last_used": 0.0,
+    "enabled": true
+  },
+  {
+    "short": "push",
+    "full": "cd /home/turbo/jarvis && git add -A && git commit -m 'auto-commit via JARVIS' && git push",
+    "category": "git",
+    "action_type": "bash",
+    "description": "Git add + commit + push",
+    "usage_count": 0,
+    "last_used": 0.0,
+    "enabled": true
+  },
+  {
+    "short": "status",
+    "full": "cd /home/turbo/jarvis && git status -sb",
+    "category": "git",
+    "action_type": "bash",
+    "description": "Git status court",
+    "usage_count": 0,
+    "last_used": 0.0,
+    "enabled": true
+  },
+  {
+    "short": "diff",
+    "full": "cd /home/turbo/jarvis && git diff --stat",
+    "category": "git",
+    "action_type": "bash",
+    "description": "Git diff resume",
+    "usage_count": 0,
+    "last_used": 0.0,
+    "enabled": true
+  },
+  {
+    "short": "last",
+    "full": "cd /home/turbo/jarvis && git log --oneline -10",
+    "category": "git",
+    "action_type": "bash",
+    "description": "10 derniers commits",
+    "usage_count": 0,
+    "last_used": 0.0,
+    "enabled": true
+  },
+  {
+    "short": "branch",
+    "full": "cd /home/turbo/jarvis && git branch -a",
+    "category": "git",
+    "action_type": "bash",
+    "description": "Branches git",
+    "usage_count": 0,
+    "last_used": 0.0,
+    "enabled": true
+  },
+  {
+    "short": "stash",
+    "full": "cd /home/turbo/jarvis && git stash list",
+    "category": "git",
+    "action_type": "bash",
+    "description": "Liste des stash git",
+    "usage_count": 0,
+    "last_used": 0.0,
+    "enabled": true
+  },
+  {
+    "short": "pull",
+    "full": "cd /home/turbo/jarvis && git pull --rebase",
+    "category": "git",
+    "action_type": "bash",
+    "description": "Git pull rebase",
+    "usage_count": 0,
+    "last_used": 0.0,
+    "enabled": true
+  },
+  {
+    "short": "dock",
+    "full": "docker ps --format 'table {{.Names}}\\t{{.Status}}\\t{{.Ports}}' 2>/dev/null || echo 'Docker non actif'",
+    "category": "docker",
+    "action_type": "bash",
+    "description": "Conteneurs Docker actifs",
+    "usage_count": 0,
+    "last_used": 0.0,
+    "enabled": true
+  },
+  {
+    "short": "images",
+    "full": "docker images --format 'table {{.Repository}}\\t{{.Tag}}\\t{{.Size}}' 2>/dev/null | head -15",
+    "category": "docker",
+    "action_type": "bash",
+    "description": "Images Docker",
+    "usage_count": 0,
+    "last_used": 0.0,
+    "enabled": true
+  },
+  {
+    "short": "compose",
+    "full": "cd /home/turbo/jarvis/projects/linux && docker compose ps 2>/dev/null",
+    "category": "docker",
+    "action_type": "bash",
+    "description": "Statut Docker Compose JARVIS",
+    "usage_count": 0,
+    "last_used": 0.0,
+    "enabled": true
+  },
+  {
+    "short": "fix",
+    "full": "fix_audio_linux",
+    "category": "audio",
+    "action_type": "skill",
+    "description": "Reparer l'audio Linux",
+    "usage_count": 0,
+    "last_used": 0.0,
+    "enabled": true
+  },
+  {
+    "short": "vol",
+    "full": "pactl get-sink-volume @DEFAULT_SINK@ 2>/dev/null || amixer get Master 2>/dev/null",
+    "category": "audio",
+    "action_type": "bash",
+    "description": "Volume audio actuel",
+    "usage_count": 0,
+    "last_used": 0.0,
+    "enabled": true
+  },
+  {
+    "short": "mute",
+    "full": "pactl set-sink-mute @DEFAULT_SINK@ toggle",
+    "category": "audio",
+    "action_type": "bash",
+    "description": "Basculer sourdine",
+    "usage_count": 0,
+    "last_used": 0.0,
+    "enabled": true
+  },
+  {
+    "short": "save",
+    "full": "backup_jarvis_linux",
+    "category": "jarvis",
+    "action_type": "skill",
+    "description": "Backup complet JARVIS",
+    "usage_count": 0,
+    "last_used": 0.0,
+    "enabled": true
+  },
+  {
+    "short": "snap",
+    "full": "cd /home/turbo/jarvis && tar czf /tmp/jarvis-snap-$(date +%Y%m%d-%H%M).tar.gz data/*.db src/ 2>&1 | tail -3",
+    "category": "jarvis",
+    "action_type": "bash",
+    "description": "Snapshot rapide JARVIS",
+    "usage_count": 0,
+    "last_used": 0.0,
+    "enabled": true
+  },
+  {
+    "short": "restore",
+    "full": "ls -lth /tmp/jarvis-snap-*.tar.gz 2>/dev/null | head -5 || echo 'Aucun snapshot'",
+    "category": "jarvis",
+    "action_type": "bash",
+    "description": "Lister les snapshots",
+    "usage_count": 0,
+    "last_used": 0.0,
+    "enabled": true
+  },
+  {
+    "short": "cluster",
+    "full": "jarvis_cluster_health",
+    "category": "monitor",
+    "action_type": "skill",
+    "description": "Sante du cluster IA",
+    "usage_count": 0,
+    "last_used": 0.0,
+    "enabled": true
+  },
+  {
+    "short": "models",
+    "full": "lm_models",
+    "category": "monitor",
+    "action_type": "skill",
+    "description": "Modeles IA charges",
+    "usage_count": 0,
+    "last_used": 0.0,
+    "enabled": true
+  },
+  {
+    "short": "ollama",
+    "full": "ollama_status",
+    "category": "monitor",
+    "action_type": "skill",
+    "description": "Statut serveur Ollama",
+    "usage_count": 0,
+    "last_used": 0.0,
+    "enabled": true
+  },
+  {
+    "short": "ask",
+    "full": "ollama_query",
+    "category": "monitor",
+    "action_type": "skill",
+    "description": "Interroger un modele IA",
+    "usage_count": 0,
+    "last_used": 0.0,
+    "enabled": true
+  },
+  {
+    "short": "bench",
+    "full": "lm_benchmark",
+    "category": "monitor",
+    "action_type": "skill",
+    "description": "Benchmark modele IA",
+    "usage_count": 0,
+    "last_used": 0.0,
+    "enabled": true
+  },
+  {
+    "short": "route",
+    "full": "orch_routing_matrix",
+    "category": "monitor",
+    "action_type": "skill",
+    "description": "Matrice de routage IA",
+    "usage_count": 0,
+    "last_used": 0.0,
+    "enabled": true
+  },
+  {
+    "short": "budget",
+    "full": "orch_budget",
+    "category": "monitor",
+    "action_type": "skill",
+    "description": "Budget orchestrateur IA",
+    "usage_count": 0,
+    "last_used": 0.0,
+    "enabled": true
+  },
+  {
+    "short": "trade",
+    "full": "trading_status",
+    "category": "trading",
+    "action_type": "skill",
+    "description": "Statut trading global",
+    "usage_count": 0,
+    "last_used": 0.0,
+    "enabled": true
+  },
+  {
+    "short": "positions",
+    "full": "trading_positions",
+    "category": "trading",
+    "action_type": "skill",
+    "description": "Positions trading ouvertes",
+    "usage_count": 0,
+    "last_used": 0.0,
+    "enabled": true
+  },
+  {
+    "short": "signaux",
+    "full": "trading_pending_signals",
+    "category": "trading",
+    "action_type": "skill",
+    "description": "Signaux trading en attente",
+    "usage_count": 0,
+    "last_used": 0.0,
+    "enabled": true
+  },
+  {
+    "short": "backtest",
+    "full": "trading_backtest_list",
+    "category": "trading",
+    "action_type": "skill",
+    "description": "Backtests disponibles",
+    "usage_count": 0,
+    "last_used": 0.0,
+    "enabled": true
+  },
+  {
+    "short": "ranks",
+    "full": "trading_strategy_rankings",
+    "category": "trading",
+    "action_type": "skill",
+    "description": "Classement des strategies",
+    "usage_count": 0,
+    "last_used": 0.0,
+    "enabled": true
+  },
+  {
+    "short": "services",
+    "full": "service_list",
+    "category": "service",
+    "action_type": "skill",
+    "description": "Liste des services JARVIS",
+    "usage_count": 0,
+    "last_used": 0.0,
+    "enabled": true
+  },
+  {
+    "short": "restart",
+    "full": "systemctl --user restart jarvis-mcp.service 2>/dev/null || echo 'Service non trouve'",
+    "category": "service",
+    "action_type": "bash",
+    "description": "Redemarrer le service MCP",
+    "usage_count": 0,
+    "last_used": 0.0,
+    "enabled": true
+  }
+]

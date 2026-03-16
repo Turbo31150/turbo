@@ -1,0 +1,56 @@
+[
+  {
+    "timestamp": "2026-03-07 15:28:37",
+    "before_score": 86,
+    "after_score": 86,
+    "score_delta": 0,
+    "fixes_applied": 0,
+    "fixes_attempted": 0,
+    "dry_run": true
+  },
+  {
+    "timestamp": "2026-03-07 15:29:11",
+    "before_score": 86,
+    "after_score": 86,
+    "score_delta": 0,
+    "fixes_applied": 0,
+    "fixes_attempted": 0,
+    "dry_run": true
+  },
+  {
+    "timestamp": "2026-03-07 15:29:26",
+    "before_score": 86,
+    "after_score": 86,
+    "score_delta": 0,
+    "fixes_applied": 0,
+    "fixes_attempted": 214,
+    "dry_run": true
+  },
+  {
+    "timestamp": "2026-03-07 15:29:32",
+    "before_score": 86,
+    "after_score": 86,
+    "score_delta": 0,
+    "fixes_applied": 214,
+    "fixes_attempted": 214,
+    "dry_run": false
+  },
+  {
+    "timestamp": "2026-03-07 15:30:43",
+    "before_score": 86,
+    "after_score": 86,
+    "score_delta": 0,
+    "fixes_applied": 214,
+    "fixes_attempted": 214,
+    "dry_run": false
+  },
+  {
+    "timestamp": "2026-03-07 22:17:02",
+    "before_score": 100,
+    "after_score": 100,
+    "score_delta": 0,
+    "fixes_applied": 59,
+    "fixes_attempted": 59,
+    "dry_run": false
+  }
+]

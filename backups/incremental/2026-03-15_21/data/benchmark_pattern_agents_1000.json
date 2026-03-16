@@ -1,0 +1,9110 @@
+{
+  "timestamp": "2026-03-05 20:05:37",
+  "total": 1000,
+  "ok": 597,
+  "rate": "59.7%",
+  "duration_s": 7646.6,
+  "throughput_rps": 0.13,
+  "by_pattern": {
+    "analysis": {
+      "ok": 20,
+      "total": 91,
+      "rate": 0.21978021978021978,
+      "avg_ms": 46781.359210000126,
+      "avg_q": 1.04
+    },
+    "architecture": {
+      "ok": 5,
+      "total": 64,
+      "rate": 0.078125,
+      "avg_ms": 44608.387480000056,
+      "avg_q": 1.0
+    },
+    "classifier": {
+      "ok": 42,
+      "total": 42,
+      "rate": 1.0,
+      "avg_ms": 15418.45582619042,
+      "avg_q": 0.966047619047619
+    },
+    "code": {
+      "ok": 60,
+      "total": 127,
+      "rate": 0.47244094488188976,
+      "avg_ms": 29209.04000833327,
+      "avg_q": 1.0
+    },
+    "creative": {
+      "ok": 63,
+      "total": 66,
+      "rate": 0.9545454545454546,
+      "avg_ms": 30780.409879365114,
+      "avg_q": 0.9818571428571429
+    },
+    "data": {
+      "ok": 21,
+      "total": 70,
+      "rate": 0.3,
+      "avg_ms": 40899.15614285716,
+      "avg_q": 1.0
+    },
+    "devops": {
+      "ok": 40,
+      "total": 46,
+      "rate": 0.8695652173913043,
+      "avg_ms": 33252.52276000001,
+      "avg_q": 1.0
+    },
+    "math": {
+      "ok": 53,
+      "total": 68,
+      "rate": 0.7794117647058824,
+      "avg_ms": 37466.86810943397,
+      "avg_q": 1.0
+    },
+    "reasoning": {
+      "ok": 31,
+      "total": 69,
+      "rate": 0.4492753623188406,
+      "avg_ms": 34214.847519354924,
+      "avg_q": 1.0
+    },
+    "security": {
+      "ok": 14,
+      "total": 69,
+      "rate": 0.2028985507246377,
+      "avg_ms": 38799.693899999875,
+      "avg_q": 1.0
+    },
+    "simple": {
+      "ok": 110,
+      "total": 110,
+      "rate": 1.0,
+      "avg_ms": 6189.491253636384,
+      "avg_q": 0.031018181818181816
+    },
+    "system": {
+      "ok": 60,
+      "total": 66,
+      "rate": 0.9090909090909091,
+      "avg_ms": 26646.770416666706,
+      "avg_q": 0.9822666666666666
+    },
+    "trading": {
+      "ok": 36,
+      "total": 65,
+      "rate": 0.5538461538461539,
+      "avg_ms": 41789.242319444405,
+      "avg_q": 1.088888888888889
+    },
+    "web": {
+      "ok": 42,
+      "total": 47,
+      "rate": 0.8936170212765957,
+      "avg_ms": 31587.34986666651,
+      "avg_q": 1.0
+    }
+  },
+  "results": [
+    {
+      "pattern": "math",
+      "node": "M3",
+      "strategy": "category",
+      "ms": 60026,
+      "tokens": 0,
+      "quality": 0.0,
+      "ok": false
+    },
+    {
+      "pattern": "simple",
+      "node": "OL1",
+      "strategy": "single",
+      "ms": 506,
+      "tokens": 1,
+      "quality": 0.007,
+      "ok": true
+    },
+    {
+      "pattern": "system",
+      "node": "M1",
+      "strategy": "category",
+      "ms": 8244,
+      "tokens": 146,
+      "quality": 1.0,
+      "ok": true
+    },
+    {
+      "pattern": "reasoning",
+      "node": "M3",
+      "strategy": "category",
+      "ms": 60012,
+      "tokens": 0,
+      "quality": 0.0,
+      "ok": false
+    },
+    {
+      "pattern": "analysis",
+      "node": "M1",
+      "strategy": "consensus",
+      "ms": 51067,
+      "tokens": 766,
+      "quality": 1.0,
+      "ok": true
+    },
+    {
+      "pattern": "data",
+      "node": "M1",
+      "strategy": "consensus",
+      "ms": 60014,
+      "tokens": 0,
+      "quality": 0.0,
+      "ok": false
+    },
+    {
+      "pattern": "creative",
+      "node": "M1",
+      "strategy": "single",
+      "ms": 9712,
+      "tokens": 173,
+      "quality": 1.0,
+      "ok": true
+    },
+    {
+      "pattern": "trading",
+      "node": "M1",
+      "strategy": "consensus",
+      "ms": 51066,
+      "tokens": 501,
+      "quality": 1.0,
+      "ok": true
+    },
+    {
+      "pattern": "code",
+      "node": "M1",
+      "strategy": "consensus",
+      "ms": 26668,
+      "tokens": 203,
+      "quality": 1.0,
+      "ok": true
+    },
+    {
+      "pattern": "reasoning",
+      "node": "M3",
+      "strategy": "category",
+      "ms": 60082,
+      "tokens": 0,
+      "quality": 0.0,
+      "ok": false
+    },
+    {
+      "pattern": "math",
+      "node": "M3",
+      "strategy": "category",
+      "ms": 60006,
+      "tokens": 0,
+      "quality": 0.0,
+      "ok": false
+    },
+    {
+      "pattern": "web",
+      "node": "OL1",
+      "strategy": "single:fallback=OL1",
+      "ms": 36987,
+      "tokens": 788,
+      "quality": 1.0,
+      "ok": true
+    },
+    {
+      "pattern": "simple",
+      "node": "OL1",
+      "strategy": "single",
+      "ms": 491,
+      "tokens": 5,
+      "quality": 0.152,
+      "ok": true
+    },
+    {
+      "pattern": "security",
+      "node": "M1",
+      "strategy": "consensus",
+      "ms": 15079,
+      "tokens": 0,
+      "quality": 0.0,
+      "ok": false
+    },
+    {
+      "pattern": "data",
+      "node": "M1",
+      "strategy": "consensus",
+      "ms": 15086,
+      "tokens": 0,
+      "quality": 0.0,
+      "ok": false
+    },
+    {
+      "pattern": "devops",
+      "node": "OL1",
+      "strategy": "category:fallback=OL1",
+      "ms": 27276,
+      "tokens": 566,
+      "quality": 1.0,
+      "ok": true
+    },
+    {
+      "pattern": "system",
+      "node": "OL1",
+      "strategy": "category:fallback=OL1",
+      "ms": 25067,
+      "tokens": 487,
+      "quality": 1.0,
+      "ok": true
+    },
+    {
+      "pattern": "analysis",
+      "node": "M1",
+      "strategy": "consensus",
+      "ms": 18356,
+      "tokens": 0,
+      "quality": 0.0,
+      "ok": false
+    },
+    {
+      "pattern": "classifier",
+      "node": "OL1",
+      "strategy": "category:fallback=OL1",
+      "ms": 7225,
+      "tokens": 187,
+      "quality": 1.0,
+      "ok": true
+    },
+    {
+      "pattern": "data",
+      "node": "M1",
+      "strategy": "consensus",
+      "ms": 9489,
+      "tokens": 0,
+      "quality": 0.0,
+      "ok": false
+    },
+    {
+      "pattern": "code",
+      "node": "M1",
+      "strategy": "consensus",
+      "ms": 16797,
+      "tokens": 0,
+      "quality": 0.0,
+      "ok": false
+    },
+    {
+      "pattern": "reasoning",
+      "node": "M3",
+      "strategy": "category",
+      "ms": 60020,
+      "tokens": 0,
+      "quality": 0.0,
+      "ok": false
+    },
+    {
+      "pattern": "analysis",
+      "node": "M1",
+      "strategy": "consensus",
+      "ms": 11685,
+      "tokens": 0,
+      "quality": 0.0,
+      "ok": false
+    },
+    {
+      "pattern": "reasoning",
+      "node": "M3",
+      "strategy": "category",
+      "ms": 60041,
+      "tokens": 0,
+      "quality": 0.0,
+      "ok": false
+    },
+    {
+      "pattern": "analysis",
+      "node": "M1",
+      "strategy": "consensus",
+      "ms": 17551,
+      "tokens": 0,
+      "quality": 0.0,
+      "ok": false
+    },
+    {
+      "pattern": "reasoning",
+      "node": "M3",
+      "strategy": "category",
+      "ms": 60009,
+      "tokens": 0,
+      "quality": 0.0,
+      "ok": false
+    },
+    {
+      "pattern": "security",
+      "node": "M1",
+      "strategy": "consensus",
+      "ms": 10757,
+      "tokens": 0,
+      "quality": 0.0,
+      "ok": false
+    },
+    {
+      "pattern": "math",
+      "node": "M3",
+      "strategy": "category",
+      "ms": 60012,
+      "tokens": 0,
+      "quality": 0.0,
+      "ok": false
+    },
+    {
+      "pattern": "analysis",
+      "node": "M1",
+      "strategy": "consensus",
+      "ms": 5212,
+      "tokens": 0,
+      "quality": 0.0,
+      "ok": false
+    },
+    {
+      "pattern": "creative",
+      "node": "OL1",
+      "strategy": "single:fallback=OL1",
+      "ms": 13431,
+      "tokens": 318,
+      "quality": 1.0,
+      "ok": true
+    },
+    {
+      "pattern": "data",
+      "node": "M1",
+      "strategy": "consensus",
+      "ms": 7568,
+      "tokens": 0,
+      "quality": 0.0,
+      "ok": false
+    },
+    {
+      "pattern": "creative",
+      "node": "OL1",
+      "strategy": "single:fallback=OL1",
+      "ms": 5555,
+      "tokens": 167,
+      "quality": 1.0,
+      "ok": true
+    },
+    {
+      "pattern": "reasoning",
+      "node": "M1",
+      "strategy": "category:fallback=M1",
+      "ms": 24292,
+      "tokens": 281,
+      "quality": 1.0,
+      "ok": true
+    },
+    {
+      "pattern": "creative",
+      "node": "M1",
+      "strategy": "single",
+      "ms": 43629,
+      "tokens": 550,
+      "quality": 1.0,
+      "ok": true
+    },
+    {
+      "pattern": "math",
+      "node": "M3",
+      "strategy": "category",
+      "ms": 60005,
+      "tokens": 0,
+      "quality": 0.0,
+      "ok": false
+    },
+    {
+      "pattern": "data",
+      "node": "M1",
+      "strategy": "consensus",
+      "ms": 59855,
+      "tokens": 0,
+      "quality": 0.0,
+      "ok": false
+    },
+    {
+      "pattern": "analysis",
+      "node": "M1",
+      "strategy": "consensus",
+      "ms": 59851,
+      "tokens": 0,
+      "quality": 0.0,
+      "ok": false
+    },
+    {
+      "pattern": "analysis",
+      "node": "M1",
+      "strategy": "consensus",
+      "ms": 42637,
+      "tokens": 0,
+      "quality": 0.0,
+      "ok": false
+    },
+    {
+      "pattern": "web",
+      "node": "OL1",
+      "strategy": "single:fallback=OL1",
+      "ms": 26217,
+      "tokens": 501,
+      "quality": 1.0,
+      "ok": true
+    },
+    {
+      "pattern": "data",
+      "node": "M1",
+      "strategy": "consensus",
+      "ms": 37069,
+      "tokens": 0,
+      "quality": 0.0,
+      "ok": false
+    },
+    {
+      "pattern": "security",
+      "node": "M1",
+      "strategy": "consensus",
+      "ms": 60015,
+      "tokens": 0,
+      "quality": 0.0,
+      "ok": false
+    },
+    {
+      "pattern": "creative",
+      "node": "M1",
+      "strategy": "single",
+      "ms": 28864,
+      "tokens": 141,
+      "quality": 1.0,
+      "ok": true
+    },
+    {
+      "pattern": "math",
+      "node": "M3",
+      "strategy": "category",
+      "ms": 59999,
+      "tokens": 0,
+      "quality": 0.0,
+      "ok": false
+    },
+    {
+      "pattern": "creative",
+      "node": "OL1",
+      "strategy": "single",
+      "ms": 60021,
+      "tokens": 0,
+      "quality": 0.0,
+      "ok": false
+    },
+    {
+      "pattern": "web",
+      "node": "OL1",
+      "strategy": "single:fallback=OL1",
+      "ms": 41787,
+      "tokens": 785,
+      "quality": 1.0,
+      "ok": true
+    },
+    {
+      "pattern": "analysis",
+      "node": "M1",
+      "strategy": "consensus",
+      "ms": 60015,
+      "tokens": 0,
+      "quality": 0.0,
+      "ok": false
+    },
+    {
+      "pattern": "web",
+      "node": "OL1",
+      "strategy": "single",
+      "ms": 60007,
+      "tokens": 0,
+      "quality": 0.0,
+      "ok": false
+    },
+    {
+      "pattern": "web",
+      "node": "OL1",
+      "strategy": "single:fallback=OL1",
+      "ms": 42868,
+      "tokens": 762,
+      "quality": 1.0,
+      "ok": true
+    },
+    {
+      "pattern": "math",
+      "node": "M3",
+      "strategy": "category",
+      "ms": 60023,
+      "tokens": 0,
+      "quality": 0.0,
+      "ok": false
+    },
+    {
+      "pattern": "security",
+      "node": "M1",
+      "strategy": "consensus",
+      "ms": 37084,
+      "tokens": 0,
+      "quality": 0.0,
+      "ok": false
+    },
+    {
+      "pattern": "trading",
+      "node": "M1",
+      "strategy": "consensus",
+      "ms": 37109,
+      "tokens": 0,
+      "quality": 0.0,
+      "ok": false
+    },
+    {
+      "pattern": "security",
+      "node": "M1",
+      "strategy": "consensus",
+      "ms": 22441,
+      "tokens": 0,
+      "quality": 0.0,
+      "ok": false
+    },
+    {
+      "pattern": "architecture",
+      "node": "M1",
+      "strategy": "consensus",
+      "ms": 17483,
+      "tokens": 0,
+      "quality": 0.0,
+      "ok": false
+    },
+    {
+      "pattern": "devops",
+      "node": "OL1",
+      "strategy": "category:fallback=OL1",
+      "ms": 24205,
+      "tokens": 406,
+      "quality": 1.0,
+      "ok": true
+    },
+    {
+      "pattern": "architecture",
+      "node": "M1",
+      "strategy": "consensus",
+      "ms": 27532,
+      "tokens": 0,
+      "quality": 0.0,
+      "ok": false
+    },
+    {
+      "pattern": "code",
+      "node": "M1",
+      "strategy": "consensus",
+      "ms": 27535,
+      "tokens": 0,
+      "quality": 0.0,
+      "ok": false
+    },
+    {
+      "pattern": "data",
+      "node": "M1",
+      "strategy": "consensus",
+      "ms": 27056,
+      "tokens": 0,
+      "quality": 0.0,
+      "ok": false
+    },
+    {
+      "pattern": "data",
+      "node": "M1",
+      "strategy": "consensus",
+      "ms": 26398,
+      "tokens": 0,
+      "quality": 0.0,
+      "ok": false
+    },
+    {
+      "pattern": "analysis",
+      "node": "M1",
+      "strategy": "consensus",
+      "ms": 26640,
+      "tokens": 0,
+      "quality": 0.0,
+      "ok": false
+    },
+    {
+      "pattern": "code",
+      "node": "M1",
+      "strategy": "consensus",
+      "ms": 26613,
+      "tokens": 0,
+      "quality": 0.0,
+      "ok": false
+    },
+    {
+      "pattern": "data",
+      "node": "M1",
+      "strategy": "consensus",
+      "ms": 26620,
+      "tokens": 0,
+      "quality": 0.0,
+      "ok": false
+    },
+    {
+      "pattern": "architecture",
+      "node": "M1",
+      "strategy": "consensus",
+      "ms": 26620,
+      "tokens": 0,
+      "quality": 0.0,
+      "ok": false
+    },
+    {
+      "pattern": "code",
+      "node": "M1",
+      "strategy": "consensus",
+      "ms": 34324,
+      "tokens": 0,
+      "quality": 0.0,
+      "ok": false
+    },
+    {
+      "pattern": "math",
+      "node": "M2",
+      "strategy": "category",
+      "ms": 41815,
+      "tokens": 118,
+      "quality": 1.0,
+      "ok": true
+    },
+    {
+      "pattern": "security",
+      "node": "M1",
+      "strategy": "consensus",
+      "ms": 17729,
+      "tokens": 0,
+      "quality": 0.0,
+      "ok": false
+    },
+    {
+      "pattern": "devops",
+      "node": "OL1",
+      "strategy": "category",
+      "ms": 60005,
+      "tokens": 0,
+      "quality": 0.0,
+      "ok": false
+    },
+    {
+      "pattern": "reasoning",
+      "node": "M3",
+      "strategy": "category",
+      "ms": 60024,
+      "tokens": 0,
+      "quality": 0.0,
+      "ok": false
+    },
+    {
+      "pattern": "classifier",
+      "node": "M1",
+      "strategy": "category",
+      "ms": 35322,
+      "tokens": 117,
+      "quality": 1.0,
+      "ok": true
+    },
+    {
+      "pattern": "system",
+      "node": "OL1",
+      "strategy": "category",
+      "ms": 60011,
+      "tokens": 0,
+      "quality": 0.0,
+      "ok": false
+    },
+    {
+      "pattern": "devops",
+      "node": "OL1",
+      "strategy": "category",
+      "ms": 60032,
+      "tokens": 0,
+      "quality": 0.0,
+      "ok": false
+    },
+    {
+      "pattern": "math",
+      "node": "M1",
+      "strategy": "category:fallback=M1",
+      "ms": 33678,
+      "tokens": 165,
+      "quality": 1.0,
+      "ok": true
+    },
+    {
+      "pattern": "analysis",
+      "node": "M1",
+      "strategy": "consensus",
+      "ms": 30888,
+      "tokens": 0,
+      "quality": 0.0,
+      "ok": false
+    },
+    {
+      "pattern": "reasoning",
+      "node": "M3",
+      "strategy": "category",
+      "ms": 60010,
+      "tokens": 0,
+      "quality": 0.0,
+      "ok": false
+    },
+    {
+      "pattern": "simple",
+      "node": "OL1",
+      "strategy": "single",
+      "ms": 9479,
+      "tokens": 1,
+      "quality": 0.009,
+      "ok": true
+    },
+    {
+      "pattern": "web",
+      "node": "OL1",
+      "strategy": "single:fallback=OL1",
+      "ms": 59218,
+      "tokens": 733,
+      "quality": 1.0,
+      "ok": true
+    },
+    {
+      "pattern": "devops",
+      "node": "OL1",
+      "strategy": "category:fallback=OL1",
+      "ms": 48423,
+      "tokens": 414,
+      "quality": 1.0,
+      "ok": true
+    },
+    {
+      "pattern": "trading",
+      "node": "M2",
+      "strategy": "consensus",
+      "ms": 43406,
+      "tokens": 196,
+      "quality": 1.0,
+      "ok": true
+    },
+    {
+      "pattern": "code",
+      "node": "M1",
+      "strategy": "consensus",
+      "ms": 26615,
+      "tokens": 0,
+      "quality": 0.0,
+      "ok": false
+    },
+    {
+      "pattern": "reasoning",
+      "node": "M3",
+      "strategy": "category",
+      "ms": 60020,
+      "tokens": 0,
+      "quality": 0.0,
+      "ok": false
+    },
+    {
+      "pattern": "system",
+      "node": "M1",
+      "strategy": "category",
+      "ms": 57374,
+      "tokens": 395,
+      "quality": 1.0,
+      "ok": true
+    },
+    {
+      "pattern": "system",
+      "node": "M1",
+      "strategy": "category",
+      "ms": 55733,
+      "tokens": 383,
+      "quality": 1.0,
+      "ok": true
+    },
+    {
+      "pattern": "data",
+      "node": "M1",
+      "strategy": "consensus",
+      "ms": 60015,
+      "tokens": 0,
+      "quality": 0.0,
+      "ok": false
+    },
+    {
+      "pattern": "simple",
+      "node": "OL1",
+      "strategy": "single",
+      "ms": 796,
+      "tokens": 1,
+      "quality": 0.009,
+      "ok": true
+    },
+    {
+      "pattern": "security",
+      "node": "M1",
+      "strategy": "consensus",
+      "ms": 60015,
+      "tokens": 0,
+      "quality": 0.0,
+      "ok": false
+    },
+    {
+      "pattern": "simple",
+      "node": "OL1",
+      "strategy": "single",
+      "ms": 1184,
+      "tokens": 1,
+      "quality": 0.009,
+      "ok": true
+    },
+    {
+      "pattern": "trading",
+      "node": "M1",
+      "strategy": "consensus",
+      "ms": 60015,
+      "tokens": 0,
+      "quality": 0.0,
+      "ok": false
+    },
+    {
+      "pattern": "system",
+      "node": "OL1",
+      "strategy": "category:fallback=OL1",
+      "ms": 45840,
+      "tokens": 326,
+      "quality": 1.0,
+      "ok": true
+    },
+    {
+      "pattern": "devops",
+      "node": "OL1",
+      "strategy": "category",
+      "ms": 60024,
+      "tokens": 0,
+      "quality": 0.0,
+      "ok": false
+    },
+    {
+      "pattern": "simple",
+      "node": "OL1",
+      "strategy": "single",
+      "ms": 834,
+      "tokens": 1,
+      "quality": 0.009,
+      "ok": true
+    },
+    {
+      "pattern": "simple",
+      "node": "OL1",
+      "strategy": "single",
+      "ms": 904,
+      "tokens": 1,
+      "quality": 0.009,
+      "ok": true
+    },
+    {
+      "pattern": "architecture",
+      "node": "M1",
+      "strategy": "consensus",
+      "ms": 60031,
+      "tokens": 0,
+      "quality": 0.0,
+      "ok": false
+    },
+    {
+      "pattern": "simple",
+      "node": "OL1",
+      "strategy": "single",
+      "ms": 289,
+      "tokens": 1,
+      "quality": 0.009,
+      "ok": true
+    },
+    {
+      "pattern": "security",
+      "node": "M1",
+      "strategy": "consensus",
+      "ms": 60008,
+      "tokens": 0,
+      "quality": 0.0,
+      "ok": false
+    },
+    {
+      "pattern": "security",
+      "node": "M1",
+      "strategy": "consensus",
+      "ms": 30088,
+      "tokens": 0,
+      "quality": 0.0,
+      "ok": false
+    },
+    {
+      "pattern": "code",
+      "node": "M1",
+      "strategy": "consensus",
+      "ms": 25798,
+      "tokens": 0,
+      "quality": 0.0,
+      "ok": false
+    },
+    {
+      "pattern": "web",
+      "node": "M1",
+      "strategy": "single:fallback=M1",
+      "ms": 32896,
+      "tokens": 107,
+      "quality": 1.0,
+      "ok": true
+    },
+    {
+      "pattern": "trading",
+      "node": "M1",
+      "strategy": "consensus",
+      "ms": 49890,
+      "tokens": 0,
+      "quality": 0.0,
+      "ok": false
+    },
+    {
+      "pattern": "simple",
+      "node": "OL1",
+      "strategy": "single",
+      "ms": 4705,
+      "tokens": 5,
+      "quality": 0.152,
+      "ok": true
+    },
+    {
+      "pattern": "analysis",
+      "node": "M1",
+      "strategy": "consensus",
+      "ms": 47519,
+      "tokens": 0,
+      "quality": 0.0,
+      "ok": false
+    },
+    {
+      "pattern": "simple",
+      "node": "OL1",
+      "strategy": "single",
+      "ms": 314,
+      "tokens": 1,
+      "quality": 0.007,
+      "ok": true
+    },
+    {
+      "pattern": "data",
+      "node": "M1",
+      "strategy": "consensus",
+      "ms": 43425,
+      "tokens": 0,
+      "quality": 0.0,
+      "ok": false
+    },
+    {
+      "pattern": "security",
+      "node": "M1",
+      "strategy": "consensus",
+      "ms": 24092,
+      "tokens": 0,
+      "quality": 0.0,
+      "ok": false
+    },
+    {
+      "pattern": "data",
+      "node": "M1",
+      "strategy": "consensus",
+      "ms": 24289,
+      "tokens": 0,
+      "quality": 0.0,
+      "ok": false
+    },
+    {
+      "pattern": "simple",
+      "node": "OL1",
+      "strategy": "single",
+      "ms": 31604,
+      "tokens": 9,
+      "quality": 0.273,
+      "ok": true
+    },
+    {
+      "pattern": "trading",
+      "node": "M1",
+      "strategy": "consensus",
+      "ms": 17462,
+      "tokens": 0,
+      "quality": 0.0,
+      "ok": false
+    },
+    {
+      "pattern": "security",
+      "node": "M1",
+      "strategy": "consensus",
+      "ms": 17258,
+      "tokens": 0,
+      "quality": 0.0,
+      "ok": false
+    },
+    {
+      "pattern": "simple",
+      "node": "OL1",
+      "strategy": "single",
+      "ms": 32368,
+      "tokens": 3,
+      "quality": 0.023,
+      "ok": true
+    },
+    {
+      "pattern": "reasoning",
+      "node": "M3",
+      "strategy": "category",
+      "ms": 60005,
+      "tokens": 0,
+      "quality": 0.0,
+      "ok": false
+    },
+    {
+      "pattern": "architecture",
+      "node": "M1",
+      "strategy": "consensus",
+      "ms": 23702,
+      "tokens": 0,
+      "quality": 0.0,
+      "ok": false
+    },
+    {
+      "pattern": "analysis",
+      "node": "M1",
+      "strategy": "consensus",
+      "ms": 21414,
+      "tokens": 0,
+      "quality": 0.0,
+      "ok": false
+    },
+    {
+      "pattern": "architecture",
+      "node": "M1",
+      "strategy": "consensus",
+      "ms": 18733,
+      "tokens": 0,
+      "quality": 0.0,
+      "ok": false
+    },
+    {
+      "pattern": "analysis",
+      "node": "M1",
+      "strategy": "consensus",
+      "ms": 21441,
+      "tokens": 0,
+      "quality": 0.0,
+      "ok": false
+    },
+    {
+      "pattern": "security",
+      "node": "M1",
+      "strategy": "consensus",
+      "ms": 17806,
+      "tokens": 0,
+      "quality": 0.0,
+      "ok": false
+    },
+    {
+      "pattern": "architecture",
+      "node": "M1",
+      "strategy": "consensus",
+      "ms": 17778,
+      "tokens": 0,
+      "quality": 0.0,
+      "ok": false
+    },
+    {
+      "pattern": "architecture",
+      "node": "M1",
+      "strategy": "consensus",
+      "ms": 19502,
+      "tokens": 0,
+      "quality": 0.0,
+      "ok": false
+    },
+    {
+      "pattern": "simple",
+      "node": "OL1",
+      "strategy": "single",
+      "ms": 32927,
+      "tokens": 1,
+      "quality": 0.009,
+      "ok": true
+    },
+    {
+      "pattern": "classifier",
+      "node": "OL1",
+      "strategy": "category:fallback=OL1",
+      "ms": 27527,
+      "tokens": 78,
+      "quality": 0.812,
+      "ok": true
+    },
+    {
+      "pattern": "creative",
+      "node": "OL1",
+      "strategy": "single:fallback=OL1",
+      "ms": 8809,
+      "tokens": 181,
+      "quality": 1.0,
+      "ok": true
+    },
+    {
+      "pattern": "creative",
+      "node": "OL1",
+      "strategy": "single:fallback=OL1",
+      "ms": 30565,
+      "tokens": 716,
+      "quality": 1.0,
+      "ok": true
+    },
+    {
+      "pattern": "trading",
+      "node": "M1",
+      "strategy": "consensus",
+      "ms": 18087,
+      "tokens": 0,
+      "quality": 0.0,
+      "ok": false
+    },
+    {
+      "pattern": "trading",
+      "node": "M1",
+      "strategy": "consensus",
+      "ms": 25022,
+      "tokens": 0,
+      "quality": 0.0,
+      "ok": false
+    },
+    {
+      "pattern": "simple",
+      "node": "OL1",
+      "strategy": "single",
+      "ms": 51626,
+      "tokens": 1,
+      "quality": 0.009,
+      "ok": true
+    },
+    {
+      "pattern": "security",
+      "node": "M1",
+      "strategy": "consensus",
+      "ms": 25029,
+      "tokens": 0,
+      "quality": 0.0,
+      "ok": false
+    },
+    {
+      "pattern": "reasoning",
+      "node": "M3",
+      "strategy": "category",
+      "ms": 60005,
+      "tokens": 0,
+      "quality": 0.0,
+      "ok": false
+    },
+    {
+      "pattern": "security",
+      "node": "M1",
+      "strategy": "consensus",
+      "ms": 25021,
+      "tokens": 0,
+      "quality": 0.0,
+      "ok": false
+    },
+    {
+      "pattern": "analysis",
+      "node": "M1",
+      "strategy": "consensus",
+      "ms": 25009,
+      "tokens": 0,
+      "quality": 0.0,
+      "ok": false
+    },
+    {
+      "pattern": "creative",
+      "node": "OL1",
+      "strategy": "single:fallback=OL1",
+      "ms": 45226,
+      "tokens": 497,
+      "quality": 1.0,
+      "ok": true
+    },
+    {
+      "pattern": "code",
+      "node": "M1",
+      "strategy": "consensus",
+      "ms": 25013,
+      "tokens": 0,
+      "quality": 0.0,
+      "ok": false
+    },
+    {
+      "pattern": "code",
+      "node": "M1",
+      "strategy": "consensus",
+      "ms": 17432,
+      "tokens": 0,
+      "quality": 0.0,
+      "ok": false
+    },
+    {
+      "pattern": "architecture",
+      "node": "M1",
+      "strategy": "consensus",
+      "ms": 17432,
+      "tokens": 0,
+      "quality": 0.0,
+      "ok": false
+    },
+    {
+      "pattern": "analysis",
+      "node": "M1",
+      "strategy": "consensus",
+      "ms": 17415,
+      "tokens": 0,
+      "quality": 0.0,
+      "ok": false
+    },
+    {
+      "pattern": "code",
+      "node": "M1",
+      "strategy": "consensus",
+      "ms": 19108,
+      "tokens": 0,
+      "quality": 0.0,
+      "ok": false
+    },
+    {
+      "pattern": "analysis",
+      "node": "M1",
+      "strategy": "consensus",
+      "ms": 19090,
+      "tokens": 0,
+      "quality": 0.0,
+      "ok": false
+    },
+    {
+      "pattern": "simple",
+      "node": "OL1",
+      "strategy": "single",
+      "ms": 39929,
+      "tokens": 1,
+      "quality": 0.009,
+      "ok": true
+    },
+    {
+      "pattern": "classifier",
+      "node": "OL1",
+      "strategy": "category:fallback=OL1",
+      "ms": 48679,
+      "tokens": 105,
+      "quality": 1.0,
+      "ok": true
+    },
+    {
+      "pattern": "data",
+      "node": "M1",
+      "strategy": "consensus",
+      "ms": 26440,
+      "tokens": 0,
+      "quality": 0.0,
+      "ok": false
+    },
+    {
+      "pattern": "code",
+      "node": "M1",
+      "strategy": "consensus",
+      "ms": 24889,
+      "tokens": 0,
+      "quality": 0.0,
+      "ok": false
+    },
+    {
+      "pattern": "code",
+      "node": "M1",
+      "strategy": "consensus",
+      "ms": 28261,
+      "tokens": 0,
+      "quality": 0.0,
+      "ok": false
+    },
+    {
+      "pattern": "reasoning",
+      "node": "M3",
+      "strategy": "category",
+      "ms": 60006,
+      "tokens": 0,
+      "quality": 0.0,
+      "ok": false
+    },
+    {
+      "pattern": "web",
+      "node": "OL1",
+      "strategy": "single:fallback=OL1",
+      "ms": 41480,
+      "tokens": 145,
+      "quality": 1.0,
+      "ok": true
+    },
+    {
+      "pattern": "simple",
+      "node": "OL1",
+      "strategy": "single",
+      "ms": 55139,
+      "tokens": 1,
+      "quality": 0.009,
+      "ok": true
+    },
+    {
+      "pattern": "creative",
+      "node": "OL1",
+      "strategy": "single",
+      "ms": 60024,
+      "tokens": 0,
+      "quality": 0.0,
+      "ok": false
+    },
+    {
+      "pattern": "code",
+      "node": "M1",
+      "strategy": "consensus",
+      "ms": 23861,
+      "tokens": 0,
+      "quality": 0.0,
+      "ok": false
+    },
+    {
+      "pattern": "code",
+      "node": "M1",
+      "strategy": "consensus",
+      "ms": 23513,
+      "tokens": 0,
+      "quality": 0.0,
+      "ok": false
+    },
+    {
+      "pattern": "data",
+      "node": "M1",
+      "strategy": "consensus",
+      "ms": 18590,
+      "tokens": 0,
+      "quality": 0.0,
+      "ok": false
+    },
+    {
+      "pattern": "reasoning",
+      "node": "M3",
+      "strategy": "category",
+      "ms": 60021,
+      "tokens": 0,
+      "quality": 0.0,
+      "ok": false
+    },
+    {
+      "pattern": "devops",
+      "node": "OL1",
+      "strategy": "category:fallback=OL1",
+      "ms": 52073,
+      "tokens": 308,
+      "quality": 1.0,
+      "ok": true
+    },
+    {
+      "pattern": "devops",
+      "node": "OL1",
+      "strategy": "category:fallback=OL1",
+      "ms": 40305,
+      "tokens": 371,
+      "quality": 1.0,
+      "ok": true
+    },
+    {
+      "pattern": "devops",
+      "node": "OL1",
+      "strategy": "category",
+      "ms": 60007,
+      "tokens": 0,
+      "quality": 0.0,
+      "ok": false
+    },
+    {
+      "pattern": "security",
+      "node": "M1",
+      "strategy": "consensus",
+      "ms": 25334,
+      "tokens": 0,
+      "quality": 0.0,
+      "ok": false
+    },
+    {
+      "pattern": "web",
+      "node": "OL1",
+      "strategy": "single:fallback=OL1",
+      "ms": 48710,
+      "tokens": 580,
+      "quality": 1.0,
+      "ok": true
+    },
+    {
+      "pattern": "trading",
+      "node": "M1",
+      "strategy": "consensus",
+      "ms": 16680,
+      "tokens": 0,
+      "quality": 0.0,
+      "ok": false
+    },
+    {
+      "pattern": "simple",
+      "node": "OL1",
+      "strategy": "single",
+      "ms": 28216,
+      "tokens": 1,
+      "quality": 0.007,
+      "ok": true
+    },
+    {
+      "pattern": "simple",
+      "node": "OL1",
+      "strategy": "single",
+      "ms": 36629,
+      "tokens": 3,
+      "quality": 0.023,
+      "ok": true
+    },
+    {
+      "pattern": "code",
+      "node": "M1",
+      "strategy": "consensus",
+      "ms": 6288,
+      "tokens": 0,
+      "quality": 0.0,
+      "ok": false
+    },
+    {
+      "pattern": "security",
+      "node": "M1",
+      "strategy": "consensus",
+      "ms": 18402,
+      "tokens": 0,
+      "quality": 0.0,
+      "ok": false
+    },
+    {
+      "pattern": "classifier",
+      "node": "OL1",
+      "strategy": "category:fallback=OL1",
+      "ms": 34166,
+      "tokens": 139,
+      "quality": 1.0,
+      "ok": true
+    },
+    {
+      "pattern": "architecture",
+      "node": "M1",
+      "strategy": "consensus",
+      "ms": 6610,
+      "tokens": 0,
+      "quality": 0.0,
+      "ok": false
+    },
+    {
+      "pattern": "creative",
+      "node": "M1",
+      "strategy": "single",
+      "ms": 17259,
+      "tokens": 148,
+      "quality": 1.0,
+      "ok": true
+    },
+    {
+      "pattern": "security",
+      "node": "M1",
+      "strategy": "consensus",
+      "ms": 26076,
+      "tokens": 0,
+      "quality": 0.0,
+      "ok": false
+    },
+    {
+      "pattern": "data",
+      "node": "M1",
+      "strategy": "consensus",
+      "ms": 26042,
+      "tokens": 0,
+      "quality": 0.0,
+      "ok": false
+    },
+    {
+      "pattern": "security",
+      "node": "M1",
+      "strategy": "consensus",
+      "ms": 26050,
+      "tokens": 0,
+      "quality": 0.0,
+      "ok": false
+    },
+    {
+      "pattern": "analysis",
+      "node": "M1",
+      "strategy": "consensus",
+      "ms": 26041,
+      "tokens": 0,
+      "quality": 0.0,
+      "ok": false
+    },
+    {
+      "pattern": "system",
+      "node": "OL1",
+      "strategy": "category",
+      "ms": 60008,
+      "tokens": 0,
+      "quality": 0.0,
+      "ok": false
+    },
+    {
+      "pattern": "data",
+      "node": "M1",
+      "strategy": "consensus",
+      "ms": 26034,
+      "tokens": 0,
+      "quality": 0.0,
+      "ok": false
+    },
+    {
+      "pattern": "simple",
+      "node": "OL1",
+      "strategy": "single",
+      "ms": 51078,
+      "tokens": 1,
+      "quality": 0.009,
+      "ok": true
+    },
+    {
+      "pattern": "simple",
+      "node": "OL1",
+      "strategy": "single",
+      "ms": 51053,
+      "tokens": 1,
+      "quality": 0.009,
+      "ok": true
+    },
+    {
+      "pattern": "creative",
+      "node": "M2",
+      "strategy": "single:fallback=M2",
+      "ms": 57143,
+      "tokens": 43,
+      "quality": 0.623,
+      "ok": true
+    },
+    {
+      "pattern": "web",
+      "node": "OL1",
+      "strategy": "single",
+      "ms": 60015,
+      "tokens": 0,
+      "quality": 0.0,
+      "ok": false
+    },
+    {
+      "pattern": "code",
+      "node": "M1",
+      "strategy": "consensus",
+      "ms": 17329,
+      "tokens": 0,
+      "quality": 0.0,
+      "ok": false
+    },
+    {
+      "pattern": "reasoning",
+      "node": "M3",
+      "strategy": "category",
+      "ms": 60006,
+      "tokens": 0,
+      "quality": 0.0,
+      "ok": false
+    },
+    {
+      "pattern": "data",
+      "node": "M1",
+      "strategy": "consensus",
+      "ms": 17089,
+      "tokens": 0,
+      "quality": 0.0,
+      "ok": false
+    },
+    {
+      "pattern": "data",
+      "node": "M1",
+      "strategy": "consensus",
+      "ms": 9400,
+      "tokens": 0,
+      "quality": 0.0,
+      "ok": false
+    },
+    {
+      "pattern": "web",
+      "node": "OL1",
+      "strategy": "single",
+      "ms": 60009,
+      "tokens": 0,
+      "quality": 0.0,
+      "ok": false
+    },
+    {
+      "pattern": "trading",
+      "node": "M1",
+      "strategy": "consensus",
+      "ms": 17548,
+      "tokens": 0,
+      "quality": 0.0,
+      "ok": false
+    },
+    {
+      "pattern": "architecture",
+      "node": "M1",
+      "strategy": "consensus",
+      "ms": 17076,
+      "tokens": 0,
+      "quality": 0.0,
+      "ok": false
+    },
+    {
+      "pattern": "simple",
+      "node": "OL1",
+      "strategy": "single",
+      "ms": 43479,
+      "tokens": 1,
+      "quality": 0.009,
+      "ok": true
+    },
+    {
+      "pattern": "reasoning",
+      "node": "M3",
+      "strategy": "category",
+      "ms": 60008,
+      "tokens": 0,
+      "quality": 0.0,
+      "ok": false
+    },
+    {
+      "pattern": "simple",
+      "node": "M1",
+      "strategy": "single:fallback=M1",
+      "ms": 5833,
+      "tokens": 1,
+      "quality": 0.008,
+      "ok": true
+    },
+    {
+      "pattern": "code",
+      "node": "M1",
+      "strategy": "consensus",
+      "ms": 9273,
+      "tokens": 0,
+      "quality": 0.0,
+      "ok": false
+    },
+    {
+      "pattern": "creative",
+      "node": "M2",
+      "strategy": "single:fallback=M2",
+      "ms": 53717,
+      "tokens": 144,
+      "quality": 1.0,
+      "ok": true
+    },
+    {
+      "pattern": "web",
+      "node": "OL1",
+      "strategy": "single:fallback=OL1",
+      "ms": 41668,
+      "tokens": 222,
+      "quality": 1.0,
+      "ok": true
+    },
+    {
+      "pattern": "classifier",
+      "node": "OL1",
+      "strategy": "category:fallback=OL1",
+      "ms": 31837,
+      "tokens": 121,
+      "quality": 1.0,
+      "ok": true
+    },
+    {
+      "pattern": "simple",
+      "node": "OL1",
+      "strategy": "single",
+      "ms": 19392,
+      "tokens": 1,
+      "quality": 0.009,
+      "ok": true
+    },
+    {
+      "pattern": "code",
+      "node": "M1",
+      "strategy": "consensus",
+      "ms": 1432,
+      "tokens": 0,
+      "quality": 0.0,
+      "ok": false
+    },
+    {
+      "pattern": "reasoning",
+      "node": "M3",
+      "strategy": "category",
+      "ms": 60011,
+      "tokens": 0,
+      "quality": 0.0,
+      "ok": false
+    },
+    {
+      "pattern": "reasoning",
+      "node": "M2",
+      "strategy": "category",
+      "ms": 54716,
+      "tokens": 220,
+      "quality": 1.0,
+      "ok": true
+    },
+    {
+      "pattern": "simple",
+      "node": "OL1",
+      "strategy": "single",
+      "ms": 16100,
+      "tokens": 9,
+      "quality": 0.273,
+      "ok": true
+    },
+    {
+      "pattern": "reasoning",
+      "node": "M3",
+      "strategy": "category",
+      "ms": 60023,
+      "tokens": 0,
+      "quality": 0.0,
+      "ok": false
+    },
+    {
+      "pattern": "architecture",
+      "node": "M1",
+      "strategy": "consensus",
+      "ms": 20121,
+      "tokens": 0,
+      "quality": 0.0,
+      "ok": false
+    },
+    {
+      "pattern": "security",
+      "node": "M1",
+      "strategy": "consensus",
+      "ms": 18923,
+      "tokens": 0,
+      "quality": 0.0,
+      "ok": false
+    },
+    {
+      "pattern": "devops",
+      "node": "OL1",
+      "strategy": "category:fallback=OL1",
+      "ms": 33736,
+      "tokens": 336,
+      "quality": 1.0,
+      "ok": true
+    },
+    {
+      "pattern": "analysis",
+      "node": "M1",
+      "strategy": "consensus",
+      "ms": 9082,
+      "tokens": 0,
+      "quality": 0.0,
+      "ok": false
+    },
+    {
+      "pattern": "math",
+      "node": "M3",
+      "strategy": "category",
+      "ms": 60010,
+      "tokens": 0,
+      "quality": 0.0,
+      "ok": false
+    },
+    {
+      "pattern": "data",
+      "node": "M1",
+      "strategy": "consensus",
+      "ms": 17652,
+      "tokens": 0,
+      "quality": 0.0,
+      "ok": false
+    },
+    {
+      "pattern": "simple",
+      "node": "OL1",
+      "strategy": "single",
+      "ms": 34819,
+      "tokens": 3,
+      "quality": 0.023,
+      "ok": true
+    },
+    {
+      "pattern": "data",
+      "node": "M1",
+      "strategy": "consensus",
+      "ms": 2681,
+      "tokens": 0,
+      "quality": 0.0,
+      "ok": false
+    },
+    {
+      "pattern": "reasoning",
+      "node": "M3",
+      "strategy": "category",
+      "ms": 60023,
+      "tokens": 0,
+      "quality": 0.0,
+      "ok": false
+    },
+    {
+      "pattern": "data",
+      "node": "M1",
+      "strategy": "consensus",
+      "ms": 17374,
+      "tokens": 0,
+      "quality": 0.0,
+      "ok": false
+    },
+    {
+      "pattern": "simple",
+      "node": "OL1",
+      "strategy": "single",
+      "ms": 21671,
+      "tokens": 1,
+      "quality": 0.009,
+      "ok": true
+    },
+    {
+      "pattern": "creative",
+      "node": "M1",
+      "strategy": "single",
+      "ms": 18308,
+      "tokens": 64,
+      "quality": 0.928,
+      "ok": true
+    },
+    {
+      "pattern": "system",
+      "node": "OL1",
+      "strategy": "category:fallback=OL1",
+      "ms": 24175,
+      "tokens": 46,
+      "quality": 0.736,
+      "ok": true
+    },
+    {
+      "pattern": "architecture",
+      "node": "M1",
+      "strategy": "consensus",
+      "ms": 22441,
+      "tokens": 0,
+      "quality": 0.0,
+      "ok": false
+    },
+    {
+      "pattern": "trading",
+      "node": "M1",
+      "strategy": "consensus",
+      "ms": 22440,
+      "tokens": 0,
+      "quality": 0.0,
+      "ok": false
+    },
+    {
+      "pattern": "classifier",
+      "node": "M1",
+      "strategy": "category",
+      "ms": 21296,
+      "tokens": 98,
+      "quality": 1.0,
+      "ok": true
+    },
+    {
+      "pattern": "reasoning",
+      "node": "M3",
+      "strategy": "category",
+      "ms": 60017,
+      "tokens": 0,
+      "quality": 0.0,
+      "ok": false
+    },
+    {
+      "pattern": "code",
+      "node": "M1",
+      "strategy": "consensus",
+      "ms": 22432,
+      "tokens": 0,
+      "quality": 0.0,
+      "ok": false
+    },
+    {
+      "pattern": "web",
+      "node": "OL1",
+      "strategy": "single:fallback=OL1",
+      "ms": 59287,
+      "tokens": 815,
+      "quality": 1.0,
+      "ok": true
+    },
+    {
+      "pattern": "trading",
+      "node": "M1",
+      "strategy": "consensus",
+      "ms": 21189,
+      "tokens": 0,
+      "quality": 0.0,
+      "ok": false
+    },
+    {
+      "pattern": "math",
+      "node": "M3",
+      "strategy": "category",
+      "ms": 60005,
+      "tokens": 0,
+      "quality": 0.0,
+      "ok": false
+    },
+    {
+      "pattern": "system",
+      "node": "OL1",
+      "strategy": "category:fallback=OL1",
+      "ms": 48142,
+      "tokens": 290,
+      "quality": 1.0,
+      "ok": true
+    },
+    {
+      "pattern": "classifier",
+      "node": "OL1",
+      "strategy": "category:fallback=OL1",
+      "ms": 23440,
+      "tokens": 73,
+      "quality": 0.76,
+      "ok": true
+    },
+    {
+      "pattern": "creative",
+      "node": "M2",
+      "strategy": "single:fallback=M2",
+      "ms": 55319,
+      "tokens": 402,
+      "quality": 1.0,
+      "ok": true
+    },
+    {
+      "pattern": "code",
+      "node": "M1",
+      "strategy": "consensus",
+      "ms": 22837,
+      "tokens": 0,
+      "quality": 0.0,
+      "ok": false
+    },
+    {
+      "pattern": "code",
+      "node": "M1",
+      "strategy": "consensus",
+      "ms": 7469,
+      "tokens": 0,
+      "quality": 0.0,
+      "ok": false
+    },
+    {
+      "pattern": "math",
+      "node": "M2",
+      "strategy": "category",
+      "ms": 52504,
+      "tokens": 205,
+      "quality": 1.0,
+      "ok": true
+    },
+    {
+      "pattern": "devops",
+      "node": "OL1",
+      "strategy": "category:fallback=OL1",
+      "ms": 13908,
+      "tokens": 330,
+      "quality": 1.0,
+      "ok": true
+    },
+    {
+      "pattern": "simple",
+      "node": "OL1",
+      "strategy": "single",
+      "ms": 30524,
+      "tokens": 3,
+      "quality": 0.023,
+      "ok": true
+    },
+    {
+      "pattern": "system",
+      "node": "OL1",
+      "strategy": "category:fallback=OL1",
+      "ms": 17004,
+      "tokens": 391,
+      "quality": 1.0,
+      "ok": true
+    },
+    {
+      "pattern": "security",
+      "node": "M1",
+      "strategy": "consensus",
+      "ms": 125,
+      "tokens": 0,
+      "quality": 0.0,
+      "ok": false
+    },
+    {
+      "pattern": "security",
+      "node": "M1",
+      "strategy": "consensus",
+      "ms": 8793,
+      "tokens": 372,
+      "quality": 1.0,
+      "ok": true
+    },
+    {
+      "pattern": "architecture",
+      "node": "M1",
+      "strategy": "consensus",
+      "ms": 26765,
+      "tokens": 609,
+      "quality": 1.0,
+      "ok": true
+    },
+    {
+      "pattern": "reasoning",
+      "node": "M1",
+      "strategy": "category:fallback=M1",
+      "ms": 37659,
+      "tokens": 369,
+      "quality": 1.0,
+      "ok": true
+    },
+    {
+      "pattern": "reasoning",
+      "node": "M2",
+      "strategy": "category",
+      "ms": 32797,
+      "tokens": 266,
+      "quality": 1.0,
+      "ok": true
+    },
+    {
+      "pattern": "code",
+      "node": "M1",
+      "strategy": "consensus",
+      "ms": 14091,
+      "tokens": 307,
+      "quality": 1.0,
+      "ok": true
+    },
+    {
+      "pattern": "web",
+      "node": "M1",
+      "strategy": "single:fallback=M1",
+      "ms": 22023,
+      "tokens": 550,
+      "quality": 1.0,
+      "ok": true
+    },
+    {
+      "pattern": "security",
+      "node": "M1",
+      "strategy": "consensus",
+      "ms": 37563,
+      "tokens": 585,
+      "quality": 1.0,
+      "ok": true
+    },
+    {
+      "pattern": "analysis",
+      "node": "M1",
+      "strategy": "consensus",
+      "ms": 45335,
+      "tokens": 713,
+      "quality": 1.0,
+      "ok": true
+    },
+    {
+      "pattern": "classifier",
+      "node": "M1",
+      "strategy": "category",
+      "ms": 3682,
+      "tokens": 101,
+      "quality": 0.99,
+      "ok": true
+    },
+    {
+      "pattern": "classifier",
+      "node": "M1",
+      "strategy": "category",
+      "ms": 10686,
+      "tokens": 149,
+      "quality": 1.0,
+      "ok": true
+    },
+    {
+      "pattern": "trading",
+      "node": "M1",
+      "strategy": "consensus:M1+M2",
+      "ms": 40925,
+      "tokens": 505,
+      "quality": 1.8,
+      "ok": true
+    },
+    {
+      "pattern": "web",
+      "node": "M1",
+      "strategy": "single:fallback=M1",
+      "ms": 17750,
+      "tokens": 219,
+      "quality": 1.0,
+      "ok": true
+    },
+    {
+      "pattern": "code",
+      "node": "M1",
+      "strategy": "consensus",
+      "ms": 53098,
+      "tokens": 630,
+      "quality": 1.0,
+      "ok": true
+    },
+    {
+      "pattern": "code",
+      "node": "M1",
+      "strategy": "consensus",
+      "ms": 44666,
+      "tokens": 368,
+      "quality": 1.0,
+      "ok": true
+    },
+    {
+      "pattern": "trading",
+      "node": "M1",
+      "strategy": "consensus:M1+M2",
+      "ms": 48658,
+      "tokens": 518,
+      "quality": 1.8,
+      "ok": true
+    },
+    {
+      "pattern": "data",
+      "node": "M1",
+      "strategy": "consensus",
+      "ms": 34146,
+      "tokens": 383,
+      "quality": 1.0,
+      "ok": true
+    },
+    {
+      "pattern": "devops",
+      "node": "M1",
+      "strategy": "category",
+      "ms": 48012,
+      "tokens": 429,
+      "quality": 1.0,
+      "ok": true
+    },
+    {
+      "pattern": "math",
+      "node": "M2",
+      "strategy": "category",
+      "ms": 28447,
+      "tokens": 180,
+      "quality": 1.0,
+      "ok": true
+    },
+    {
+      "pattern": "code",
+      "node": "M1",
+      "strategy": "consensus",
+      "ms": 30278,
+      "tokens": 222,
+      "quality": 1.0,
+      "ok": true
+    },
+    {
+      "pattern": "classifier",
+      "node": "M1",
+      "strategy": "category",
+      "ms": 21176,
+      "tokens": 155,
+      "quality": 1.0,
+      "ok": true
+    },
+    {
+      "pattern": "simple",
+      "node": "OL1",
+      "strategy": "single",
+      "ms": 5421,
+      "tokens": 1,
+      "quality": 0.009,
+      "ok": true
+    },
+    {
+      "pattern": "system",
+      "node": "M1",
+      "strategy": "category",
+      "ms": 32095,
+      "tokens": 362,
+      "quality": 1.0,
+      "ok": true
+    },
+    {
+      "pattern": "security",
+      "node": "M1",
+      "strategy": "consensus",
+      "ms": 60004,
+      "tokens": 0,
+      "quality": 0.0,
+      "ok": false
+    },
+    {
+      "pattern": "analysis",
+      "node": "M1",
+      "strategy": "consensus",
+      "ms": 60003,
+      "tokens": 0,
+      "quality": 0.0,
+      "ok": false
+    },
+    {
+      "pattern": "creative",
+      "node": "M1",
+      "strategy": "single",
+      "ms": 14982,
+      "tokens": 173,
+      "quality": 1.0,
+      "ok": true
+    },
+    {
+      "pattern": "creative",
+      "node": "M1",
+      "strategy": "single",
+      "ms": 27058,
+      "tokens": 373,
+      "quality": 1.0,
+      "ok": true
+    },
+    {
+      "pattern": "classifier",
+      "node": "M1",
+      "strategy": "category",
+      "ms": 21276,
+      "tokens": 271,
+      "quality": 1.0,
+      "ok": true
+    },
+    {
+      "pattern": "simple",
+      "node": "OL1",
+      "strategy": "single",
+      "ms": 5381,
+      "tokens": 1,
+      "quality": 0.009,
+      "ok": true
+    },
+    {
+      "pattern": "simple",
+      "node": "OL1",
+      "strategy": "single",
+      "ms": 147,
+      "tokens": 1,
+      "quality": 0.009,
+      "ok": true
+    },
+    {
+      "pattern": "web",
+      "node": "M1",
+      "strategy": "single:fallback=M1",
+      "ms": 44620,
+      "tokens": 554,
+      "quality": 1.0,
+      "ok": true
+    },
+    {
+      "pattern": "code",
+      "node": "M1",
+      "strategy": "consensus",
+      "ms": 12195,
+      "tokens": 167,
+      "quality": 1.0,
+      "ok": true
+    },
+    {
+      "pattern": "code",
+      "node": "M1",
+      "strategy": "consensus",
+      "ms": 57252,
+      "tokens": 332,
+      "quality": 1.0,
+      "ok": true
+    },
+    {
+      "pattern": "code",
+      "node": "M1",
+      "strategy": "consensus",
+      "ms": 34109,
+      "tokens": 199,
+      "quality": 1.0,
+      "ok": true
+    },
+    {
+      "pattern": "reasoning",
+      "node": "M3",
+      "strategy": "category",
+      "ms": 60012,
+      "tokens": 0,
+      "quality": 0.0,
+      "ok": false
+    },
+    {
+      "pattern": "simple",
+      "node": "OL1",
+      "strategy": "single",
+      "ms": 501,
+      "tokens": 1,
+      "quality": 0.009,
+      "ok": true
+    },
+    {
+      "pattern": "system",
+      "node": "OL1",
+      "strategy": "category:fallback=OL1",
+      "ms": 11595,
+      "tokens": 274,
+      "quality": 1.0,
+      "ok": true
+    },
+    {
+      "pattern": "data",
+      "node": "M1",
+      "strategy": "consensus",
+      "ms": 60003,
+      "tokens": 0,
+      "quality": 0.0,
+      "ok": false
+    },
+    {
+      "pattern": "code",
+      "node": "M1",
+      "strategy": "consensus",
+      "ms": 46495,
+      "tokens": 221,
+      "quality": 1.0,
+      "ok": true
+    },
+    {
+      "pattern": "simple",
+      "node": "OL1",
+      "strategy": "single",
+      "ms": 427,
+      "tokens": 1,
+      "quality": 0.008,
+      "ok": true
+    },
+    {
+      "pattern": "simple",
+      "node": "OL1",
+      "strategy": "single",
+      "ms": 152,
+      "tokens": 1,
+      "quality": 0.009,
+      "ok": true
+    },
+    {
+      "pattern": "devops",
+      "node": "OL1",
+      "strategy": "category:fallback=OL1",
+      "ms": 14604,
+      "tokens": 395,
+      "quality": 1.0,
+      "ok": true
+    },
+    {
+      "pattern": "data",
+      "node": "M1",
+      "strategy": "consensus",
+      "ms": 60014,
+      "tokens": 0,
+      "quality": 0.0,
+      "ok": false
+    },
+    {
+      "pattern": "reasoning",
+      "node": "M2",
+      "strategy": "category",
+      "ms": 50257,
+      "tokens": 558,
+      "quality": 1.0,
+      "ok": true
+    },
+    {
+      "pattern": "security",
+      "node": "M1",
+      "strategy": "consensus",
+      "ms": 59998,
+      "tokens": 0,
+      "quality": 0.0,
+      "ok": false
+    },
+    {
+      "pattern": "code",
+      "node": "M1",
+      "strategy": "consensus",
+      "ms": 37642,
+      "tokens": 192,
+      "quality": 1.0,
+      "ok": true
+    },
+    {
+      "pattern": "classifier",
+      "node": "M1",
+      "strategy": "category",
+      "ms": 36623,
+      "tokens": 188,
+      "quality": 1.0,
+      "ok": true
+    },
+    {
+      "pattern": "code",
+      "node": "M1",
+      "strategy": "consensus",
+      "ms": 60023,
+      "tokens": 0,
+      "quality": 0.0,
+      "ok": false
+    },
+    {
+      "pattern": "devops",
+      "node": "OL1",
+      "strategy": "category:fallback=OL1",
+      "ms": 33751,
+      "tokens": 825,
+      "quality": 1.0,
+      "ok": true
+    },
+    {
+      "pattern": "system",
+      "node": "OL1",
+      "strategy": "category:fallback=OL1",
+      "ms": 19603,
+      "tokens": 404,
+      "quality": 1.0,
+      "ok": true
+    },
+    {
+      "pattern": "analysis",
+      "node": "M2",
+      "strategy": "consensus",
+      "ms": 42988,
+      "tokens": 542,
+      "quality": 1.0,
+      "ok": true
+    },
+    {
+      "pattern": "architecture",
+      "node": "M1",
+      "strategy": "consensus",
+      "ms": 60028,
+      "tokens": 0,
+      "quality": 0.0,
+      "ok": false
+    },
+    {
+      "pattern": "reasoning",
+      "node": "M3",
+      "strategy": "category",
+      "ms": 60020,
+      "tokens": 0,
+      "quality": 0.0,
+      "ok": false
+    },
+    {
+      "pattern": "simple",
+      "node": "OL1",
+      "strategy": "single",
+      "ms": 400,
+      "tokens": 1,
+      "quality": 0.009,
+      "ok": true
+    },
+    {
+      "pattern": "simple",
+      "node": "OL1",
+      "strategy": "single",
+      "ms": 179,
+      "tokens": 1,
+      "quality": 0.009,
+      "ok": true
+    },
+    {
+      "pattern": "security",
+      "node": "M1",
+      "strategy": "consensus",
+      "ms": 60002,
+      "tokens": 0,
+      "quality": 0.0,
+      "ok": false
+    },
+    {
+      "pattern": "code",
+      "node": "M1",
+      "strategy": "consensus",
+      "ms": 54238,
+      "tokens": 158,
+      "quality": 1.0,
+      "ok": true
+    },
+    {
+      "pattern": "web",
+      "node": "M1",
+      "strategy": "single:fallback=M1",
+      "ms": 28508,
+      "tokens": 89,
+      "quality": 1.0,
+      "ok": true
+    },
+    {
+      "pattern": "security",
+      "node": "M1",
+      "strategy": "consensus",
+      "ms": 60020,
+      "tokens": 0,
+      "quality": 0.0,
+      "ok": false
+    },
+    {
+      "pattern": "reasoning",
+      "node": "M3",
+      "strategy": "category",
+      "ms": 60010,
+      "tokens": 0,
+      "quality": 0.0,
+      "ok": false
+    },
+    {
+      "pattern": "devops",
+      "node": "OL1",
+      "strategy": "category:fallback=OL1",
+      "ms": 17078,
+      "tokens": 405,
+      "quality": 1.0,
+      "ok": true
+    },
+    {
+      "pattern": "simple",
+      "node": "OL1",
+      "strategy": "single",
+      "ms": 460,
+      "tokens": 1,
+      "quality": 0.009,
+      "ok": true
+    },
+    {
+      "pattern": "math",
+      "node": "M2",
+      "strategy": "category",
+      "ms": 33696,
+      "tokens": 120,
+      "quality": 1.0,
+      "ok": true
+    },
+    {
+      "pattern": "trading",
+      "node": "M1",
+      "strategy": "consensus",
+      "ms": 60025,
+      "tokens": 0,
+      "quality": 0.0,
+      "ok": false
+    },
+    {
+      "pattern": "creative",
+      "node": "M1",
+      "strategy": "single",
+      "ms": 52947,
+      "tokens": 452,
+      "quality": 1.0,
+      "ok": true
+    },
+    {
+      "pattern": "trading",
+      "node": "M1",
+      "strategy": "consensus",
+      "ms": 60025,
+      "tokens": 0,
+      "quality": 0.0,
+      "ok": false
+    },
+    {
+      "pattern": "architecture",
+      "node": "M1",
+      "strategy": "consensus",
+      "ms": 60025,
+      "tokens": 0,
+      "quality": 0.0,
+      "ok": false
+    },
+    {
+      "pattern": "data",
+      "node": "M1",
+      "strategy": "consensus",
+      "ms": 60025,
+      "tokens": 0,
+      "quality": 0.0,
+      "ok": false
+    },
+    {
+      "pattern": "simple",
+      "node": "OL1",
+      "strategy": "single",
+      "ms": 400,
+      "tokens": 1,
+      "quality": 0.009,
+      "ok": true
+    },
+    {
+      "pattern": "classifier",
+      "node": "M1",
+      "strategy": "category",
+      "ms": 30996,
+      "tokens": 120,
+      "quality": 1.0,
+      "ok": true
+    },
+    {
+      "pattern": "analysis",
+      "node": "M1",
+      "strategy": "consensus",
+      "ms": 60021,
+      "tokens": 0,
+      "quality": 0.0,
+      "ok": false
+    },
+    {
+      "pattern": "creative",
+      "node": "M2",
+      "strategy": "single:fallback=M2",
+      "ms": 58952,
+      "tokens": 284,
+      "quality": 1.0,
+      "ok": true
+    },
+    {
+      "pattern": "system",
+      "node": "M1",
+      "strategy": "category",
+      "ms": 55069,
+      "tokens": 146,
+      "quality": 1.0,
+      "ok": true
+    },
+    {
+      "pattern": "math",
+      "node": "M2",
+      "strategy": "category",
+      "ms": 50221,
+      "tokens": 208,
+      "quality": 1.0,
+      "ok": true
+    },
+    {
+      "pattern": "code",
+      "node": "M1",
+      "strategy": "consensus",
+      "ms": 60010,
+      "tokens": 0,
+      "quality": 0.0,
+      "ok": false
+    },
+    {
+      "pattern": "architecture",
+      "node": "M1",
+      "strategy": "consensus",
+      "ms": 60009,
+      "tokens": 0,
+      "quality": 0.0,
+      "ok": false
+    },
+    {
+      "pattern": "data",
+      "node": "M1",
+      "strategy": "consensus",
+      "ms": 60009,
+      "tokens": 0,
+      "quality": 0.0,
+      "ok": false
+    },
+    {
+      "pattern": "analysis",
+      "node": "M1",
+      "strategy": "consensus",
+      "ms": 60009,
+      "tokens": 0,
+      "quality": 0.0,
+      "ok": false
+    },
+    {
+      "pattern": "trading",
+      "node": "M1",
+      "strategy": "consensus",
+      "ms": 47028,
+      "tokens": 249,
+      "quality": 1.0,
+      "ok": true
+    },
+    {
+      "pattern": "architecture",
+      "node": "M1",
+      "strategy": "consensus",
+      "ms": 50053,
+      "tokens": 0,
+      "quality": 0.0,
+      "ok": false
+    },
+    {
+      "pattern": "math",
+      "node": "M2",
+      "strategy": "category",
+      "ms": 48122,
+      "tokens": 197,
+      "quality": 1.0,
+      "ok": true
+    },
+    {
+      "pattern": "web",
+      "node": "OL1",
+      "strategy": "single:fallback=OL1",
+      "ms": 32668,
+      "tokens": 670,
+      "quality": 1.0,
+      "ok": true
+    },
+    {
+      "pattern": "data",
+      "node": "M1",
+      "strategy": "consensus",
+      "ms": 56595,
+      "tokens": 446,
+      "quality": 1.0,
+      "ok": true
+    },
+    {
+      "pattern": "system",
+      "node": "OL1",
+      "strategy": "category:fallback=OL1",
+      "ms": 7951,
+      "tokens": 237,
+      "quality": 1.0,
+      "ok": true
+    },
+    {
+      "pattern": "system",
+      "node": "M1",
+      "strategy": "category",
+      "ms": 54280,
+      "tokens": 400,
+      "quality": 1.0,
+      "ok": true
+    },
+    {
+      "pattern": "math",
+      "node": "M1",
+      "strategy": "category:fallback=M1",
+      "ms": 48232,
+      "tokens": 210,
+      "quality": 1.0,
+      "ok": true
+    },
+    {
+      "pattern": "architecture",
+      "node": "M1",
+      "strategy": "consensus",
+      "ms": 60001,
+      "tokens": 0,
+      "quality": 0.0,
+      "ok": false
+    },
+    {
+      "pattern": "code",
+      "node": "M1",
+      "strategy": "consensus",
+      "ms": 60002,
+      "tokens": 0,
+      "quality": 0.0,
+      "ok": false
+    },
+    {
+      "pattern": "architecture",
+      "node": "M1",
+      "strategy": "consensus",
+      "ms": 60027,
+      "tokens": 0,
+      "quality": 0.0,
+      "ok": false
+    },
+    {
+      "pattern": "reasoning",
+      "node": "M3",
+      "strategy": "category",
+      "ms": 60022,
+      "tokens": 0,
+      "quality": 0.0,
+      "ok": false
+    },
+    {
+      "pattern": "analysis",
+      "node": "M1",
+      "strategy": "consensus",
+      "ms": 60025,
+      "tokens": 0,
+      "quality": 0.0,
+      "ok": false
+    },
+    {
+      "pattern": "security",
+      "node": "M1",
+      "strategy": "consensus",
+      "ms": 60007,
+      "tokens": 0,
+      "quality": 0.0,
+      "ok": false
+    },
+    {
+      "pattern": "analysis",
+      "node": "M1",
+      "strategy": "consensus",
+      "ms": 60002,
+      "tokens": 0,
+      "quality": 0.0,
+      "ok": false
+    },
+    {
+      "pattern": "simple",
+      "node": "OL1",
+      "strategy": "single",
+      "ms": 223,
+      "tokens": 1,
+      "quality": 0.009,
+      "ok": true
+    },
+    {
+      "pattern": "trading",
+      "node": "M1",
+      "strategy": "consensus:M1+M2",
+      "ms": 45033,
+      "tokens": 233,
+      "quality": 1.8,
+      "ok": true
+    },
+    {
+      "pattern": "code",
+      "node": "M1",
+      "strategy": "consensus",
+      "ms": 39732,
+      "tokens": 182,
+      "quality": 1.0,
+      "ok": true
+    },
+    {
+      "pattern": "reasoning",
+      "node": "M1",
+      "strategy": "category:fallback=M1",
+      "ms": 55031,
+      "tokens": 398,
+      "quality": 1.0,
+      "ok": true
+    },
+    {
+      "pattern": "devops",
+      "node": "M1",
+      "strategy": "category",
+      "ms": 45388,
+      "tokens": 346,
+      "quality": 1.0,
+      "ok": true
+    },
+    {
+      "pattern": "analysis",
+      "node": "M1",
+      "strategy": "consensus",
+      "ms": 60018,
+      "tokens": 0,
+      "quality": 0.0,
+      "ok": false
+    },
+    {
+      "pattern": "data",
+      "node": "M1",
+      "strategy": "consensus",
+      "ms": 60007,
+      "tokens": 0,
+      "quality": 0.0,
+      "ok": false
+    },
+    {
+      "pattern": "devops",
+      "node": "M1",
+      "strategy": "category",
+      "ms": 26054,
+      "tokens": 306,
+      "quality": 1.0,
+      "ok": true
+    },
+    {
+      "pattern": "code",
+      "node": "M1",
+      "strategy": "consensus",
+      "ms": 58939,
+      "tokens": 497,
+      "quality": 1.0,
+      "ok": true
+    },
+    {
+      "pattern": "trading",
+      "node": "M1",
+      "strategy": "consensus",
+      "ms": 54380,
+      "tokens": 470,
+      "quality": 1.0,
+      "ok": true
+    },
+    {
+      "pattern": "simple",
+      "node": "OL1",
+      "strategy": "single",
+      "ms": 630,
+      "tokens": 1,
+      "quality": 0.009,
+      "ok": true
+    },
+    {
+      "pattern": "trading",
+      "node": "M1",
+      "strategy": "consensus",
+      "ms": 36912,
+      "tokens": 289,
+      "quality": 1.0,
+      "ok": true
+    },
+    {
+      "pattern": "reasoning",
+      "node": "M3",
+      "strategy": "category",
+      "ms": 60012,
+      "tokens": 0,
+      "quality": 0.0,
+      "ok": false
+    },
+    {
+      "pattern": "classifier",
+      "node": "M1",
+      "strategy": "category",
+      "ms": 11526,
+      "tokens": 102,
+      "quality": 1.0,
+      "ok": true
+    },
+    {
+      "pattern": "analysis",
+      "node": "M1",
+      "strategy": "consensus",
+      "ms": 60020,
+      "tokens": 0,
+      "quality": 0.0,
+      "ok": false
+    },
+    {
+      "pattern": "analysis",
+      "node": "M1",
+      "strategy": "consensus",
+      "ms": 60019,
+      "tokens": 0,
+      "quality": 0.0,
+      "ok": false
+    },
+    {
+      "pattern": "trading",
+      "node": "M1",
+      "strategy": "consensus",
+      "ms": 60036,
+      "tokens": 0,
+      "quality": 0.0,
+      "ok": false
+    },
+    {
+      "pattern": "devops",
+      "node": "OL1",
+      "strategy": "category:fallback=OL1",
+      "ms": 53180,
+      "tokens": 324,
+      "quality": 1.0,
+      "ok": true
+    },
+    {
+      "pattern": "reasoning",
+      "node": "M3",
+      "strategy": "category",
+      "ms": 60001,
+      "tokens": 0,
+      "quality": 0.0,
+      "ok": false
+    },
+    {
+      "pattern": "creative",
+      "node": "OL1",
+      "strategy": "single",
+      "ms": 60015,
+      "tokens": 0,
+      "quality": 0.0,
+      "ok": false
+    },
+    {
+      "pattern": "trading",
+      "node": "M1",
+      "strategy": "consensus",
+      "ms": 19964,
+      "tokens": 0,
+      "quality": 0.0,
+      "ok": false
+    },
+    {
+      "pattern": "code",
+      "node": "M1",
+      "strategy": "consensus",
+      "ms": 19966,
+      "tokens": 0,
+      "quality": 0.0,
+      "ok": false
+    },
+    {
+      "pattern": "math",
+      "node": "M3",
+      "strategy": "category",
+      "ms": 60019,
+      "tokens": 0,
+      "quality": 0.0,
+      "ok": false
+    },
+    {
+      "pattern": "system",
+      "node": "OL1",
+      "strategy": "category",
+      "ms": 60009,
+      "tokens": 0,
+      "quality": 0.0,
+      "ok": false
+    },
+    {
+      "pattern": "devops",
+      "node": "OL1",
+      "strategy": "category:fallback=OL1",
+      "ms": 49209,
+      "tokens": 288,
+      "quality": 1.0,
+      "ok": true
+    },
+    {
+      "pattern": "analysis",
+      "node": "M1",
+      "strategy": "consensus",
+      "ms": 17811,
+      "tokens": 0,
+      "quality": 0.0,
+      "ok": false
+    },
+    {
+      "pattern": "devops",
+      "node": "OL1",
+      "strategy": "category:fallback=OL1",
+      "ms": 43549,
+      "tokens": 398,
+      "quality": 1.0,
+      "ok": true
+    },
+    {
+      "pattern": "security",
+      "node": "M1",
+      "strategy": "consensus",
+      "ms": 6181,
+      "tokens": 0,
+      "quality": 0.0,
+      "ok": false
+    },
+    {
+      "pattern": "analysis",
+      "node": "M1",
+      "strategy": "consensus",
+      "ms": 6202,
+      "tokens": 0,
+      "quality": 0.0,
+      "ok": false
+    },
+    {
+      "pattern": "web",
+      "node": "OL1",
+      "strategy": "single:fallback=OL1",
+      "ms": 37426,
+      "tokens": 168,
+      "quality": 1.0,
+      "ok": true
+    },
+    {
+      "pattern": "math",
+      "node": "M3",
+      "strategy": "category",
+      "ms": 60024,
+      "tokens": 0,
+      "quality": 0.0,
+      "ok": false
+    },
+    {
+      "pattern": "code",
+      "node": "M1",
+      "strategy": "consensus",
+      "ms": 5411,
+      "tokens": 0,
+      "quality": 0.0,
+      "ok": false
+    },
+    {
+      "pattern": "system",
+      "node": "OL1",
+      "strategy": "category",
+      "ms": 60009,
+      "tokens": 0,
+      "quality": 0.0,
+      "ok": false
+    },
+    {
+      "pattern": "reasoning",
+      "node": "M3",
+      "strategy": "category",
+      "ms": 60002,
+      "tokens": 0,
+      "quality": 0.0,
+      "ok": false
+    },
+    {
+      "pattern": "architecture",
+      "node": "M1",
+      "strategy": "consensus",
+      "ms": 17425,
+      "tokens": 0,
+      "quality": 0.0,
+      "ok": false
+    },
+    {
+      "pattern": "math",
+      "node": "M2",
+      "strategy": "category",
+      "ms": 48153,
+      "tokens": 110,
+      "quality": 1.0,
+      "ok": true
+    },
+    {
+      "pattern": "trading",
+      "node": "M1",
+      "strategy": "consensus",
+      "ms": 21788,
+      "tokens": 0,
+      "quality": 0.0,
+      "ok": false
+    },
+    {
+      "pattern": "reasoning",
+      "node": "M1",
+      "strategy": "category:fallback=M1",
+      "ms": 17771,
+      "tokens": 438,
+      "quality": 1.0,
+      "ok": true
+    },
+    {
+      "pattern": "security",
+      "node": "M1",
+      "strategy": "consensus",
+      "ms": 2438,
+      "tokens": 0,
+      "quality": 0.0,
+      "ok": false
+    },
+    {
+      "pattern": "code",
+      "node": "M1",
+      "strategy": "consensus",
+      "ms": 24555,
+      "tokens": 149,
+      "quality": 1.0,
+      "ok": true
+    },
+    {
+      "pattern": "simple",
+      "node": "OL1",
+      "strategy": "single",
+      "ms": 40659,
+      "tokens": 1,
+      "quality": 0.009,
+      "ok": true
+    },
+    {
+      "pattern": "architecture",
+      "node": "M1",
+      "strategy": "consensus",
+      "ms": 11621,
+      "tokens": 0,
+      "quality": 0.0,
+      "ok": false
+    },
+    {
+      "pattern": "trading",
+      "node": "M1",
+      "strategy": "consensus",
+      "ms": 5920,
+      "tokens": 0,
+      "quality": 0.0,
+      "ok": false
+    },
+    {
+      "pattern": "trading",
+      "node": "M1",
+      "strategy": "consensus",
+      "ms": 15950,
+      "tokens": 496,
+      "quality": 1.0,
+      "ok": true
+    },
+    {
+      "pattern": "data",
+      "node": "M1",
+      "strategy": "consensus",
+      "ms": 27579,
+      "tokens": 595,
+      "quality": 1.0,
+      "ok": true
+    },
+    {
+      "pattern": "system",
+      "node": "M1",
+      "strategy": "category",
+      "ms": 7267,
+      "tokens": 133,
+      "quality": 1.0,
+      "ok": true
+    },
+    {
+      "pattern": "system",
+      "node": "M1",
+      "strategy": "category",
+      "ms": 14360,
+      "tokens": 326,
+      "quality": 1.0,
+      "ok": true
+    },
+    {
+      "pattern": "reasoning",
+      "node": "M1",
+      "strategy": "category:fallback=M1",
+      "ms": 49389,
+      "tokens": 334,
+      "quality": 1.0,
+      "ok": true
+    },
+    {
+      "pattern": "simple",
+      "node": "OL1",
+      "strategy": "single",
+      "ms": 297,
+      "tokens": 1,
+      "quality": 0.007,
+      "ok": true
+    },
+    {
+      "pattern": "system",
+      "node": "M1",
+      "strategy": "category",
+      "ms": 57949,
+      "tokens": 301,
+      "quality": 1.0,
+      "ok": true
+    },
+    {
+      "pattern": "reasoning",
+      "node": "M1",
+      "strategy": "category:fallback=M1",
+      "ms": 46272,
+      "tokens": 344,
+      "quality": 1.0,
+      "ok": true
+    },
+    {
+      "pattern": "code",
+      "node": "M1",
+      "strategy": "consensus",
+      "ms": 53546,
+      "tokens": 282,
+      "quality": 1.0,
+      "ok": true
+    },
+    {
+      "pattern": "security",
+      "node": "M1",
+      "strategy": "consensus",
+      "ms": 59545,
+      "tokens": 409,
+      "quality": 1.0,
+      "ok": true
+    },
+    {
+      "pattern": "data",
+      "node": "M1",
+      "strategy": "consensus",
+      "ms": 60021,
+      "tokens": 0,
+      "quality": 0.0,
+      "ok": false
+    },
+    {
+      "pattern": "classifier",
+      "node": "M1",
+      "strategy": "category",
+      "ms": 10783,
+      "tokens": 93,
+      "quality": 0.969,
+      "ok": true
+    },
+    {
+      "pattern": "math",
+      "node": "M1",
+      "strategy": "category:fallback=M1",
+      "ms": 32709,
+      "tokens": 241,
+      "quality": 1.0,
+      "ok": true
+    },
+    {
+      "pattern": "data",
+      "node": "M1",
+      "strategy": "consensus",
+      "ms": 60013,
+      "tokens": 0,
+      "quality": 0.0,
+      "ok": false
+    },
+    {
+      "pattern": "architecture",
+      "node": "M1",
+      "strategy": "consensus",
+      "ms": 60000,
+      "tokens": 0,
+      "quality": 0.0,
+      "ok": false
+    },
+    {
+      "pattern": "reasoning",
+      "node": "M3",
+      "strategy": "category",
+      "ms": 60000,
+      "tokens": 0,
+      "quality": 0.0,
+      "ok": false
+    },
+    {
+      "pattern": "classifier",
+      "node": "M1",
+      "strategy": "category",
+      "ms": 22144,
+      "tokens": 88,
+      "quality": 0.917,
+      "ok": true
+    },
+    {
+      "pattern": "devops",
+      "node": "M1",
+      "strategy": "category",
+      "ms": 45457,
+      "tokens": 358,
+      "quality": 1.0,
+      "ok": true
+    },
+    {
+      "pattern": "devops",
+      "node": "OL1",
+      "strategy": "category:fallback=OL1",
+      "ms": 39049,
+      "tokens": 436,
+      "quality": 1.0,
+      "ok": true
+    },
+    {
+      "pattern": "security",
+      "node": "M1",
+      "strategy": "consensus",
+      "ms": 60011,
+      "tokens": 0,
+      "quality": 0.0,
+      "ok": false
+    },
+    {
+      "pattern": "trading",
+      "node": "M1",
+      "strategy": "consensus",
+      "ms": 60011,
+      "tokens": 0,
+      "quality": 0.0,
+      "ok": false
+    },
+    {
+      "pattern": "code",
+      "node": "M1",
+      "strategy": "consensus",
+      "ms": 29926,
+      "tokens": 178,
+      "quality": 1.0,
+      "ok": true
+    },
+    {
+      "pattern": "creative",
+      "node": "M1",
+      "strategy": "single",
+      "ms": 31011,
+      "tokens": 149,
+      "quality": 1.0,
+      "ok": true
+    },
+    {
+      "pattern": "devops",
+      "node": "OL1",
+      "strategy": "category:fallback=OL1",
+      "ms": 20964,
+      "tokens": 330,
+      "quality": 1.0,
+      "ok": true
+    },
+    {
+      "pattern": "architecture",
+      "node": "M1",
+      "strategy": "consensus",
+      "ms": 35929,
+      "tokens": 0,
+      "quality": 0.0,
+      "ok": false
+    },
+    {
+      "pattern": "analysis",
+      "node": "M1",
+      "strategy": "consensus",
+      "ms": 32186,
+      "tokens": 0,
+      "quality": 0.0,
+      "ok": false
+    },
+    {
+      "pattern": "devops",
+      "node": "OL1",
+      "strategy": "category:fallback=OL1",
+      "ms": 26945,
+      "tokens": 738,
+      "quality": 1.0,
+      "ok": true
+    },
+    {
+      "pattern": "architecture",
+      "node": "M1",
+      "strategy": "consensus",
+      "ms": 51400,
+      "tokens": 0,
+      "quality": 0.0,
+      "ok": false
+    },
+    {
+      "pattern": "architecture",
+      "node": "M1",
+      "strategy": "consensus",
+      "ms": 44353,
+      "tokens": 0,
+      "quality": 0.0,
+      "ok": false
+    },
+    {
+      "pattern": "code",
+      "node": "M1",
+      "strategy": "consensus",
+      "ms": 32941,
+      "tokens": 0,
+      "quality": 0.0,
+      "ok": false
+    },
+    {
+      "pattern": "math",
+      "node": "M1",
+      "strategy": "category:fallback=M1",
+      "ms": 25614,
+      "tokens": 211,
+      "quality": 1.0,
+      "ok": true
+    },
+    {
+      "pattern": "analysis",
+      "node": "M1",
+      "strategy": "consensus",
+      "ms": 17783,
+      "tokens": 583,
+      "quality": 1.0,
+      "ok": true
+    },
+    {
+      "pattern": "math",
+      "node": "M2",
+      "strategy": "category",
+      "ms": 44099,
+      "tokens": 159,
+      "quality": 1.0,
+      "ok": true
+    },
+    {
+      "pattern": "architecture",
+      "node": "M1",
+      "strategy": "consensus",
+      "ms": 27589,
+      "tokens": 833,
+      "quality": 1.0,
+      "ok": true
+    },
+    {
+      "pattern": "simple",
+      "node": "OL1",
+      "strategy": "single",
+      "ms": 6126,
+      "tokens": 1,
+      "quality": 0.009,
+      "ok": true
+    },
+    {
+      "pattern": "classifier",
+      "node": "M1",
+      "strategy": "category",
+      "ms": 2211,
+      "tokens": 77,
+      "quality": 0.802,
+      "ok": true
+    },
+    {
+      "pattern": "math",
+      "node": "M1",
+      "strategy": "category:fallback=M1",
+      "ms": 20499,
+      "tokens": 189,
+      "quality": 1.0,
+      "ok": true
+    },
+    {
+      "pattern": "classifier",
+      "node": "M1",
+      "strategy": "category",
+      "ms": 7569,
+      "tokens": 143,
+      "quality": 1.0,
+      "ok": true
+    },
+    {
+      "pattern": "reasoning",
+      "node": "M3",
+      "strategy": "category",
+      "ms": 60003,
+      "tokens": 0,
+      "quality": 0.0,
+      "ok": false
+    },
+    {
+      "pattern": "architecture",
+      "node": "M1",
+      "strategy": "consensus",
+      "ms": 60003,
+      "tokens": 0,
+      "quality": 0.0,
+      "ok": false
+    },
+    {
+      "pattern": "simple",
+      "node": "OL1",
+      "strategy": "single",
+      "ms": 213,
+      "tokens": 1,
+      "quality": 0.009,
+      "ok": true
+    },
+    {
+      "pattern": "simple",
+      "node": "OL1",
+      "strategy": "single",
+      "ms": 197,
+      "tokens": 1,
+      "quality": 0.009,
+      "ok": true
+    },
+    {
+      "pattern": "code",
+      "node": "M1",
+      "strategy": "consensus",
+      "ms": 30336,
+      "tokens": 286,
+      "quality": 1.0,
+      "ok": true
+    },
+    {
+      "pattern": "trading",
+      "node": "M1",
+      "strategy": "consensus",
+      "ms": 47041,
+      "tokens": 478,
+      "quality": 1.0,
+      "ok": true
+    },
+    {
+      "pattern": "architecture",
+      "node": "M1",
+      "strategy": "consensus",
+      "ms": 60004,
+      "tokens": 0,
+      "quality": 0.0,
+      "ok": false
+    },
+    {
+      "pattern": "system",
+      "node": "M1",
+      "strategy": "category",
+      "ms": 33142,
+      "tokens": 356,
+      "quality": 1.0,
+      "ok": true
+    },
+    {
+      "pattern": "analysis",
+      "node": "M1",
+      "strategy": "consensus",
+      "ms": 57910,
+      "tokens": 731,
+      "quality": 1.0,
+      "ok": true
+    },
+    {
+      "pattern": "simple",
+      "node": "OL1",
+      "strategy": "single",
+      "ms": 576,
+      "tokens": 5,
+      "quality": 0.152,
+      "ok": true
+    },
+    {
+      "pattern": "data",
+      "node": "M1",
+      "strategy": "consensus",
+      "ms": 43591,
+      "tokens": 518,
+      "quality": 1.0,
+      "ok": true
+    },
+    {
+      "pattern": "security",
+      "node": "M1",
+      "strategy": "consensus",
+      "ms": 60015,
+      "tokens": 0,
+      "quality": 0.0,
+      "ok": false
+    },
+    {
+      "pattern": "architecture",
+      "node": "M1",
+      "strategy": "consensus",
+      "ms": 60015,
+      "tokens": 0,
+      "quality": 0.0,
+      "ok": false
+    },
+    {
+      "pattern": "simple",
+      "node": "OL1",
+      "strategy": "single",
+      "ms": 385,
+      "tokens": 1,
+      "quality": 0.007,
+      "ok": true
+    },
+    {
+      "pattern": "security",
+      "node": "M1",
+      "strategy": "consensus",
+      "ms": 60014,
+      "tokens": 0,
+      "quality": 0.0,
+      "ok": false
+    },
+    {
+      "pattern": "data",
+      "node": "M1",
+      "strategy": "consensus",
+      "ms": 41567,
+      "tokens": 523,
+      "quality": 1.0,
+      "ok": true
+    },
+    {
+      "pattern": "web",
+      "node": "M1",
+      "strategy": "single:fallback=M1",
+      "ms": 11992,
+      "tokens": 89,
+      "quality": 1.0,
+      "ok": true
+    },
+    {
+      "pattern": "devops",
+      "node": "OL1",
+      "strategy": "category:fallback=OL1",
+      "ms": 13120,
+      "tokens": 292,
+      "quality": 1.0,
+      "ok": true
+    },
+    {
+      "pattern": "data",
+      "node": "M1",
+      "strategy": "consensus",
+      "ms": 60011,
+      "tokens": 0,
+      "quality": 0.0,
+      "ok": false
+    },
+    {
+      "pattern": "system",
+      "node": "OL1",
+      "strategy": "category:fallback=OL1",
+      "ms": 16006,
+      "tokens": 317,
+      "quality": 1.0,
+      "ok": true
+    },
+    {
+      "pattern": "system",
+      "node": "OL1",
+      "strategy": "category:fallback=OL1",
+      "ms": 17019,
+      "tokens": 373,
+      "quality": 1.0,
+      "ok": true
+    },
+    {
+      "pattern": "reasoning",
+      "node": "M2",
+      "strategy": "category",
+      "ms": 41784,
+      "tokens": 173,
+      "quality": 1.0,
+      "ok": true
+    },
+    {
+      "pattern": "web",
+      "node": "OL1",
+      "strategy": "single:fallback=OL1",
+      "ms": 36620,
+      "tokens": 841,
+      "quality": 1.0,
+      "ok": true
+    },
+    {
+      "pattern": "code",
+      "node": "M1",
+      "strategy": "consensus",
+      "ms": 53909,
+      "tokens": 208,
+      "quality": 1.0,
+      "ok": true
+    },
+    {
+      "pattern": "system",
+      "node": "OL1",
+      "strategy": "category:fallback=OL1",
+      "ms": 25475,
+      "tokens": 581,
+      "quality": 1.0,
+      "ok": true
+    },
+    {
+      "pattern": "code",
+      "node": "M1",
+      "strategy": "consensus",
+      "ms": 49958,
+      "tokens": 146,
+      "quality": 1.0,
+      "ok": true
+    },
+    {
+      "pattern": "code",
+      "node": "M1",
+      "strategy": "consensus",
+      "ms": 60015,
+      "tokens": 0,
+      "quality": 0.0,
+      "ok": false
+    },
+    {
+      "pattern": "creative",
+      "node": "OL1",
+      "strategy": "single:fallback=OL1",
+      "ms": 14871,
+      "tokens": 446,
+      "quality": 1.0,
+      "ok": true
+    },
+    {
+      "pattern": "data",
+      "node": "M1",
+      "strategy": "consensus",
+      "ms": 60016,
+      "tokens": 0,
+      "quality": 0.0,
+      "ok": false
+    },
+    {
+      "pattern": "web",
+      "node": "OL1",
+      "strategy": "single:fallback=OL1",
+      "ms": 25708,
+      "tokens": 836,
+      "quality": 1.0,
+      "ok": true
+    },
+    {
+      "pattern": "simple",
+      "node": "OL1",
+      "strategy": "single",
+      "ms": 142,
+      "tokens": 1,
+      "quality": 0.009,
+      "ok": true
+    },
+    {
+      "pattern": "creative",
+      "node": "OL1",
+      "strategy": "single:fallback=OL1",
+      "ms": 16069,
+      "tokens": 424,
+      "quality": 1.0,
+      "ok": true
+    },
+    {
+      "pattern": "data",
+      "node": "M1",
+      "strategy": "consensus",
+      "ms": 60012,
+      "tokens": 0,
+      "quality": 0.0,
+      "ok": false
+    },
+    {
+      "pattern": "system",
+      "node": "OL1",
+      "strategy": "category",
+      "ms": 60005,
+      "tokens": 0,
+      "quality": 0.0,
+      "ok": false
+    },
+    {
+      "pattern": "devops",
+      "node": "OL1",
+      "strategy": "category",
+      "ms": 60003,
+      "tokens": 0,
+      "quality": 0.0,
+      "ok": false
+    },
+    {
+      "pattern": "code",
+      "node": "M1",
+      "strategy": "consensus",
+      "ms": 36102,
+      "tokens": 182,
+      "quality": 1.0,
+      "ok": true
+    },
+    {
+      "pattern": "reasoning",
+      "node": "M3",
+      "strategy": "category",
+      "ms": 60001,
+      "tokens": 0,
+      "quality": 0.0,
+      "ok": false
+    },
+    {
+      "pattern": "reasoning",
+      "node": "M3",
+      "strategy": "category",
+      "ms": 59999,
+      "tokens": 0,
+      "quality": 0.0,
+      "ok": false
+    },
+    {
+      "pattern": "creative",
+      "node": "OL1",
+      "strategy": "single:fallback=OL1",
+      "ms": 36218,
+      "tokens": 415,
+      "quality": 1.0,
+      "ok": true
+    },
+    {
+      "pattern": "security",
+      "node": "M1",
+      "strategy": "consensus",
+      "ms": 41381,
+      "tokens": 0,
+      "quality": 0.0,
+      "ok": false
+    },
+    {
+      "pattern": "code",
+      "node": "M1",
+      "strategy": "consensus",
+      "ms": 31759,
+      "tokens": 0,
+      "quality": 0.0,
+      "ok": false
+    },
+    {
+      "pattern": "web",
+      "node": "OL1",
+      "strategy": "single",
+      "ms": 59995,
+      "tokens": 0,
+      "quality": 0.0,
+      "ok": false
+    },
+    {
+      "pattern": "analysis",
+      "node": "M1",
+      "strategy": "consensus",
+      "ms": 17251,
+      "tokens": 0,
+      "quality": 0.0,
+      "ok": false
+    },
+    {
+      "pattern": "creative",
+      "node": "OL1",
+      "strategy": "single:fallback=OL1",
+      "ms": 16562,
+      "tokens": 437,
+      "quality": 1.0,
+      "ok": true
+    },
+    {
+      "pattern": "security",
+      "node": "M1",
+      "strategy": "consensus",
+      "ms": 7019,
+      "tokens": 0,
+      "quality": 0.0,
+      "ok": false
+    },
+    {
+      "pattern": "data",
+      "node": "M1",
+      "strategy": "consensus",
+      "ms": 17422,
+      "tokens": 0,
+      "quality": 0.0,
+      "ok": false
+    },
+    {
+      "pattern": "system",
+      "node": "OL1",
+      "strategy": "category:fallback=OL1",
+      "ms": 1424,
+      "tokens": 44,
+      "quality": 0.704,
+      "ok": true
+    },
+    {
+      "pattern": "architecture",
+      "node": "M1",
+      "strategy": "consensus",
+      "ms": 60031,
+      "tokens": 0,
+      "quality": 0.0,
+      "ok": false
+    },
+    {
+      "pattern": "code",
+      "node": "M1",
+      "strategy": "consensus",
+      "ms": 34115,
+      "tokens": 231,
+      "quality": 1.0,
+      "ok": true
+    },
+    {
+      "pattern": "architecture",
+      "node": "M1",
+      "strategy": "consensus",
+      "ms": 60030,
+      "tokens": 0,
+      "quality": 0.0,
+      "ok": false
+    },
+    {
+      "pattern": "reasoning",
+      "node": "M3",
+      "strategy": "category",
+      "ms": 60032,
+      "tokens": 0,
+      "quality": 0.0,
+      "ok": false
+    },
+    {
+      "pattern": "analysis",
+      "node": "M1",
+      "strategy": "consensus",
+      "ms": 60029,
+      "tokens": 0,
+      "quality": 0.0,
+      "ok": false
+    },
+    {
+      "pattern": "math",
+      "node": "M2",
+      "strategy": "category",
+      "ms": 47007,
+      "tokens": 144,
+      "quality": 1.0,
+      "ok": true
+    },
+    {
+      "pattern": "devops",
+      "node": "OL1",
+      "strategy": "category:fallback=OL1",
+      "ms": 38163,
+      "tokens": 720,
+      "quality": 1.0,
+      "ok": true
+    },
+    {
+      "pattern": "system",
+      "node": "OL1",
+      "strategy": "category:fallback=OL1",
+      "ms": 24467,
+      "tokens": 410,
+      "quality": 1.0,
+      "ok": true
+    },
+    {
+      "pattern": "analysis",
+      "node": "M2",
+      "strategy": "consensus",
+      "ms": 54581,
+      "tokens": 299,
+      "quality": 1.0,
+      "ok": true
+    },
+    {
+      "pattern": "analysis",
+      "node": "M1",
+      "strategy": "consensus",
+      "ms": 24519,
+      "tokens": 0,
+      "quality": 0.0,
+      "ok": false
+    },
+    {
+      "pattern": "data",
+      "node": "M1",
+      "strategy": "consensus",
+      "ms": 11464,
+      "tokens": 0,
+      "quality": 0.0,
+      "ok": false
+    },
+    {
+      "pattern": "code",
+      "node": "M1",
+      "strategy": "consensus",
+      "ms": 11473,
+      "tokens": 0,
+      "quality": 0.0,
+      "ok": false
+    },
+    {
+      "pattern": "simple",
+      "node": "OL1",
+      "strategy": "single",
+      "ms": 228,
+      "tokens": 1,
+      "quality": 0.009,
+      "ok": true
+    },
+    {
+      "pattern": "code",
+      "node": "M1",
+      "strategy": "consensus",
+      "ms": 11239,
+      "tokens": 0,
+      "quality": 0.0,
+      "ok": false
+    },
+    {
+      "pattern": "creative",
+      "node": "M1",
+      "strategy": "single",
+      "ms": 17227,
+      "tokens": 64,
+      "quality": 0.928,
+      "ok": true
+    },
+    {
+      "pattern": "analysis",
+      "node": "M1",
+      "strategy": "consensus",
+      "ms": 19555,
+      "tokens": 0,
+      "quality": 0.0,
+      "ok": false
+    },
+    {
+      "pattern": "security",
+      "node": "M1",
+      "strategy": "consensus",
+      "ms": 19540,
+      "tokens": 0,
+      "quality": 0.0,
+      "ok": false
+    },
+    {
+      "pattern": "code",
+      "node": "M1",
+      "strategy": "consensus",
+      "ms": 2388,
+      "tokens": 0,
+      "quality": 0.0,
+      "ok": false
+    },
+    {
+      "pattern": "simple",
+      "node": "OL1",
+      "strategy": "single",
+      "ms": 201,
+      "tokens": 1,
+      "quality": 0.009,
+      "ok": true
+    },
+    {
+      "pattern": "security",
+      "node": "M1",
+      "strategy": "consensus",
+      "ms": 2117,
+      "tokens": 0,
+      "quality": 0.0,
+      "ok": false
+    },
+    {
+      "pattern": "math",
+      "node": "M2",
+      "strategy": "category",
+      "ms": 46468,
+      "tokens": 142,
+      "quality": 1.0,
+      "ok": true
+    },
+    {
+      "pattern": "web",
+      "node": "OL1",
+      "strategy": "single:fallback=OL1",
+      "ms": 11887,
+      "tokens": 197,
+      "quality": 1.0,
+      "ok": true
+    },
+    {
+      "pattern": "code",
+      "node": "M1",
+      "strategy": "consensus",
+      "ms": 23904,
+      "tokens": 0,
+      "quality": 0.0,
+      "ok": false
+    },
+    {
+      "pattern": "simple",
+      "node": "OL1",
+      "strategy": "single",
+      "ms": 162,
+      "tokens": 1,
+      "quality": 0.009,
+      "ok": true
+    },
+    {
+      "pattern": "math",
+      "node": "M1",
+      "strategy": "category:fallback=M1",
+      "ms": 9663,
+      "tokens": 225,
+      "quality": 1.0,
+      "ok": true
+    },
+    {
+      "pattern": "trading",
+      "node": "M1",
+      "strategy": "consensus",
+      "ms": 37176,
+      "tokens": 0,
+      "quality": 0.0,
+      "ok": false
+    },
+    {
+      "pattern": "code",
+      "node": "M1",
+      "strategy": "consensus",
+      "ms": 25295,
+      "tokens": 0,
+      "quality": 0.0,
+      "ok": false
+    },
+    {
+      "pattern": "web",
+      "node": "M1",
+      "strategy": "single:fallback=M1",
+      "ms": 11337,
+      "tokens": 104,
+      "quality": 1.0,
+      "ok": true
+    },
+    {
+      "pattern": "classifier",
+      "node": "M1",
+      "strategy": "category",
+      "ms": 9167,
+      "tokens": 108,
+      "quality": 1.0,
+      "ok": true
+    },
+    {
+      "pattern": "trading",
+      "node": "M2",
+      "strategy": "consensus",
+      "ms": 55107,
+      "tokens": 304,
+      "quality": 1.0,
+      "ok": true
+    },
+    {
+      "pattern": "simple",
+      "node": "OL1",
+      "strategy": "single",
+      "ms": 288,
+      "tokens": 1,
+      "quality": 0.009,
+      "ok": true
+    },
+    {
+      "pattern": "creative",
+      "node": "M2",
+      "strategy": "single:fallback=M2",
+      "ms": 50536,
+      "tokens": 110,
+      "quality": 1.0,
+      "ok": true
+    },
+    {
+      "pattern": "devops",
+      "node": "OL1",
+      "strategy": "category:fallback=OL1",
+      "ms": 8421,
+      "tokens": 290,
+      "quality": 1.0,
+      "ok": true
+    },
+    {
+      "pattern": "code",
+      "node": "M1",
+      "strategy": "consensus",
+      "ms": 7604,
+      "tokens": 0,
+      "quality": 0.0,
+      "ok": false
+    },
+    {
+      "pattern": "code",
+      "node": "M1",
+      "strategy": "consensus",
+      "ms": 27232,
+      "tokens": 587,
+      "quality": 1.0,
+      "ok": true
+    },
+    {
+      "pattern": "data",
+      "node": "M1",
+      "strategy": "consensus",
+      "ms": 31049,
+      "tokens": 785,
+      "quality": 1.0,
+      "ok": true
+    },
+    {
+      "pattern": "classifier",
+      "node": "M1",
+      "strategy": "category",
+      "ms": 5265,
+      "tokens": 159,
+      "quality": 1.0,
+      "ok": true
+    },
+    {
+      "pattern": "web",
+      "node": "M1",
+      "strategy": "single:fallback=M1",
+      "ms": 24836,
+      "tokens": 546,
+      "quality": 1.0,
+      "ok": true
+    },
+    {
+      "pattern": "code",
+      "node": "M1",
+      "strategy": "consensus",
+      "ms": 22906,
+      "tokens": 528,
+      "quality": 1.0,
+      "ok": true
+    },
+    {
+      "pattern": "security",
+      "node": "M1",
+      "strategy": "consensus",
+      "ms": 18129,
+      "tokens": 459,
+      "quality": 1.0,
+      "ok": true
+    },
+    {
+      "pattern": "architecture",
+      "node": "M1",
+      "strategy": "consensus",
+      "ms": 60015,
+      "tokens": 0,
+      "quality": 0.0,
+      "ok": false
+    },
+    {
+      "pattern": "code",
+      "node": "M1",
+      "strategy": "consensus",
+      "ms": 35915,
+      "tokens": 286,
+      "quality": 1.0,
+      "ok": true
+    },
+    {
+      "pattern": "architecture",
+      "node": "M1",
+      "strategy": "consensus",
+      "ms": 60015,
+      "tokens": 0,
+      "quality": 0.0,
+      "ok": false
+    },
+    {
+      "pattern": "trading",
+      "node": "M1",
+      "strategy": "consensus",
+      "ms": 60014,
+      "tokens": 0,
+      "quality": 0.0,
+      "ok": false
+    },
+    {
+      "pattern": "analysis",
+      "node": "M1",
+      "strategy": "consensus",
+      "ms": 60013,
+      "tokens": 0,
+      "quality": 0.0,
+      "ok": false
+    },
+    {
+      "pattern": "data",
+      "node": "M1",
+      "strategy": "consensus",
+      "ms": 60013,
+      "tokens": 0,
+      "quality": 0.0,
+      "ok": false
+    },
+    {
+      "pattern": "devops",
+      "node": "OL1",
+      "strategy": "category:fallback=OL1",
+      "ms": 16873,
+      "tokens": 389,
+      "quality": 1.0,
+      "ok": true
+    },
+    {
+      "pattern": "reasoning",
+      "node": "M1",
+      "strategy": "category:fallback=M1",
+      "ms": 27052,
+      "tokens": 253,
+      "quality": 1.0,
+      "ok": true
+    },
+    {
+      "pattern": "creative",
+      "node": "M1",
+      "strategy": "single",
+      "ms": 7434,
+      "tokens": 69,
+      "quality": 1.0,
+      "ok": true
+    },
+    {
+      "pattern": "code",
+      "node": "M1",
+      "strategy": "consensus",
+      "ms": 59456,
+      "tokens": 542,
+      "quality": 1.0,
+      "ok": true
+    },
+    {
+      "pattern": "simple",
+      "node": "OL1",
+      "strategy": "single",
+      "ms": 158,
+      "tokens": 1,
+      "quality": 0.009,
+      "ok": true
+    },
+    {
+      "pattern": "reasoning",
+      "node": "M3",
+      "strategy": "category",
+      "ms": 60031,
+      "tokens": 0,
+      "quality": 0.0,
+      "ok": false
+    },
+    {
+      "pattern": "trading",
+      "node": "M1",
+      "strategy": "consensus",
+      "ms": 26407,
+      "tokens": 192,
+      "quality": 1.0,
+      "ok": true
+    },
+    {
+      "pattern": "code",
+      "node": "M1",
+      "strategy": "consensus",
+      "ms": 20195,
+      "tokens": 162,
+      "quality": 1.0,
+      "ok": true
+    },
+    {
+      "pattern": "creative",
+      "node": "M1",
+      "strategy": "single",
+      "ms": 54760,
+      "tokens": 572,
+      "quality": 1.0,
+      "ok": true
+    },
+    {
+      "pattern": "math",
+      "node": "M2",
+      "strategy": "category",
+      "ms": 49286,
+      "tokens": 187,
+      "quality": 1.0,
+      "ok": true
+    },
+    {
+      "pattern": "architecture",
+      "node": "M1",
+      "strategy": "consensus",
+      "ms": 60006,
+      "tokens": 0,
+      "quality": 0.0,
+      "ok": false
+    },
+    {
+      "pattern": "code",
+      "node": "M1",
+      "strategy": "consensus",
+      "ms": 53937,
+      "tokens": 0,
+      "quality": 0.0,
+      "ok": false
+    },
+    {
+      "pattern": "system",
+      "node": "M1",
+      "strategy": "category",
+      "ms": 27086,
+      "tokens": 280,
+      "quality": 1.0,
+      "ok": true
+    },
+    {
+      "pattern": "data",
+      "node": "M1",
+      "strategy": "consensus",
+      "ms": 31517,
+      "tokens": 0,
+      "quality": 0.0,
+      "ok": false
+    },
+    {
+      "pattern": "architecture",
+      "node": "M1",
+      "strategy": "consensus",
+      "ms": 26174,
+      "tokens": 0,
+      "quality": 0.0,
+      "ok": false
+    },
+    {
+      "pattern": "architecture",
+      "node": "M1",
+      "strategy": "consensus",
+      "ms": 20919,
+      "tokens": 0,
+      "quality": 0.0,
+      "ok": false
+    },
+    {
+      "pattern": "trading",
+      "node": "M1",
+      "strategy": "consensus",
+      "ms": 11051,
+      "tokens": 0,
+      "quality": 0.0,
+      "ok": false
+    },
+    {
+      "pattern": "architecture",
+      "node": "M1",
+      "strategy": "consensus",
+      "ms": 4044,
+      "tokens": 0,
+      "quality": 0.0,
+      "ok": false
+    },
+    {
+      "pattern": "creative",
+      "node": "OL1",
+      "strategy": "single:fallback=OL1",
+      "ms": 1762,
+      "tokens": 45,
+      "quality": 0.652,
+      "ok": true
+    },
+    {
+      "pattern": "data",
+      "node": "M1",
+      "strategy": "consensus",
+      "ms": 17764,
+      "tokens": 0,
+      "quality": 0.0,
+      "ok": false
+    },
+    {
+      "pattern": "math",
+      "node": "M2",
+      "strategy": "category",
+      "ms": 59902,
+      "tokens": 158,
+      "quality": 1.0,
+      "ok": true
+    },
+    {
+      "pattern": "code",
+      "node": "M1",
+      "strategy": "consensus",
+      "ms": 17754,
+      "tokens": 0,
+      "quality": 0.0,
+      "ok": false
+    },
+    {
+      "pattern": "trading",
+      "node": "M1",
+      "strategy": "consensus",
+      "ms": 17739,
+      "tokens": 0,
+      "quality": 0.0,
+      "ok": false
+    },
+    {
+      "pattern": "reasoning",
+      "node": "M3",
+      "strategy": "category",
+      "ms": 60020,
+      "tokens": 0,
+      "quality": 0.0,
+      "ok": false
+    },
+    {
+      "pattern": "system",
+      "node": "OL1",
+      "strategy": "category",
+      "ms": 60006,
+      "tokens": 0,
+      "quality": 0.0,
+      "ok": false
+    },
+    {
+      "pattern": "architecture",
+      "node": "M1",
+      "strategy": "consensus",
+      "ms": 17185,
+      "tokens": 0,
+      "quality": 0.0,
+      "ok": false
+    },
+    {
+      "pattern": "trading",
+      "node": "M1",
+      "strategy": "consensus",
+      "ms": 31299,
+      "tokens": 0,
+      "quality": 0.0,
+      "ok": false
+    },
+    {
+      "pattern": "architecture",
+      "node": "M1",
+      "strategy": "consensus",
+      "ms": 17294,
+      "tokens": 0,
+      "quality": 0.0,
+      "ok": false
+    },
+    {
+      "pattern": "system",
+      "node": "OL1",
+      "strategy": "category:fallback=OL1",
+      "ms": 1662,
+      "tokens": 31,
+      "quality": 0.496,
+      "ok": true
+    },
+    {
+      "pattern": "analysis",
+      "node": "M1",
+      "strategy": "consensus",
+      "ms": 6242,
+      "tokens": 0,
+      "quality": 0.0,
+      "ok": false
+    },
+    {
+      "pattern": "code",
+      "node": "M1",
+      "strategy": "consensus",
+      "ms": 6237,
+      "tokens": 0,
+      "quality": 0.0,
+      "ok": false
+    },
+    {
+      "pattern": "math",
+      "node": "M3",
+      "strategy": "category",
+      "ms": 60020,
+      "tokens": 0,
+      "quality": 0.0,
+      "ok": false
+    },
+    {
+      "pattern": "simple",
+      "node": "OL1",
+      "strategy": "single",
+      "ms": 190,
+      "tokens": 1,
+      "quality": 0.009,
+      "ok": true
+    },
+    {
+      "pattern": "code",
+      "node": "M1",
+      "strategy": "consensus",
+      "ms": 17321,
+      "tokens": 163,
+      "quality": 1.0,
+      "ok": true
+    },
+    {
+      "pattern": "simple",
+      "node": "OL1",
+      "strategy": "single",
+      "ms": 212,
+      "tokens": 1,
+      "quality": 0.009,
+      "ok": true
+    },
+    {
+      "pattern": "math",
+      "node": "M1",
+      "strategy": "category:fallback=M1",
+      "ms": 43174,
+      "tokens": 213,
+      "quality": 1.0,
+      "ok": true
+    },
+    {
+      "pattern": "analysis",
+      "node": "M1",
+      "strategy": "consensus",
+      "ms": 53415,
+      "tokens": 600,
+      "quality": 1.0,
+      "ok": true
+    },
+    {
+      "pattern": "classifier",
+      "node": "M1",
+      "strategy": "category",
+      "ms": 12722,
+      "tokens": 150,
+      "quality": 1.0,
+      "ok": true
+    },
+    {
+      "pattern": "web",
+      "node": "M1",
+      "strategy": "single:fallback=M1",
+      "ms": 50895,
+      "tokens": 543,
+      "quality": 1.0,
+      "ok": true
+    },
+    {
+      "pattern": "creative",
+      "node": "M1",
+      "strategy": "single",
+      "ms": 38081,
+      "tokens": 469,
+      "quality": 1.0,
+      "ok": true
+    },
+    {
+      "pattern": "code",
+      "node": "M1",
+      "strategy": "consensus",
+      "ms": 14736,
+      "tokens": 166,
+      "quality": 1.0,
+      "ok": true
+    },
+    {
+      "pattern": "trading",
+      "node": "M1",
+      "strategy": "consensus",
+      "ms": 51087,
+      "tokens": 504,
+      "quality": 1.0,
+      "ok": true
+    },
+    {
+      "pattern": "math",
+      "node": "M2",
+      "strategy": "category",
+      "ms": 44505,
+      "tokens": 115,
+      "quality": 1.0,
+      "ok": true
+    },
+    {
+      "pattern": "simple",
+      "node": "OL1",
+      "strategy": "single",
+      "ms": 178,
+      "tokens": 1,
+      "quality": 0.009,
+      "ok": true
+    },
+    {
+      "pattern": "creative",
+      "node": "M1",
+      "strategy": "single",
+      "ms": 53271,
+      "tokens": 560,
+      "quality": 1.0,
+      "ok": true
+    },
+    {
+      "pattern": "analysis",
+      "node": "M1",
+      "strategy": "consensus",
+      "ms": 59993,
+      "tokens": 0,
+      "quality": 0.0,
+      "ok": false
+    },
+    {
+      "pattern": "trading",
+      "node": "M1",
+      "strategy": "consensus",
+      "ms": 59991,
+      "tokens": 0,
+      "quality": 0.0,
+      "ok": false
+    },
+    {
+      "pattern": "code",
+      "node": "M1",
+      "strategy": "consensus",
+      "ms": 23826,
+      "tokens": 217,
+      "quality": 1.0,
+      "ok": true
+    },
+    {
+      "pattern": "trading",
+      "node": "M1",
+      "strategy": "consensus",
+      "ms": 40867,
+      "tokens": 232,
+      "quality": 1.0,
+      "ok": true
+    },
+    {
+      "pattern": "trading",
+      "node": "M1",
+      "strategy": "consensus",
+      "ms": 41238,
+      "tokens": 227,
+      "quality": 1.0,
+      "ok": true
+    },
+    {
+      "pattern": "simple",
+      "node": "OL1",
+      "strategy": "single",
+      "ms": 172,
+      "tokens": 1,
+      "quality": 0.009,
+      "ok": true
+    },
+    {
+      "pattern": "math",
+      "node": "M1",
+      "strategy": "category:fallback=M1",
+      "ms": 20962,
+      "tokens": 224,
+      "quality": 1.0,
+      "ok": true
+    },
+    {
+      "pattern": "simple",
+      "node": "OL1",
+      "strategy": "single",
+      "ms": 181,
+      "tokens": 1,
+      "quality": 0.009,
+      "ok": true
+    },
+    {
+      "pattern": "code",
+      "node": "M1",
+      "strategy": "consensus",
+      "ms": 27816,
+      "tokens": 126,
+      "quality": 1.0,
+      "ok": true
+    },
+    {
+      "pattern": "analysis",
+      "node": "M1",
+      "strategy": "consensus",
+      "ms": 60026,
+      "tokens": 0,
+      "quality": 0.0,
+      "ok": false
+    },
+    {
+      "pattern": "system",
+      "node": "OL1",
+      "strategy": "category:fallback=OL1",
+      "ms": 17873,
+      "tokens": 438,
+      "quality": 1.0,
+      "ok": true
+    },
+    {
+      "pattern": "system",
+      "node": "M1",
+      "strategy": "category",
+      "ms": 44094,
+      "tokens": 346,
+      "quality": 1.0,
+      "ok": true
+    },
+    {
+      "pattern": "architecture",
+      "node": "M1",
+      "strategy": "consensus",
+      "ms": 59999,
+      "tokens": 0,
+      "quality": 0.0,
+      "ok": false
+    },
+    {
+      "pattern": "data",
+      "node": "M1",
+      "strategy": "consensus",
+      "ms": 58556,
+      "tokens": 517,
+      "quality": 1.0,
+      "ok": true
+    },
+    {
+      "pattern": "simple",
+      "node": "OL1",
+      "strategy": "single",
+      "ms": 308,
+      "tokens": 3,
+      "quality": 0.023,
+      "ok": true
+    },
+    {
+      "pattern": "analysis",
+      "node": "M1",
+      "strategy": "consensus",
+      "ms": 60009,
+      "tokens": 0,
+      "quality": 0.0,
+      "ok": false
+    },
+    {
+      "pattern": "security",
+      "node": "M1",
+      "strategy": "consensus",
+      "ms": 59997,
+      "tokens": 0,
+      "quality": 0.0,
+      "ok": false
+    },
+    {
+      "pattern": "data",
+      "node": "M1",
+      "strategy": "consensus",
+      "ms": 60014,
+      "tokens": 0,
+      "quality": 0.0,
+      "ok": false
+    },
+    {
+      "pattern": "simple",
+      "node": "OL1",
+      "strategy": "single",
+      "ms": 331,
+      "tokens": 1,
+      "quality": 0.009,
+      "ok": true
+    },
+    {
+      "pattern": "math",
+      "node": "M1",
+      "strategy": "category:fallback=M1",
+      "ms": 33603,
+      "tokens": 264,
+      "quality": 1.0,
+      "ok": true
+    },
+    {
+      "pattern": "trading",
+      "node": "M1",
+      "strategy": "consensus",
+      "ms": 54962,
+      "tokens": 491,
+      "quality": 1.0,
+      "ok": true
+    },
+    {
+      "pattern": "devops",
+      "node": "M1",
+      "strategy": "category",
+      "ms": 52693,
+      "tokens": 412,
+      "quality": 1.0,
+      "ok": true
+    },
+    {
+      "pattern": "math",
+      "node": "M2",
+      "strategy": "category",
+      "ms": 45078,
+      "tokens": 188,
+      "quality": 1.0,
+      "ok": true
+    },
+    {
+      "pattern": "devops",
+      "node": "M1",
+      "strategy": "category",
+      "ms": 60014,
+      "tokens": 127,
+      "quality": 1.0,
+      "ok": true
+    },
+    {
+      "pattern": "system",
+      "node": "M1",
+      "strategy": "category",
+      "ms": 56679,
+      "tokens": 404,
+      "quality": 1.0,
+      "ok": true
+    },
+    {
+      "pattern": "web",
+      "node": "M1",
+      "strategy": "single:fallback=M1",
+      "ms": 57590,
+      "tokens": 552,
+      "quality": 1.0,
+      "ok": true
+    },
+    {
+      "pattern": "architecture",
+      "node": "M1",
+      "strategy": "consensus",
+      "ms": 60013,
+      "tokens": 0,
+      "quality": 0.0,
+      "ok": false
+    },
+    {
+      "pattern": "devops",
+      "node": "M1",
+      "strategy": "category",
+      "ms": 49086,
+      "tokens": 496,
+      "quality": 1.0,
+      "ok": true
+    },
+    {
+      "pattern": "system",
+      "node": "M1",
+      "strategy": "category",
+      "ms": 35494,
+      "tokens": 354,
+      "quality": 1.0,
+      "ok": true
+    },
+    {
+      "pattern": "devops",
+      "node": "OL1",
+      "strategy": "category:fallback=OL1",
+      "ms": 37653,
+      "tokens": 856,
+      "quality": 1.0,
+      "ok": true
+    },
+    {
+      "pattern": "simple",
+      "node": "OL1",
+      "strategy": "single",
+      "ms": 301,
+      "tokens": 1,
+      "quality": 0.007,
+      "ok": true
+    },
+    {
+      "pattern": "math",
+      "node": "M2",
+      "strategy": "category",
+      "ms": 46221,
+      "tokens": 172,
+      "quality": 1.0,
+      "ok": true
+    },
+    {
+      "pattern": "analysis",
+      "node": "M1",
+      "strategy": "consensus",
+      "ms": 60029,
+      "tokens": 0,
+      "quality": 0.0,
+      "ok": false
+    },
+    {
+      "pattern": "simple",
+      "node": "OL1",
+      "strategy": "single",
+      "ms": 665,
+      "tokens": 9,
+      "quality": 0.273,
+      "ok": true
+    },
+    {
+      "pattern": "math",
+      "node": "M3",
+      "strategy": "category",
+      "ms": 60015,
+      "tokens": 0,
+      "quality": 0.0,
+      "ok": false
+    },
+    {
+      "pattern": "math",
+      "node": "M2",
+      "strategy": "category",
+      "ms": 54400,
+      "tokens": 141,
+      "quality": 1.0,
+      "ok": true
+    },
+    {
+      "pattern": "math",
+      "node": "M2",
+      "strategy": "category",
+      "ms": 59620,
+      "tokens": 202,
+      "quality": 1.0,
+      "ok": true
+    },
+    {
+      "pattern": "data",
+      "node": "M1",
+      "strategy": "consensus",
+      "ms": 60002,
+      "tokens": 0,
+      "quality": 0.0,
+      "ok": false
+    },
+    {
+      "pattern": "creative",
+      "node": "M1",
+      "strategy": "single",
+      "ms": 45464,
+      "tokens": 438,
+      "quality": 1.0,
+      "ok": true
+    },
+    {
+      "pattern": "analysis",
+      "node": "M1",
+      "strategy": "consensus",
+      "ms": 22003,
+      "tokens": 0,
+      "quality": 0.0,
+      "ok": false
+    },
+    {
+      "pattern": "web",
+      "node": "OL1",
+      "strategy": "single:fallback=OL1",
+      "ms": 29302,
+      "tokens": 839,
+      "quality": 1.0,
+      "ok": true
+    },
+    {
+      "pattern": "creative",
+      "node": "OL1",
+      "strategy": "single:fallback=OL1",
+      "ms": 5470,
+      "tokens": 117,
+      "quality": 1.0,
+      "ok": true
+    },
+    {
+      "pattern": "reasoning",
+      "node": "M3",
+      "strategy": "category",
+      "ms": 60017,
+      "tokens": 0,
+      "quality": 0.0,
+      "ok": false
+    },
+    {
+      "pattern": "trading",
+      "node": "M1",
+      "strategy": "consensus",
+      "ms": 8108,
+      "tokens": 0,
+      "quality": 0.0,
+      "ok": false
+    },
+    {
+      "pattern": "simple",
+      "node": "OL1",
+      "strategy": "single",
+      "ms": 163,
+      "tokens": 1,
+      "quality": 0.009,
+      "ok": true
+    },
+    {
+      "pattern": "math",
+      "node": "M2",
+      "strategy": "category",
+      "ms": 50631,
+      "tokens": 136,
+      "quality": 1.0,
+      "ok": true
+    },
+    {
+      "pattern": "simple",
+      "node": "OL1",
+      "strategy": "single",
+      "ms": 140,
+      "tokens": 1,
+      "quality": 0.009,
+      "ok": true
+    },
+    {
+      "pattern": "simple",
+      "node": "OL1",
+      "strategy": "single",
+      "ms": 129,
+      "tokens": 1,
+      "quality": 0.009,
+      "ok": true
+    },
+    {
+      "pattern": "code",
+      "node": "M1",
+      "strategy": "consensus",
+      "ms": 2101,
+      "tokens": 0,
+      "quality": 0.0,
+      "ok": false
+    },
+    {
+      "pattern": "trading",
+      "node": "M1",
+      "strategy": "consensus",
+      "ms": 18817,
+      "tokens": 0,
+      "quality": 0.0,
+      "ok": false
+    },
+    {
+      "pattern": "analysis",
+      "node": "M1",
+      "strategy": "consensus",
+      "ms": 12528,
+      "tokens": 0,
+      "quality": 0.0,
+      "ok": false
+    },
+    {
+      "pattern": "code",
+      "node": "M1",
+      "strategy": "consensus",
+      "ms": 7545,
+      "tokens": 0,
+      "quality": 0.0,
+      "ok": false
+    },
+    {
+      "pattern": "web",
+      "node": "OL1",
+      "strategy": "single:fallback=OL1",
+      "ms": 28767,
+      "tokens": 620,
+      "quality": 1.0,
+      "ok": true
+    },
+    {
+      "pattern": "code",
+      "node": "M1",
+      "strategy": "consensus",
+      "ms": 16809,
+      "tokens": 0,
+      "quality": 0.0,
+      "ok": false
+    },
+    {
+      "pattern": "simple",
+      "node": "OL1",
+      "strategy": "single",
+      "ms": 262,
+      "tokens": 1,
+      "quality": 0.009,
+      "ok": true
+    },
+    {
+      "pattern": "math",
+      "node": "M1",
+      "strategy": "category:fallback=M1",
+      "ms": 44576,
+      "tokens": 244,
+      "quality": 1.0,
+      "ok": true
+    },
+    {
+      "pattern": "architecture",
+      "node": "M1",
+      "strategy": "consensus",
+      "ms": 3242,
+      "tokens": 0,
+      "quality": 0.0,
+      "ok": false
+    },
+    {
+      "pattern": "reasoning",
+      "node": "M1",
+      "strategy": "category:fallback=M1",
+      "ms": 48288,
+      "tokens": 364,
+      "quality": 1.0,
+      "ok": true
+    },
+    {
+      "pattern": "simple",
+      "node": "OL1",
+      "strategy": "single",
+      "ms": 678,
+      "tokens": 9,
+      "quality": 0.273,
+      "ok": true
+    },
+    {
+      "pattern": "creative",
+      "node": "M2",
+      "strategy": "single:fallback=M2",
+      "ms": 39564,
+      "tokens": 65,
+      "quality": 0.942,
+      "ok": true
+    },
+    {
+      "pattern": "simple",
+      "node": "OL1",
+      "strategy": "single",
+      "ms": 256,
+      "tokens": 1,
+      "quality": 0.009,
+      "ok": true
+    },
+    {
+      "pattern": "security",
+      "node": "M1",
+      "strategy": "consensus",
+      "ms": 60021,
+      "tokens": 0,
+      "quality": 0.0,
+      "ok": false
+    },
+    {
+      "pattern": "web",
+      "node": "OL1",
+      "strategy": "single:fallback=OL1",
+      "ms": 21168,
+      "tokens": 609,
+      "quality": 1.0,
+      "ok": true
+    },
+    {
+      "pattern": "analysis",
+      "node": "M1",
+      "strategy": "consensus",
+      "ms": 60013,
+      "tokens": 0,
+      "quality": 0.0,
+      "ok": false
+    },
+    {
+      "pattern": "system",
+      "node": "M1",
+      "strategy": "category",
+      "ms": 14025,
+      "tokens": 146,
+      "quality": 1.0,
+      "ok": true
+    },
+    {
+      "pattern": "classifier",
+      "node": "M1",
+      "strategy": "category",
+      "ms": 8228,
+      "tokens": 104,
+      "quality": 1.0,
+      "ok": true
+    },
+    {
+      "pattern": "trading",
+      "node": "M1",
+      "strategy": "consensus:M1+M2",
+      "ms": 43833,
+      "tokens": 240,
+      "quality": 1.8,
+      "ok": true
+    },
+    {
+      "pattern": "simple",
+      "node": "OL1",
+      "strategy": "single",
+      "ms": 306,
+      "tokens": 1,
+      "quality": 0.009,
+      "ok": true
+    },
+    {
+      "pattern": "devops",
+      "node": "M1",
+      "strategy": "category",
+      "ms": 39286,
+      "tokens": 246,
+      "quality": 1.0,
+      "ok": true
+    },
+    {
+      "pattern": "creative",
+      "node": "M1",
+      "strategy": "single",
+      "ms": 18891,
+      "tokens": 157,
+      "quality": 1.0,
+      "ok": true
+    },
+    {
+      "pattern": "analysis",
+      "node": "M1",
+      "strategy": "consensus",
+      "ms": 60008,
+      "tokens": 0,
+      "quality": 0.0,
+      "ok": false
+    },
+    {
+      "pattern": "creative",
+      "node": "M1",
+      "strategy": "single",
+      "ms": 49226,
+      "tokens": 481,
+      "quality": 1.0,
+      "ok": true
+    },
+    {
+      "pattern": "reasoning",
+      "node": "M3",
+      "strategy": "category",
+      "ms": 60019,
+      "tokens": 0,
+      "quality": 0.0,
+      "ok": false
+    },
+    {
+      "pattern": "system",
+      "node": "M1",
+      "strategy": "category",
+      "ms": 15618,
+      "tokens": 131,
+      "quality": 1.0,
+      "ok": true
+    },
+    {
+      "pattern": "simple",
+      "node": "OL1",
+      "strategy": "single",
+      "ms": 200,
+      "tokens": 1,
+      "quality": 0.009,
+      "ok": true
+    },
+    {
+      "pattern": "code",
+      "node": "M1",
+      "strategy": "consensus",
+      "ms": 25460,
+      "tokens": 204,
+      "quality": 1.0,
+      "ok": true
+    },
+    {
+      "pattern": "security",
+      "node": "M1",
+      "strategy": "consensus",
+      "ms": 60008,
+      "tokens": 0,
+      "quality": 0.0,
+      "ok": false
+    },
+    {
+      "pattern": "code",
+      "node": "M1",
+      "strategy": "consensus",
+      "ms": 60004,
+      "tokens": 0,
+      "quality": 0.0,
+      "ok": false
+    },
+    {
+      "pattern": "creative",
+      "node": "M1",
+      "strategy": "single",
+      "ms": 7884,
+      "tokens": 68,
+      "quality": 0.986,
+      "ok": true
+    },
+    {
+      "pattern": "system",
+      "node": "M1",
+      "strategy": "category",
+      "ms": 54805,
+      "tokens": 455,
+      "quality": 1.0,
+      "ok": true
+    },
+    {
+      "pattern": "creative",
+      "node": "M1",
+      "strategy": "single",
+      "ms": 55286,
+      "tokens": 589,
+      "quality": 1.0,
+      "ok": true
+    },
+    {
+      "pattern": "simple",
+      "node": "OL1",
+      "strategy": "single",
+      "ms": 187,
+      "tokens": 1,
+      "quality": 0.009,
+      "ok": true
+    },
+    {
+      "pattern": "simple",
+      "node": "OL1",
+      "strategy": "single",
+      "ms": 154,
+      "tokens": 1,
+      "quality": 0.009,
+      "ok": true
+    },
+    {
+      "pattern": "web",
+      "node": "M1",
+      "strategy": "single:fallback=M1",
+      "ms": 57636,
+      "tokens": 574,
+      "quality": 1.0,
+      "ok": true
+    },
+    {
+      "pattern": "web",
+      "node": "M1",
+      "strategy": "single:fallback=M1",
+      "ms": 55609,
+      "tokens": 590,
+      "quality": 1.0,
+      "ok": true
+    },
+    {
+      "pattern": "security",
+      "node": "M1",
+      "strategy": "consensus",
+      "ms": 54972,
+      "tokens": 588,
+      "quality": 1.0,
+      "ok": true
+    },
+    {
+      "pattern": "creative",
+      "node": "M1",
+      "strategy": "single",
+      "ms": 8657,
+      "tokens": 74,
+      "quality": 1.0,
+      "ok": true
+    },
+    {
+      "pattern": "security",
+      "node": "M1",
+      "strategy": "consensus",
+      "ms": 43289,
+      "tokens": 469,
+      "quality": 1.0,
+      "ok": true
+    },
+    {
+      "pattern": "math",
+      "node": "M2",
+      "strategy": "category",
+      "ms": 43958,
+      "tokens": 196,
+      "quality": 1.0,
+      "ok": true
+    },
+    {
+      "pattern": "creative",
+      "node": "M1",
+      "strategy": "single",
+      "ms": 50341,
+      "tokens": 569,
+      "quality": 1.0,
+      "ok": true
+    },
+    {
+      "pattern": "system",
+      "node": "M1",
+      "strategy": "category",
+      "ms": 15903,
+      "tokens": 150,
+      "quality": 1.0,
+      "ok": true
+    },
+    {
+      "pattern": "data",
+      "node": "M1",
+      "strategy": "consensus",
+      "ms": 54106,
+      "tokens": 559,
+      "quality": 1.0,
+      "ok": true
+    },
+    {
+      "pattern": "devops",
+      "node": "M1",
+      "strategy": "category",
+      "ms": 51325,
+      "tokens": 561,
+      "quality": 1.0,
+      "ok": true
+    },
+    {
+      "pattern": "security",
+      "node": "M1",
+      "strategy": "consensus",
+      "ms": 58368,
+      "tokens": 588,
+      "quality": 1.0,
+      "ok": true
+    },
+    {
+      "pattern": "security",
+      "node": "M1",
+      "strategy": "consensus",
+      "ms": 38080,
+      "tokens": 442,
+      "quality": 1.0,
+      "ok": true
+    },
+    {
+      "pattern": "code",
+      "node": "M1",
+      "strategy": "consensus",
+      "ms": 19676,
+      "tokens": 222,
+      "quality": 1.0,
+      "ok": true
+    },
+    {
+      "pattern": "creative",
+      "node": "M1",
+      "strategy": "single",
+      "ms": 6443,
+      "tokens": 71,
+      "quality": 1.0,
+      "ok": true
+    },
+    {
+      "pattern": "creative",
+      "node": "M1",
+      "strategy": "single",
+      "ms": 38870,
+      "tokens": 484,
+      "quality": 1.0,
+      "ok": true
+    },
+    {
+      "pattern": "creative",
+      "node": "M1",
+      "strategy": "single",
+      "ms": 45302,
+      "tokens": 589,
+      "quality": 1.0,
+      "ok": true
+    },
+    {
+      "pattern": "system",
+      "node": "M1",
+      "strategy": "category",
+      "ms": 27442,
+      "tokens": 284,
+      "quality": 1.0,
+      "ok": true
+    },
+    {
+      "pattern": "creative",
+      "node": "M1",
+      "strategy": "single",
+      "ms": 7736,
+      "tokens": 62,
+      "quality": 0.899,
+      "ok": true
+    },
+    {
+      "pattern": "analysis",
+      "node": "M1",
+      "strategy": "consensus",
+      "ms": 51205,
+      "tokens": 964,
+      "quality": 1.0,
+      "ok": true
+    },
+    {
+      "pattern": "trading",
+      "node": "M1",
+      "strategy": "consensus",
+      "ms": 34895,
+      "tokens": 514,
+      "quality": 1.0,
+      "ok": true
+    },
+    {
+      "pattern": "trading",
+      "node": "M1",
+      "strategy": "consensus",
+      "ms": 34785,
+      "tokens": 542,
+      "quality": 1.0,
+      "ok": true
+    },
+    {
+      "pattern": "simple",
+      "node": "OL1",
+      "strategy": "single",
+      "ms": 173,
+      "tokens": 1,
+      "quality": 0.009,
+      "ok": true
+    },
+    {
+      "pattern": "reasoning",
+      "node": "M1",
+      "strategy": "category:fallback=M1",
+      "ms": 49088,
+      "tokens": 819,
+      "quality": 1.0,
+      "ok": true
+    },
+    {
+      "pattern": "math",
+      "node": "M1",
+      "strategy": "category:fallback=M1",
+      "ms": 23735,
+      "tokens": 288,
+      "quality": 1.0,
+      "ok": true
+    },
+    {
+      "pattern": "simple",
+      "node": "OL1",
+      "strategy": "single",
+      "ms": 143,
+      "tokens": 1,
+      "quality": 0.009,
+      "ok": true
+    },
+    {
+      "pattern": "analysis",
+      "node": "M1",
+      "strategy": "consensus",
+      "ms": 31850,
+      "tokens": 704,
+      "quality": 1.0,
+      "ok": true
+    },
+    {
+      "pattern": "data",
+      "node": "M1",
+      "strategy": "consensus",
+      "ms": 56882,
+      "tokens": 0,
+      "quality": 0.0,
+      "ok": false
+    },
+    {
+      "pattern": "data",
+      "node": "M1",
+      "strategy": "consensus",
+      "ms": 56882,
+      "tokens": 0,
+      "quality": 0.0,
+      "ok": false
+    },
+    {
+      "pattern": "reasoning",
+      "node": "M1",
+      "strategy": "category:fallback=M1",
+      "ms": 38324,
+      "tokens": 365,
+      "quality": 1.0,
+      "ok": true
+    },
+    {
+      "pattern": "system",
+      "node": "OL1",
+      "strategy": "category:fallback=OL1",
+      "ms": 16628,
+      "tokens": 366,
+      "quality": 1.0,
+      "ok": true
+    },
+    {
+      "pattern": "creative",
+      "node": "OL1",
+      "strategy": "single:fallback=OL1",
+      "ms": 22070,
+      "tokens": 599,
+      "quality": 1.0,
+      "ok": true
+    },
+    {
+      "pattern": "code",
+      "node": "M1",
+      "strategy": "consensus",
+      "ms": 56843,
+      "tokens": 0,
+      "quality": 0.0,
+      "ok": false
+    },
+    {
+      "pattern": "classifier",
+      "node": "M1",
+      "strategy": "category",
+      "ms": 25153,
+      "tokens": 167,
+      "quality": 1.0,
+      "ok": true
+    },
+    {
+      "pattern": "simple",
+      "node": "OL1",
+      "strategy": "single",
+      "ms": 288,
+      "tokens": 3,
+      "quality": 0.023,
+      "ok": true
+    },
+    {
+      "pattern": "trading",
+      "node": "M1",
+      "strategy": "consensus",
+      "ms": 56541,
+      "tokens": 0,
+      "quality": 0.0,
+      "ok": false
+    },
+    {
+      "pattern": "simple",
+      "node": "OL1",
+      "strategy": "single",
+      "ms": 519,
+      "tokens": 9,
+      "quality": 0.273,
+      "ok": true
+    },
+    {
+      "pattern": "analysis",
+      "node": "M1",
+      "strategy": "consensus",
+      "ms": 22662,
+      "tokens": 0,
+      "quality": 0.0,
+      "ok": false
+    },
+    {
+      "pattern": "security",
+      "node": "M1",
+      "strategy": "consensus",
+      "ms": 46898,
+      "tokens": 0,
+      "quality": 0.0,
+      "ok": false
+    },
+    {
+      "pattern": "math",
+      "node": "M2",
+      "strategy": "category",
+      "ms": 51691,
+      "tokens": 189,
+      "quality": 1.0,
+      "ok": true
+    },
+    {
+      "pattern": "analysis",
+      "node": "M1",
+      "strategy": "consensus",
+      "ms": 46856,
+      "tokens": 0,
+      "quality": 0.0,
+      "ok": false
+    },
+    {
+      "pattern": "analysis",
+      "node": "M1",
+      "strategy": "consensus",
+      "ms": 43382,
+      "tokens": 0,
+      "quality": 0.0,
+      "ok": false
+    },
+    {
+      "pattern": "security",
+      "node": "M1",
+      "strategy": "consensus",
+      "ms": 9456,
+      "tokens": 0,
+      "quality": 0.0,
+      "ok": false
+    },
+    {
+      "pattern": "simple",
+      "node": "OL1",
+      "strategy": "single",
+      "ms": 230,
+      "tokens": 3,
+      "quality": 0.023,
+      "ok": true
+    },
+    {
+      "pattern": "math",
+      "node": "M1",
+      "strategy": "category:fallback=M1",
+      "ms": 8947,
+      "tokens": 234,
+      "quality": 1.0,
+      "ok": true
+    },
+    {
+      "pattern": "code",
+      "node": "M1",
+      "strategy": "consensus",
+      "ms": 4151,
+      "tokens": 133,
+      "quality": 1.0,
+      "ok": true
+    },
+    {
+      "pattern": "data",
+      "node": "M1",
+      "strategy": "consensus",
+      "ms": 15548,
+      "tokens": 448,
+      "quality": 1.0,
+      "ok": true
+    },
+    {
+      "pattern": "analysis",
+      "node": "M1",
+      "strategy": "consensus",
+      "ms": 30217,
+      "tokens": 826,
+      "quality": 1.0,
+      "ok": true
+    },
+    {
+      "pattern": "simple",
+      "node": "OL1",
+      "strategy": "single",
+      "ms": 193,
+      "tokens": 1,
+      "quality": 0.008,
+      "ok": true
+    },
+    {
+      "pattern": "code",
+      "node": "M1",
+      "strategy": "consensus",
+      "ms": 8866,
+      "tokens": 174,
+      "quality": 1.0,
+      "ok": true
+    },
+    {
+      "pattern": "reasoning",
+      "node": "M1",
+      "strategy": "category:fallback=M1",
+      "ms": 21452,
+      "tokens": 397,
+      "quality": 1.0,
+      "ok": true
+    },
+    {
+      "pattern": "reasoning",
+      "node": "M1",
+      "strategy": "category:fallback=M1",
+      "ms": 13228,
+      "tokens": 303,
+      "quality": 1.0,
+      "ok": true
+    },
+    {
+      "pattern": "code",
+      "node": "M1",
+      "strategy": "consensus",
+      "ms": 8222,
+      "tokens": 198,
+      "quality": 1.0,
+      "ok": true
+    },
+    {
+      "pattern": "math",
+      "node": "M1",
+      "strategy": "category:fallback=M1",
+      "ms": 14854,
+      "tokens": 228,
+      "quality": 1.0,
+      "ok": true
+    },
+    {
+      "pattern": "analysis",
+      "node": "M1",
+      "strategy": "consensus",
+      "ms": 25934,
+      "tokens": 711,
+      "quality": 1.0,
+      "ok": true
+    },
+    {
+      "pattern": "code",
+      "node": "M1",
+      "strategy": "consensus",
+      "ms": 7412,
+      "tokens": 135,
+      "quality": 1.0,
+      "ok": true
+    },
+    {
+      "pattern": "data",
+      "node": "M1",
+      "strategy": "consensus",
+      "ms": 15573,
+      "tokens": 433,
+      "quality": 1.0,
+      "ok": true
+    },
+    {
+      "pattern": "simple",
+      "node": "OL1",
+      "strategy": "single",
+      "ms": 158,
+      "tokens": 1,
+      "quality": 0.009,
+      "ok": true
+    },
+    {
+      "pattern": "simple",
+      "node": "OL1",
+      "strategy": "single",
+      "ms": 476,
+      "tokens": 9,
+      "quality": 0.273,
+      "ok": true
+    },
+    {
+      "pattern": "reasoning",
+      "node": "M1",
+      "strategy": "category:fallback=M1",
+      "ms": 38181,
+      "tokens": 451,
+      "quality": 1.0,
+      "ok": true
+    },
+    {
+      "pattern": "trading",
+      "node": "M1",
+      "strategy": "consensus",
+      "ms": 20938,
+      "tokens": 544,
+      "quality": 1.0,
+      "ok": true
+    },
+    {
+      "pattern": "creative",
+      "node": "M1",
+      "strategy": "single",
+      "ms": 6023,
+      "tokens": 145,
+      "quality": 1.0,
+      "ok": true
+    },
+    {
+      "pattern": "creative",
+      "node": "M1",
+      "strategy": "single",
+      "ms": 20807,
+      "tokens": 496,
+      "quality": 1.0,
+      "ok": true
+    },
+    {
+      "pattern": "system",
+      "node": "M1",
+      "strategy": "category",
+      "ms": 23324,
+      "tokens": 410,
+      "quality": 1.0,
+      "ok": true
+    },
+    {
+      "pattern": "creative",
+      "node": "M1",
+      "strategy": "single",
+      "ms": 41849,
+      "tokens": 566,
+      "quality": 1.0,
+      "ok": true
+    },
+    {
+      "pattern": "data",
+      "node": "M1",
+      "strategy": "consensus",
+      "ms": 58780,
+      "tokens": 796,
+      "quality": 1.0,
+      "ok": true
+    },
+    {
+      "pattern": "architecture",
+      "node": "M1",
+      "strategy": "consensus",
+      "ms": 58118,
+      "tokens": 814,
+      "quality": 1.0,
+      "ok": true
+    },
+    {
+      "pattern": "simple",
+      "node": "OL1",
+      "strategy": "single",
+      "ms": 362,
+      "tokens": 1,
+      "quality": 0.009,
+      "ok": true
+    },
+    {
+      "pattern": "simple",
+      "node": "OL1",
+      "strategy": "single",
+      "ms": 318,
+      "tokens": 1,
+      "quality": 0.007,
+      "ok": true
+    },
+    {
+      "pattern": "architecture",
+      "node": "M1",
+      "strategy": "consensus",
+      "ms": 60010,
+      "tokens": 0,
+      "quality": 0.0,
+      "ok": false
+    },
+    {
+      "pattern": "analysis",
+      "node": "M1",
+      "strategy": "consensus",
+      "ms": 60010,
+      "tokens": 0,
+      "quality": 0.0,
+      "ok": false
+    },
+    {
+      "pattern": "analysis",
+      "node": "M1",
+      "strategy": "consensus",
+      "ms": 60017,
+      "tokens": 0,
+      "quality": 0.0,
+      "ok": false
+    },
+    {
+      "pattern": "trading",
+      "node": "M1",
+      "strategy": "consensus",
+      "ms": 59904,
+      "tokens": 503,
+      "quality": 1.0,
+      "ok": true
+    },
+    {
+      "pattern": "math",
+      "node": "M2",
+      "strategy": "category",
+      "ms": 42321,
+      "tokens": 125,
+      "quality": 1.0,
+      "ok": true
+    },
+    {
+      "pattern": "security",
+      "node": "M1",
+      "strategy": "consensus",
+      "ms": 48386,
+      "tokens": 438,
+      "quality": 1.0,
+      "ok": true
+    },
+    {
+      "pattern": "architecture",
+      "node": "M1",
+      "strategy": "consensus",
+      "ms": 60011,
+      "tokens": 0,
+      "quality": 0.0,
+      "ok": false
+    },
+    {
+      "pattern": "simple",
+      "node": "OL1",
+      "strategy": "single",
+      "ms": 157,
+      "tokens": 1,
+      "quality": 0.009,
+      "ok": true
+    },
+    {
+      "pattern": "classifier",
+      "node": "M1",
+      "strategy": "category",
+      "ms": 18049,
+      "tokens": 108,
+      "quality": 1.0,
+      "ok": true
+    },
+    {
+      "pattern": "math",
+      "node": "M3",
+      "strategy": "category",
+      "ms": 60012,
+      "tokens": 0,
+      "quality": 0.0,
+      "ok": false
+    },
+    {
+      "pattern": "reasoning",
+      "node": "M3",
+      "strategy": "category",
+      "ms": 60018,
+      "tokens": 0,
+      "quality": 0.0,
+      "ok": false
+    },
+    {
+      "pattern": "security",
+      "node": "M1",
+      "strategy": "consensus",
+      "ms": 60008,
+      "tokens": 0,
+      "quality": 0.0,
+      "ok": false
+    },
+    {
+      "pattern": "analysis",
+      "node": "M1",
+      "strategy": "consensus",
+      "ms": 59295,
+      "tokens": 0,
+      "quality": 0.0,
+      "ok": false
+    },
+    {
+      "pattern": "creative",
+      "node": "M2",
+      "strategy": "single:fallback=M2",
+      "ms": 49690,
+      "tokens": 398,
+      "quality": 1.0,
+      "ok": true
+    },
+    {
+      "pattern": "reasoning",
+      "node": "M3",
+      "strategy": "category",
+      "ms": 60011,
+      "tokens": 0,
+      "quality": 0.0,
+      "ok": false
+    },
+    {
+      "pattern": "code",
+      "node": "M1",
+      "strategy": "consensus",
+      "ms": 39307,
+      "tokens": 188,
+      "quality": 1.0,
+      "ok": true
+    },
+    {
+      "pattern": "classifier",
+      "node": "M1",
+      "strategy": "category",
+      "ms": 10678,
+      "tokens": 71,
+      "quality": 0.74,
+      "ok": true
+    },
+    {
+      "pattern": "code",
+      "node": "M1",
+      "strategy": "consensus",
+      "ms": 41631,
+      "tokens": 193,
+      "quality": 1.0,
+      "ok": true
+    },
+    {
+      "pattern": "code",
+      "node": "M1",
+      "strategy": "consensus",
+      "ms": 19974,
+      "tokens": 0,
+      "quality": 0.0,
+      "ok": false
+    },
+    {
+      "pattern": "code",
+      "node": "M1",
+      "strategy": "consensus",
+      "ms": 10907,
+      "tokens": 0,
+      "quality": 0.0,
+      "ok": false
+    },
+    {
+      "pattern": "creative",
+      "node": "M2",
+      "strategy": "single:fallback=M2",
+      "ms": 44470,
+      "tokens": 127,
+      "quality": 1.0,
+      "ok": true
+    },
+    {
+      "pattern": "classifier",
+      "node": "M1",
+      "strategy": "category",
+      "ms": 16475,
+      "tokens": 76,
+      "quality": 0.792,
+      "ok": true
+    },
+    {
+      "pattern": "reasoning",
+      "node": "M1",
+      "strategy": "category:fallback=M1",
+      "ms": 22639,
+      "tokens": 437,
+      "quality": 1.0,
+      "ok": true
+    },
+    {
+      "pattern": "code",
+      "node": "M1",
+      "strategy": "consensus",
+      "ms": 38778,
+      "tokens": 0,
+      "quality": 0.0,
+      "ok": false
+    },
+    {
+      "pattern": "devops",
+      "node": "OL1",
+      "strategy": "category:fallback=OL1",
+      "ms": 21856,
+      "tokens": 530,
+      "quality": 1.0,
+      "ok": true
+    },
+    {
+      "pattern": "security",
+      "node": "M1",
+      "strategy": "consensus",
+      "ms": 9497,
+      "tokens": 427,
+      "quality": 1.0,
+      "ok": true
+    },
+    {
+      "pattern": "math",
+      "node": "M1",
+      "strategy": "category:fallback=M1",
+      "ms": 13532,
+      "tokens": 228,
+      "quality": 1.0,
+      "ok": true
+    },
+    {
+      "pattern": "system",
+      "node": "M1",
+      "strategy": "category",
+      "ms": 9821,
+      "tokens": 309,
+      "quality": 1.0,
+      "ok": true
+    },
+    {
+      "pattern": "simple",
+      "node": "OL1",
+      "strategy": "single",
+      "ms": 169,
+      "tokens": 1,
+      "quality": 0.007,
+      "ok": true
+    },
+    {
+      "pattern": "simple",
+      "node": "OL1",
+      "strategy": "single",
+      "ms": 447,
+      "tokens": 9,
+      "quality": 0.273,
+      "ok": true
+    },
+    {
+      "pattern": "code",
+      "node": "M1",
+      "strategy": "consensus",
+      "ms": 5128,
+      "tokens": 189,
+      "quality": 1.0,
+      "ok": true
+    },
+    {
+      "pattern": "system",
+      "node": "M1",
+      "strategy": "category",
+      "ms": 21092,
+      "tokens": 359,
+      "quality": 1.0,
+      "ok": true
+    },
+    {
+      "pattern": "simple",
+      "node": "OL1",
+      "strategy": "single",
+      "ms": 249,
+      "tokens": 3,
+      "quality": 0.023,
+      "ok": true
+    },
+    {
+      "pattern": "trading",
+      "node": "M1",
+      "strategy": "consensus",
+      "ms": 27254,
+      "tokens": 529,
+      "quality": 1.0,
+      "ok": true
+    },
+    {
+      "pattern": "classifier",
+      "node": "M1",
+      "strategy": "category",
+      "ms": 5773,
+      "tokens": 121,
+      "quality": 1.0,
+      "ok": true
+    },
+    {
+      "pattern": "trading",
+      "node": "M1",
+      "strategy": "consensus",
+      "ms": 29278,
+      "tokens": 509,
+      "quality": 1.0,
+      "ok": true
+    },
+    {
+      "pattern": "code",
+      "node": "M1",
+      "strategy": "consensus",
+      "ms": 14179,
+      "tokens": 243,
+      "quality": 1.0,
+      "ok": true
+    },
+    {
+      "pattern": "web",
+      "node": "M1",
+      "strategy": "single:fallback=M1",
+      "ms": 37774,
+      "tokens": 581,
+      "quality": 1.0,
+      "ok": true
+    },
+    {
+      "pattern": "reasoning",
+      "node": "M1",
+      "strategy": "category:fallback=M1",
+      "ms": 29441,
+      "tokens": 343,
+      "quality": 1.0,
+      "ok": true
+    },
+    {
+      "pattern": "code",
+      "node": "M1",
+      "strategy": "consensus",
+      "ms": 53041,
+      "tokens": 552,
+      "quality": 1.0,
+      "ok": true
+    },
+    {
+      "pattern": "system",
+      "node": "M1",
+      "strategy": "category",
+      "ms": 44465,
+      "tokens": 453,
+      "quality": 1.0,
+      "ok": true
+    },
+    {
+      "pattern": "architecture",
+      "node": "M1",
+      "strategy": "consensus",
+      "ms": 60026,
+      "tokens": 0,
+      "quality": 0.0,
+      "ok": false
+    },
+    {
+      "pattern": "classifier",
+      "node": "M1",
+      "strategy": "category",
+      "ms": 9773,
+      "tokens": 82,
+      "quality": 0.854,
+      "ok": true
+    },
+    {
+      "pattern": "reasoning",
+      "node": "M1",
+      "strategy": "category:fallback=M1",
+      "ms": 18655,
+      "tokens": 257,
+      "quality": 1.0,
+      "ok": true
+    },
+    {
+      "pattern": "math",
+      "node": "M1",
+      "strategy": "category:fallback=M1",
+      "ms": 30942,
+      "tokens": 291,
+      "quality": 1.0,
+      "ok": true
+    },
+    {
+      "pattern": "code",
+      "node": "M1",
+      "strategy": "consensus",
+      "ms": 48103,
+      "tokens": 445,
+      "quality": 1.0,
+      "ok": true
+    },
+    {
+      "pattern": "code",
+      "node": "M1",
+      "strategy": "consensus",
+      "ms": 20501,
+      "tokens": 249,
+      "quality": 1.0,
+      "ok": true
+    },
+    {
+      "pattern": "simple",
+      "node": "OL1",
+      "strategy": "single",
+      "ms": 229,
+      "tokens": 3,
+      "quality": 0.023,
+      "ok": true
+    },
+    {
+      "pattern": "analysis",
+      "node": "M1",
+      "strategy": "consensus",
+      "ms": 60009,
+      "tokens": 0,
+      "quality": 0.0,
+      "ok": false
+    },
+    {
+      "pattern": "creative",
+      "node": "M1",
+      "strategy": "single",
+      "ms": 50626,
+      "tokens": 559,
+      "quality": 1.0,
+      "ok": true
+    },
+    {
+      "pattern": "analysis",
+      "node": "M1",
+      "strategy": "consensus",
+      "ms": 59997,
+      "tokens": 0,
+      "quality": 0.0,
+      "ok": false
+    },
+    {
+      "pattern": "web",
+      "node": "M1",
+      "strategy": "single:fallback=M1",
+      "ms": 14067,
+      "tokens": 109,
+      "quality": 1.0,
+      "ok": true
+    },
+    {
+      "pattern": "code",
+      "node": "M1",
+      "strategy": "consensus",
+      "ms": 25353,
+      "tokens": 265,
+      "quality": 1.0,
+      "ok": true
+    },
+    {
+      "pattern": "analysis",
+      "node": "M1",
+      "strategy": "consensus",
+      "ms": 58057,
+      "tokens": 0,
+      "quality": 0.0,
+      "ok": false
+    },
+    {
+      "pattern": "data",
+      "node": "M1",
+      "strategy": "consensus",
+      "ms": 46702,
+      "tokens": 0,
+      "quality": 0.0,
+      "ok": false
+    },
+    {
+      "pattern": "code",
+      "node": "M1",
+      "strategy": "consensus",
+      "ms": 39986,
+      "tokens": 0,
+      "quality": 0.0,
+      "ok": false
+    },
+    {
+      "pattern": "system",
+      "node": "OL1",
+      "strategy": "category:fallback=OL1",
+      "ms": 16900,
+      "tokens": 480,
+      "quality": 1.0,
+      "ok": true
+    },
+    {
+      "pattern": "simple",
+      "node": "OL1",
+      "strategy": "single",
+      "ms": 157,
+      "tokens": 1,
+      "quality": 0.009,
+      "ok": true
+    },
+    {
+      "pattern": "math",
+      "node": "M2",
+      "strategy": "category",
+      "ms": 41468,
+      "tokens": 175,
+      "quality": 1.0,
+      "ok": true
+    },
+    {
+      "pattern": "code",
+      "node": "M1",
+      "strategy": "consensus",
+      "ms": 34414,
+      "tokens": 0,
+      "quality": 0.0,
+      "ok": false
+    },
+    {
+      "pattern": "creative",
+      "node": "M2",
+      "strategy": "single:fallback=M2",
+      "ms": 52663,
+      "tokens": 132,
+      "quality": 1.0,
+      "ok": true
+    },
+    {
+      "pattern": "architecture",
+      "node": "M1",
+      "strategy": "consensus",
+      "ms": 17275,
+      "tokens": 0,
+      "quality": 0.0,
+      "ok": false
+    },
+    {
+      "pattern": "trading",
+      "node": "M1",
+      "strategy": "consensus",
+      "ms": 27211,
+      "tokens": 0,
+      "quality": 0.0,
+      "ok": false
+    },
+    {
+      "pattern": "architecture",
+      "node": "M1",
+      "strategy": "consensus",
+      "ms": 27192,
+      "tokens": 0,
+      "quality": 0.0,
+      "ok": false
+    },
+    {
+      "pattern": "data",
+      "node": "M1",
+      "strategy": "consensus",
+      "ms": 27192,
+      "tokens": 0,
+      "quality": 0.0,
+      "ok": false
+    },
+    {
+      "pattern": "trading",
+      "node": "M1",
+      "strategy": "consensus",
+      "ms": 27182,
+      "tokens": 0,
+      "quality": 0.0,
+      "ok": false
+    },
+    {
+      "pattern": "simple",
+      "node": "OL1",
+      "strategy": "single",
+      "ms": 184,
+      "tokens": 1,
+      "quality": 0.007,
+      "ok": true
+    },
+    {
+      "pattern": "code",
+      "node": "M1",
+      "strategy": "consensus",
+      "ms": 25044,
+      "tokens": 0,
+      "quality": 0.0,
+      "ok": false
+    },
+    {
+      "pattern": "code",
+      "node": "M1",
+      "strategy": "consensus",
+      "ms": 20434,
+      "tokens": 0,
+      "quality": 0.0,
+      "ok": false
+    },
+    {
+      "pattern": "code",
+      "node": "M1",
+      "strategy": "consensus",
+      "ms": 17538,
+      "tokens": 0,
+      "quality": 0.0,
+      "ok": false
+    },
+    {
+      "pattern": "simple",
+      "node": "OL1",
+      "strategy": "single",
+      "ms": 183,
+      "tokens": 1,
+      "quality": 0.009,
+      "ok": true
+    },
+    {
+      "pattern": "analysis",
+      "node": "M1",
+      "strategy": "consensus",
+      "ms": 17513,
+      "tokens": 0,
+      "quality": 0.0,
+      "ok": false
+    },
+    {
+      "pattern": "code",
+      "node": "M1",
+      "strategy": "consensus",
+      "ms": 17503,
+      "tokens": 0,
+      "quality": 0.0,
+      "ok": false
+    },
+    {
+      "pattern": "classifier",
+      "node": "OL1",
+      "strategy": "category:fallback=OL1",
+      "ms": 4700,
+      "tokens": 142,
+      "quality": 1.0,
+      "ok": true
+    },
+    {
+      "pattern": "code",
+      "node": "M1",
+      "strategy": "consensus",
+      "ms": 26836,
+      "tokens": 194,
+      "quality": 1.0,
+      "ok": true
+    },
+    {
+      "pattern": "architecture",
+      "node": "M1",
+      "strategy": "consensus",
+      "ms": 42052,
+      "tokens": 0,
+      "quality": 0.0,
+      "ok": false
+    },
+    {
+      "pattern": "reasoning",
+      "node": "M1",
+      "strategy": "category:fallback=M1",
+      "ms": 8031,
+      "tokens": 375,
+      "quality": 1.0,
+      "ok": true
+    },
+    {
+      "pattern": "architecture",
+      "node": "M1",
+      "strategy": "consensus",
+      "ms": 34126,
+      "tokens": 0,
+      "quality": 0.0,
+      "ok": false
+    },
+    {
+      "pattern": "analysis",
+      "node": "M1",
+      "strategy": "consensus",
+      "ms": 58882,
+      "tokens": 857,
+      "quality": 1.0,
+      "ok": true
+    },
+    {
+      "pattern": "code",
+      "node": "M1",
+      "strategy": "consensus",
+      "ms": 11868,
+      "tokens": 192,
+      "quality": 1.0,
+      "ok": true
+    },
+    {
+      "pattern": "architecture",
+      "node": "M1",
+      "strategy": "consensus",
+      "ms": 51394,
+      "tokens": 683,
+      "quality": 1.0,
+      "ok": true
+    },
+    {
+      "pattern": "trading",
+      "node": "M1",
+      "strategy": "consensus",
+      "ms": 12503,
+      "tokens": 201,
+      "quality": 1.0,
+      "ok": true
+    },
+    {
+      "pattern": "analysis",
+      "node": "M1",
+      "strategy": "consensus",
+      "ms": 45643,
+      "tokens": 634,
+      "quality": 1.0,
+      "ok": true
+    },
+    {
+      "pattern": "analysis",
+      "node": "M1",
+      "strategy": "consensus",
+      "ms": 59980,
+      "tokens": 834,
+      "quality": 1.0,
+      "ok": true
+    },
+    {
+      "pattern": "system",
+      "node": "M1",
+      "strategy": "category",
+      "ms": 21822,
+      "tokens": 260,
+      "quality": 1.0,
+      "ok": true
+    },
+    {
+      "pattern": "code",
+      "node": "M1",
+      "strategy": "consensus",
+      "ms": 9561,
+      "tokens": 137,
+      "quality": 1.0,
+      "ok": true
+    },
+    {
+      "pattern": "code",
+      "node": "M1",
+      "strategy": "consensus",
+      "ms": 39688,
+      "tokens": 362,
+      "quality": 1.0,
+      "ok": true
+    },
+    {
+      "pattern": "analysis",
+      "node": "M1",
+      "strategy": "consensus",
+      "ms": 44341,
+      "tokens": 541,
+      "quality": 1.0,
+      "ok": true
+    },
+    {
+      "pattern": "trading",
+      "node": "M1",
+      "strategy": "consensus",
+      "ms": 49193,
+      "tokens": 534,
+      "quality": 1.0,
+      "ok": true
+    },
+    {
+      "pattern": "code",
+      "node": "M1",
+      "strategy": "consensus",
+      "ms": 34516,
+      "tokens": 240,
+      "quality": 1.0,
+      "ok": true
+    },
+    {
+      "pattern": "security",
+      "node": "M1",
+      "strategy": "consensus",
+      "ms": 60025,
+      "tokens": 0,
+      "quality": 0.0,
+      "ok": false
+    },
+    {
+      "pattern": "system",
+      "node": "OL1",
+      "strategy": "category:fallback=OL1",
+      "ms": 14802,
+      "tokens": 401,
+      "quality": 1.0,
+      "ok": true
+    },
+    {
+      "pattern": "simple",
+      "node": "OL1",
+      "strategy": "single",
+      "ms": 155,
+      "tokens": 1,
+      "quality": 0.009,
+      "ok": true
+    },
+    {
+      "pattern": "system",
+      "node": "M1",
+      "strategy": "category",
+      "ms": 49227,
+      "tokens": 370,
+      "quality": 1.0,
+      "ok": true
+    },
+    {
+      "pattern": "architecture",
+      "node": "M1",
+      "strategy": "consensus",
+      "ms": 59997,
+      "tokens": 0,
+      "quality": 0.0,
+      "ok": false
+    },
+    {
+      "pattern": "code",
+      "node": "M1",
+      "strategy": "consensus",
+      "ms": 60007,
+      "tokens": 0,
+      "quality": 0.0,
+      "ok": false
+    },
+    {
+      "pattern": "system",
+      "node": "M1",
+      "strategy": "category",
+      "ms": 35060,
+      "tokens": 289,
+      "quality": 1.0,
+      "ok": true
+    },
+    {
+      "pattern": "reasoning",
+      "node": "M1",
+      "strategy": "category:fallback=M1",
+      "ms": 18868,
+      "tokens": 240,
+      "quality": 1.0,
+      "ok": true
+    },
+    {
+      "pattern": "classifier",
+      "node": "M1",
+      "strategy": "category",
+      "ms": 13695,
+      "tokens": 149,
+      "quality": 1.0,
+      "ok": true
+    },
+    {
+      "pattern": "reasoning",
+      "node": "M1",
+      "strategy": "category:fallback=M1",
+      "ms": 36160,
+      "tokens": 324,
+      "quality": 1.0,
+      "ok": true
+    },
+    {
+      "pattern": "trading",
+      "node": "M1",
+      "strategy": "consensus",
+      "ms": 24454,
+      "tokens": 230,
+      "quality": 1.0,
+      "ok": true
+    },
+    {
+      "pattern": "simple",
+      "node": "OL1",
+      "strategy": "single",
+      "ms": 240,
+      "tokens": 3,
+      "quality": 0.023,
+      "ok": true
+    },
+    {
+      "pattern": "architecture",
+      "node": "M1",
+      "strategy": "consensus",
+      "ms": 60004,
+      "tokens": 0,
+      "quality": 0.0,
+      "ok": false
+    },
+    {
+      "pattern": "security",
+      "node": "M1",
+      "strategy": "consensus",
+      "ms": 44793,
+      "tokens": 552,
+      "quality": 1.0,
+      "ok": true
+    },
+    {
+      "pattern": "math",
+      "node": "M1",
+      "strategy": "category:fallback=M1",
+      "ms": 22009,
+      "tokens": 162,
+      "quality": 1.0,
+      "ok": true
+    },
+    {
+      "pattern": "classifier",
+      "node": "M1",
+      "strategy": "category",
+      "ms": 7871,
+      "tokens": 90,
+      "quality": 0.938,
+      "ok": true
+    },
+    {
+      "pattern": "trading",
+      "node": "M1",
+      "strategy": "consensus",
+      "ms": 48668,
+      "tokens": 528,
+      "quality": 1.0,
+      "ok": true
+    },
+    {
+      "pattern": "web",
+      "node": "OL1",
+      "strategy": "single:fallback=OL1",
+      "ms": 28413,
+      "tokens": 686,
+      "quality": 1.0,
+      "ok": true
+    },
+    {
+      "pattern": "system",
+      "node": "M1",
+      "strategy": "category",
+      "ms": 38680,
+      "tokens": 366,
+      "quality": 1.0,
+      "ok": true
+    },
+    {
+      "pattern": "math",
+      "node": "M3",
+      "strategy": "category",
+      "ms": 60014,
+      "tokens": 0,
+      "quality": 0.0,
+      "ok": false
+    },
+    {
+      "pattern": "creative",
+      "node": "M2",
+      "strategy": "single:fallback=M2",
+      "ms": 57541,
+      "tokens": 498,
+      "quality": 1.0,
+      "ok": true
+    },
+    {
+      "pattern": "data",
+      "node": "M1",
+      "strategy": "consensus",
+      "ms": 43016,
+      "tokens": 0,
+      "quality": 0.0,
+      "ok": false
+    },
+    {
+      "pattern": "creative",
+      "node": "M2",
+      "strategy": "single:fallback=M2",
+      "ms": 58639,
+      "tokens": 144,
+      "quality": 1.0,
+      "ok": true
+    },
+    {
+      "pattern": "simple",
+      "node": "OL1",
+      "strategy": "single",
+      "ms": 155,
+      "tokens": 1,
+      "quality": 0.009,
+      "ok": true
+    },
+    {
+      "pattern": "web",
+      "node": "OL1",
+      "strategy": "single:fallback=OL1",
+      "ms": 25528,
+      "tokens": 569,
+      "quality": 1.0,
+      "ok": true
+    },
+    {
+      "pattern": "analysis",
+      "node": "M1",
+      "strategy": "consensus",
+      "ms": 31725,
+      "tokens": 0,
+      "quality": 0.0,
+      "ok": false
+    },
+    {
+      "pattern": "analysis",
+      "node": "M1",
+      "strategy": "consensus",
+      "ms": 29063,
+      "tokens": 0,
+      "quality": 0.0,
+      "ok": false
+    },
+    {
+      "pattern": "trading",
+      "node": "M2",
+      "strategy": "consensus",
+      "ms": 58613,
+      "tokens": 131,
+      "quality": 1.0,
+      "ok": true
+    },
+    {
+      "pattern": "system",
+      "node": "M1",
+      "strategy": "category",
+      "ms": 18742,
+      "tokens": 198,
+      "quality": 1.0,
+      "ok": true
+    },
+    {
+      "pattern": "system",
+      "node": "OL1",
+      "strategy": "category:fallback=OL1",
+      "ms": 18353,
+      "tokens": 447,
+      "quality": 1.0,
+      "ok": true
+    },
+    {
+      "pattern": "simple",
+      "node": "OL1",
+      "strategy": "single",
+      "ms": 231,
+      "tokens": 1,
+      "quality": 0.009,
+      "ok": true
+    },
+    {
+      "pattern": "classifier",
+      "node": "M1",
+      "strategy": "category",
+      "ms": 16397,
+      "tokens": 190,
+      "quality": 1.0,
+      "ok": true
+    },
+    {
+      "pattern": "data",
+      "node": "M1",
+      "strategy": "consensus",
+      "ms": 36572,
+      "tokens": 386,
+      "quality": 1.0,
+      "ok": true
+    },
+    {
+      "pattern": "code",
+      "node": "M1",
+      "strategy": "consensus",
+      "ms": 60016,
+      "tokens": 0,
+      "quality": 0.0,
+      "ok": false
+    },
+    {
+      "pattern": "code",
+      "node": "M1",
+      "strategy": "consensus",
+      "ms": 20110,
+      "tokens": 165,
+      "quality": 1.0,
+      "ok": true
+    },
+    {
+      "pattern": "system",
+      "node": "OL1",
+      "strategy": "category:fallback=OL1",
+      "ms": 15535,
+      "tokens": 356,
+      "quality": 1.0,
+      "ok": true
+    },
+    {
+      "pattern": "analysis",
+      "node": "M1",
+      "strategy": "consensus",
+      "ms": 60017,
+      "tokens": 0,
+      "quality": 0.0,
+      "ok": false
+    },
+    {
+      "pattern": "web",
+      "node": "M1",
+      "strategy": "single:fallback=M1",
+      "ms": 15904,
+      "tokens": 153,
+      "quality": 1.0,
+      "ok": true
+    },
+    {
+      "pattern": "classifier",
+      "node": "M1",
+      "strategy": "category",
+      "ms": 16535,
+      "tokens": 191,
+      "quality": 1.0,
+      "ok": true
+    },
+    {
+      "pattern": "code",
+      "node": "M1",
+      "strategy": "consensus",
+      "ms": 19036,
+      "tokens": 193,
+      "quality": 1.0,
+      "ok": true
+    },
+    {
+      "pattern": "math",
+      "node": "M1",
+      "strategy": "category:fallback=M1",
+      "ms": 54761,
+      "tokens": 321,
+      "quality": 1.0,
+      "ok": true
+    },
+    {
+      "pattern": "security",
+      "node": "M1",
+      "strategy": "consensus",
+      "ms": 60006,
+      "tokens": 0,
+      "quality": 0.0,
+      "ok": false
+    },
+    {
+      "pattern": "math",
+      "node": "M1",
+      "strategy": "category:fallback=M1",
+      "ms": 39583,
+      "tokens": 156,
+      "quality": 1.0,
+      "ok": true
+    },
+    {
+      "pattern": "simple",
+      "node": "OL1",
+      "strategy": "single",
+      "ms": 152,
+      "tokens": 1,
+      "quality": 0.009,
+      "ok": true
+    },
+    {
+      "pattern": "simple",
+      "node": "OL1",
+      "strategy": "single",
+      "ms": 178,
+      "tokens": 1,
+      "quality": 0.009,
+      "ok": true
+    },
+    {
+      "pattern": "math",
+      "node": "M1",
+      "strategy": "category:fallback=M1",
+      "ms": 24268,
+      "tokens": 223,
+      "quality": 1.0,
+      "ok": true
+    },
+    {
+      "pattern": "architecture",
+      "node": "M1",
+      "strategy": "consensus",
+      "ms": 60000,
+      "tokens": 0,
+      "quality": 0.0,
+      "ok": false
+    },
+    {
+      "pattern": "code",
+      "node": "M1",
+      "strategy": "consensus",
+      "ms": 22013,
+      "tokens": 189,
+      "quality": 1.0,
+      "ok": true
+    },
+    {
+      "pattern": "code",
+      "node": "M1",
+      "strategy": "consensus",
+      "ms": 39216,
+      "tokens": 355,
+      "quality": 1.0,
+      "ok": true
+    },
+    {
+      "pattern": "analysis",
+      "node": "M1",
+      "strategy": "consensus",
+      "ms": 59393,
+      "tokens": 610,
+      "quality": 1.0,
+      "ok": true
+    },
+    {
+      "pattern": "math",
+      "node": "M1",
+      "strategy": "category:fallback=M1",
+      "ms": 40654,
+      "tokens": 240,
+      "quality": 1.0,
+      "ok": true
+    },
+    {
+      "pattern": "trading",
+      "node": "M1",
+      "strategy": "consensus",
+      "ms": 58134,
+      "tokens": 507,
+      "quality": 1.0,
+      "ok": true
+    },
+    {
+      "pattern": "architecture",
+      "node": "M1",
+      "strategy": "consensus",
+      "ms": 60013,
+      "tokens": 0,
+      "quality": 0.0,
+      "ok": false
+    },
+    {
+      "pattern": "simple",
+      "node": "OL1",
+      "strategy": "single",
+      "ms": 300,
+      "tokens": 1,
+      "quality": 0.009,
+      "ok": true
+    },
+    {
+      "pattern": "code",
+      "node": "M1",
+      "strategy": "consensus",
+      "ms": 28516,
+      "tokens": 240,
+      "quality": 1.0,
+      "ok": true
+    },
+    {
+      "pattern": "classifier",
+      "node": "M1",
+      "strategy": "category",
+      "ms": 13788,
+      "tokens": 131,
+      "quality": 1.0,
+      "ok": true
+    },
+    {
+      "pattern": "analysis",
+      "node": "M1",
+      "strategy": "consensus",
+      "ms": 60017,
+      "tokens": 0,
+      "quality": 0.0,
+      "ok": false
+    },
+    {
+      "pattern": "system",
+      "node": "M1",
+      "strategy": "category",
+      "ms": 36445,
+      "tokens": 349,
+      "quality": 1.0,
+      "ok": true
+    },
+    {
+      "pattern": "data",
+      "node": "M1",
+      "strategy": "consensus",
+      "ms": 59295,
+      "tokens": 417,
+      "quality": 1.0,
+      "ok": true
+    },
+    {
+      "pattern": "simple",
+      "node": "OL1",
+      "strategy": "single",
+      "ms": 427,
+      "tokens": 1,
+      "quality": 0.009,
+      "ok": true
+    },
+    {
+      "pattern": "code",
+      "node": "M1",
+      "strategy": "consensus",
+      "ms": 60018,
+      "tokens": 0,
+      "quality": 0.0,
+      "ok": false
+    },
+    {
+      "pattern": "code",
+      "node": "M1",
+      "strategy": "consensus",
+      "ms": 57466,
+      "tokens": 0,
+      "quality": 0.0,
+      "ok": false
+    },
+    {
+      "pattern": "analysis",
+      "node": "M1",
+      "strategy": "consensus",
+      "ms": 51002,
+      "tokens": 0,
+      "quality": 0.0,
+      "ok": false
+    },
+    {
+      "pattern": "code",
+      "node": "M1",
+      "strategy": "consensus",
+      "ms": 32324,
+      "tokens": 0,
+      "quality": 0.0,
+      "ok": false
+    },
+    {
+      "pattern": "analysis",
+      "node": "M1",
+      "strategy": "consensus",
+      "ms": 30911,
+      "tokens": 0,
+      "quality": 0.0,
+      "ok": false
+    },
+    {
+      "pattern": "security",
+      "node": "M1",
+      "strategy": "consensus",
+      "ms": 14016,
+      "tokens": 0,
+      "quality": 0.0,
+      "ok": false
+    },
+    {
+      "pattern": "math",
+      "node": "M2",
+      "strategy": "category",
+      "ms": 40015,
+      "tokens": 198,
+      "quality": 1.0,
+      "ok": true
+    },
+    {
+      "pattern": "code",
+      "node": "M1",
+      "strategy": "consensus",
+      "ms": 8660,
+      "tokens": 0,
+      "quality": 0.0,
+      "ok": false
+    },
+    {
+      "pattern": "code",
+      "node": "M1",
+      "strategy": "consensus",
+      "ms": 1740,
+      "tokens": 0,
+      "quality": 0.0,
+      "ok": false
+    },
+    {
+      "pattern": "architecture",
+      "node": "M1",
+      "strategy": "consensus",
+      "ms": 1731,
+      "tokens": 0,
+      "quality": 0.0,
+      "ok": false
+    },
+    {
+      "pattern": "architecture",
+      "node": "M1",
+      "strategy": "consensus",
+      "ms": 1714,
+      "tokens": 0,
+      "quality": 0.0,
+      "ok": false
+    },
+    {
+      "pattern": "code",
+      "node": "M1",
+      "strategy": "consensus",
+      "ms": 1711,
+      "tokens": 0,
+      "quality": 0.0,
+      "ok": false
+    },
+    {
+      "pattern": "analysis",
+      "node": "M1",
+      "strategy": "consensus",
+      "ms": 1728,
+      "tokens": 0,
+      "quality": 0.0,
+      "ok": false
+    },
+    {
+      "pattern": "devops",
+      "node": "OL1",
+      "strategy": "category:fallback=OL1",
+      "ms": 18821,
+      "tokens": 456,
+      "quality": 1.0,
+      "ok": true
+    },
+    {
+      "pattern": "classifier",
+      "node": "OL1",
+      "strategy": "category:fallback=OL1",
+      "ms": 4755,
+      "tokens": 102,
+      "quality": 1.0,
+      "ok": true
+    },
+    {
+      "pattern": "simple",
+      "node": "OL1",
+      "strategy": "single",
+      "ms": 197,
+      "tokens": 1,
+      "quality": 0.009,
+      "ok": true
+    },
+    {
+      "pattern": "security",
+      "node": "M1",
+      "strategy": "consensus",
+      "ms": 25454,
+      "tokens": 0,
+      "quality": 0.0,
+      "ok": false
+    },
+    {
+      "pattern": "classifier",
+      "node": "OL1",
+      "strategy": "category:fallback=OL1",
+      "ms": 6106,
+      "tokens": 143,
+      "quality": 1.0,
+      "ok": true
+    },
+    {
+      "pattern": "web",
+      "node": "OL1",
+      "strategy": "single:fallback=OL1",
+      "ms": 34557,
+      "tokens": 1126,
+      "quality": 1.0,
+      "ok": true
+    },
+    {
+      "pattern": "system",
+      "node": "OL1",
+      "strategy": "category:fallback=OL1",
+      "ms": 13252,
+      "tokens": 382,
+      "quality": 1.0,
+      "ok": true
+    },
+    {
+      "pattern": "trading",
+      "node": "M2",
+      "strategy": "consensus",
+      "ms": 59564,
+      "tokens": 195,
+      "quality": 1.0,
+      "ok": true
+    },
+    {
+      "pattern": "security",
+      "node": "M1",
+      "strategy": "consensus",
+      "ms": 19153,
+      "tokens": 0,
+      "quality": 0.0,
+      "ok": false
+    },
+    {
+      "pattern": "creative",
+      "node": "M1",
+      "strategy": "single",
+      "ms": 18696,
+      "tokens": 81,
+      "quality": 1.0,
+      "ok": true
+    },
+    {
+      "pattern": "code",
+      "node": "M1",
+      "strategy": "consensus",
+      "ms": 25046,
+      "tokens": 0,
+      "quality": 0.0,
+      "ok": false
+    },
+    {
+      "pattern": "code",
+      "node": "M1",
+      "strategy": "consensus",
+      "ms": 18919,
+      "tokens": 0,
+      "quality": 0.0,
+      "ok": false
+    },
+    {
+      "pattern": "system",
+      "node": "OL1",
+      "strategy": "category:fallback=OL1",
+      "ms": 28389,
+      "tokens": 298,
+      "quality": 1.0,
+      "ok": true
+    },
+    {
+      "pattern": "code",
+      "node": "M1",
+      "strategy": "consensus",
+      "ms": 6347,
+      "tokens": 0,
+      "quality": 0.0,
+      "ok": false
+    },
+    {
+      "pattern": "simple",
+      "node": "OL1",
+      "strategy": "single",
+      "ms": 415,
+      "tokens": 1,
+      "quality": 0.009,
+      "ok": true
+    },
+    {
+      "pattern": "analysis",
+      "node": "M1",
+      "strategy": "consensus",
+      "ms": 48634,
+      "tokens": 916,
+      "quality": 1.0,
+      "ok": true
+    },
+    {
+      "pattern": "simple",
+      "node": "OL1",
+      "strategy": "single",
+      "ms": 279,
+      "tokens": 1,
+      "quality": 0.007,
+      "ok": true
+    },
+    {
+      "pattern": "security",
+      "node": "M1",
+      "strategy": "consensus",
+      "ms": 37611,
+      "tokens": 583,
+      "quality": 1.0,
+      "ok": true
+    },
+    {
+      "pattern": "classifier",
+      "node": "M1",
+      "strategy": "category",
+      "ms": 3324,
+      "tokens": 102,
+      "quality": 1.0,
+      "ok": true
+    },
+    {
+      "pattern": "devops",
+      "node": "M1",
+      "strategy": "category",
+      "ms": 23066,
+      "tokens": 423,
+      "quality": 1.0,
+      "ok": true
+    },
+    {
+      "pattern": "data",
+      "node": "M1",
+      "strategy": "consensus",
+      "ms": 49952,
+      "tokens": 840,
+      "quality": 1.0,
+      "ok": true
+    },
+    {
+      "pattern": "devops",
+      "node": "M1",
+      "strategy": "category",
+      "ms": 33863,
+      "tokens": 467,
+      "quality": 1.0,
+      "ok": true
+    },
+    {
+      "pattern": "creative",
+      "node": "M1",
+      "strategy": "single",
+      "ms": 9744,
+      "tokens": 146,
+      "quality": 1.0,
+      "ok": true
+    },
+    {
+      "pattern": "data",
+      "node": "M1",
+      "strategy": "consensus",
+      "ms": 26652,
+      "tokens": 387,
+      "quality": 1.0,
+      "ok": true
+    },
+    {
+      "pattern": "analysis",
+      "node": "M1",
+      "strategy": "consensus",
+      "ms": 50162,
+      "tokens": 619,
+      "quality": 1.0,
+      "ok": true
+    },
+    {
+      "pattern": "creative",
+      "node": "M1",
+      "strategy": "single",
+      "ms": 13309,
+      "tokens": 188,
+      "quality": 1.0,
+      "ok": true
+    },
+    {
+      "pattern": "security",
+      "node": "M1",
+      "strategy": "consensus",
+      "ms": 60011,
+      "tokens": 0,
+      "quality": 0.0,
+      "ok": false
+    },
+    {
+      "pattern": "reasoning",
+      "node": "M1",
+      "strategy": "category:fallback=M1",
+      "ms": 28100,
+      "tokens": 350,
+      "quality": 1.0,
+      "ok": true
+    },
+    {
+      "pattern": "system",
+      "node": "M1",
+      "strategy": "category",
+      "ms": 21531,
+      "tokens": 277,
+      "quality": 1.0,
+      "ok": true
+    },
+    {
+      "pattern": "analysis",
+      "node": "M1",
+      "strategy": "consensus",
+      "ms": 48403,
+      "tokens": 0,
+      "quality": 0.0,
+      "ok": false
+    },
+    {
+      "pattern": "math",
+      "node": "M1",
+      "strategy": "category:fallback=M1",
+      "ms": 13304,
+      "tokens": 214,
+      "quality": 1.0,
+      "ok": true
+    },
+    {
+      "pattern": "code",
+      "node": "M1",
+      "strategy": "consensus",
+      "ms": 25302,
+      "tokens": 231,
+      "quality": 1.0,
+      "ok": true
+    },
+    {
+      "pattern": "trading",
+      "node": "M1",
+      "strategy": "consensus",
+      "ms": 32117,
+      "tokens": 0,
+      "quality": 0.0,
+      "ok": false
+    },
+    {
+      "pattern": "security",
+      "node": "M1",
+      "strategy": "consensus",
+      "ms": 19609,
+      "tokens": 0,
+      "quality": 0.0,
+      "ok": false
+    },
+    {
+      "pattern": "data",
+      "node": "M1",
+      "strategy": "consensus",
+      "ms": 16523,
+      "tokens": 0,
+      "quality": 0.0,
+      "ok": false
+    },
+    {
+      "pattern": "code",
+      "node": "M1",
+      "strategy": "consensus",
+      "ms": 35254,
+      "tokens": 0,
+      "quality": 0.0,
+      "ok": false
+    },
+    {
+      "pattern": "web",
+      "node": "OL1",
+      "strategy": "single:fallback=OL1",
+      "ms": 22115,
+      "tokens": 592,
+      "quality": 1.0,
+      "ok": true
+    },
+    {
+      "pattern": "creative",
+      "node": "OL1",
+      "strategy": "single:fallback=OL1",
+      "ms": 21489,
+      "tokens": 435,
+      "quality": 1.0,
+      "ok": true
+    },
+    {
+      "pattern": "analysis",
+      "node": "M1",
+      "strategy": "consensus",
+      "ms": 35254,
+      "tokens": 0,
+      "quality": 0.0,
+      "ok": false
+    },
+    {
+      "pattern": "math",
+      "node": "M3",
+      "strategy": "category",
+      "ms": 60034,
+      "tokens": 0,
+      "quality": 0.0,
+      "ok": false
+    },
+    {
+      "pattern": "system",
+      "node": "OL1",
+      "strategy": "category:fallback=OL1",
+      "ms": 20125,
+      "tokens": 376,
+      "quality": 1.0,
+      "ok": true
+    },
+    {
+      "pattern": "security",
+      "node": "M1",
+      "strategy": "consensus",
+      "ms": 35188,
+      "tokens": 0,
+      "quality": 0.0,
+      "ok": false
+    },
+    {
+      "pattern": "architecture",
+      "node": "M1",
+      "strategy": "consensus",
+      "ms": 35251,
+      "tokens": 0,
+      "quality": 0.0,
+      "ok": false
+    },
+    {
+      "pattern": "trading",
+      "node": "M1",
+      "strategy": "consensus",
+      "ms": 10165,
+      "tokens": 244,
+      "quality": 1.0,
+      "ok": true
+    },
+    {
+      "pattern": "code",
+      "node": "M1",
+      "strategy": "consensus",
+      "ms": 17395,
+      "tokens": 417,
+      "quality": 1.0,
+      "ok": true
+    },
+    {
+      "pattern": "devops",
+      "node": "M1",
+      "strategy": "category",
+      "ms": 8025,
+      "tokens": 227,
+      "quality": 1.0,
+      "ok": true
+    },
+    {
+      "pattern": "math",
+      "node": "M2",
+      "strategy": "category",
+      "ms": 50520,
+      "tokens": 126,
+      "quality": 1.0,
+      "ok": true
+    },
+    {
+      "pattern": "data",
+      "node": "M1",
+      "strategy": "consensus",
+      "ms": 33777,
+      "tokens": 0,
+      "quality": 0.0,
+      "ok": false
+    },
+    {
+      "pattern": "architecture",
+      "node": "M1",
+      "strategy": "consensus",
+      "ms": 29196,
+      "tokens": 0,
+      "quality": 0.0,
+      "ok": false
+    },
+    {
+      "pattern": "code",
+      "node": "M1",
+      "strategy": "consensus",
+      "ms": 26543,
+      "tokens": 0,
+      "quality": 0.0,
+      "ok": false
+    },
+    {
+      "pattern": "classifier",
+      "node": "OL1",
+      "strategy": "category:fallback=OL1",
+      "ms": 5141,
+      "tokens": 115,
+      "quality": 1.0,
+      "ok": true
+    },
+    {
+      "pattern": "system",
+      "node": "OL1",
+      "strategy": "category:fallback=OL1",
+      "ms": 13460,
+      "tokens": 329,
+      "quality": 1.0,
+      "ok": true
+    },
+    {
+      "pattern": "analysis",
+      "node": "M1",
+      "strategy": "consensus",
+      "ms": 17627,
+      "tokens": 0,
+      "quality": 0.0,
+      "ok": false
+    },
+    {
+      "pattern": "creative",
+      "node": "M2",
+      "strategy": "single:fallback=M2",
+      "ms": 52735,
+      "tokens": 174,
+      "quality": 1.0,
+      "ok": true
+    },
+    {
+      "pattern": "classifier",
+      "node": "OL1",
+      "strategy": "category:fallback=OL1",
+      "ms": 12681,
+      "tokens": 146,
+      "quality": 1.0,
+      "ok": true
+    },
+    {
+      "pattern": "math",
+      "node": "M2",
+      "strategy": "category",
+      "ms": 52109,
+      "tokens": 189,
+      "quality": 1.0,
+      "ok": true
+    },
+    {
+      "pattern": "simple",
+      "node": "OL1",
+      "strategy": "single",
+      "ms": 277,
+      "tokens": 1,
+      "quality": 0.009,
+      "ok": true
+    },
+    {
+      "pattern": "system",
+      "node": "M1",
+      "strategy": "category",
+      "ms": 34810,
+      "tokens": 422,
+      "quality": 1.0,
+      "ok": true
+    },
+    {
+      "pattern": "reasoning",
+      "node": "M1",
+      "strategy": "category:fallback=M1",
+      "ms": 37849,
+      "tokens": 370,
+      "quality": 1.0,
+      "ok": true
+    },
+    {
+      "pattern": "analysis",
+      "node": "M1",
+      "strategy": "consensus",
+      "ms": 59368,
+      "tokens": 799,
+      "quality": 1.0,
+      "ok": true
+    },
+    {
+      "pattern": "data",
+      "node": "M1",
+      "strategy": "consensus",
+      "ms": 40489,
+      "tokens": 443,
+      "quality": 1.0,
+      "ok": true
+    },
+    {
+      "pattern": "creative",
+      "node": "M1",
+      "strategy": "single",
+      "ms": 30209,
+      "tokens": 405,
+      "quality": 1.0,
+      "ok": true
+    },
+    {
+      "pattern": "trading",
+      "node": "M1",
+      "strategy": "consensus",
+      "ms": 51545,
+      "tokens": 453,
+      "quality": 1.0,
+      "ok": true
+    },
+    {
+      "pattern": "code",
+      "node": "M1",
+      "strategy": "consensus",
+      "ms": 12378,
+      "tokens": 135,
+      "quality": 1.0,
+      "ok": true
+    },
+    {
+      "pattern": "reasoning",
+      "node": "M1",
+      "strategy": "category:fallback=M1",
+      "ms": 46450,
+      "tokens": 765,
+      "quality": 1.0,
+      "ok": true
+    },
+    {
+      "pattern": "math",
+      "node": "M1",
+      "strategy": "category:fallback=M1",
+      "ms": 12366,
+      "tokens": 169,
+      "quality": 1.0,
+      "ok": true
+    },
+    {
+      "pattern": "web",
+      "node": "M1",
+      "strategy": "single:fallback=M1",
+      "ms": 12558,
+      "tokens": 89,
+      "quality": 1.0,
+      "ok": true
+    },
+    {
+      "pattern": "simple",
+      "node": "OL1",
+      "strategy": "single",
+      "ms": 289,
+      "tokens": 3,
+      "quality": 0.023,
+      "ok": true
+    },
+    {
+      "pattern": "security",
+      "node": "M1",
+      "strategy": "consensus",
+      "ms": 47550,
+      "tokens": 526,
+      "quality": 1.0,
+      "ok": true
+    },
+    {
+      "pattern": "data",
+      "node": "M1",
+      "strategy": "consensus",
+      "ms": 36275,
+      "tokens": 396,
+      "quality": 1.0,
+      "ok": true
+    },
+    {
+      "pattern": "devops",
+      "node": "M1",
+      "strategy": "category",
+      "ms": 25571,
+      "tokens": 302,
+      "quality": 1.0,
+      "ok": true
+    },
+    {
+      "pattern": "system",
+      "node": "M1",
+      "strategy": "category",
+      "ms": 13632,
+      "tokens": 151,
+      "quality": 1.0,
+      "ok": true
+    },
+    {
+      "pattern": "analysis",
+      "node": "M1",
+      "strategy": "consensus",
+      "ms": 60017,
+      "tokens": 0,
+      "quality": 0.0,
+      "ok": false
+    },
+    {
+      "pattern": "classifier",
+      "node": "M1",
+      "strategy": "category",
+      "ms": 8123,
+      "tokens": 103,
+      "quality": 1.0,
+      "ok": true
+    },
+    {
+      "pattern": "data",
+      "node": "M1",
+      "strategy": "consensus",
+      "ms": 42599,
+      "tokens": 638,
+      "quality": 1.0,
+      "ok": true
+    },
+    {
+      "pattern": "code",
+      "node": "M1",
+      "strategy": "consensus",
+      "ms": 60024,
+      "tokens": 0,
+      "quality": 0.0,
+      "ok": false
+    },
+    {
+      "pattern": "reasoning",
+      "node": "M1",
+      "strategy": "category:fallback=M1",
+      "ms": 56055,
+      "tokens": 481,
+      "quality": 1.0,
+      "ok": true
+    },
+    {
+      "pattern": "analysis",
+      "node": "M1",
+      "strategy": "consensus",
+      "ms": 60021,
+      "tokens": 0,
+      "quality": 0.0,
+      "ok": false
+    },
+    {
+      "pattern": "reasoning",
+      "node": "M1",
+      "strategy": "category:fallback=M1",
+      "ms": 30755,
+      "tokens": 317,
+      "quality": 1.0,
+      "ok": true
+    },
+    {
+      "pattern": "analysis",
+      "node": "M1",
+      "strategy": "consensus",
+      "ms": 60021,
+      "tokens": 0,
+      "quality": 0.0,
+      "ok": false
+    },
+    {
+      "pattern": "reasoning",
+      "node": "M1",
+      "strategy": "category:fallback=M1",
+      "ms": 41760,
+      "tokens": 382,
+      "quality": 1.0,
+      "ok": true
+    },
+    {
+      "pattern": "security",
+      "node": "M1",
+      "strategy": "consensus",
+      "ms": 60021,
+      "tokens": 0,
+      "quality": 0.0,
+      "ok": false
+    },
+    {
+      "pattern": "math",
+      "node": "M2",
+      "strategy": "category",
+      "ms": 50069,
+      "tokens": 172,
+      "quality": 1.0,
+      "ok": true
+    },
+    {
+      "pattern": "analysis",
+      "node": "M1",
+      "strategy": "consensus",
+      "ms": 60013,
+      "tokens": 0,
+      "quality": 0.0,
+      "ok": false
+    },
+    {
+      "pattern": "creative",
+      "node": "M1",
+      "strategy": "single",
+      "ms": 11446,
+      "tokens": 62,
+      "quality": 0.899,
+      "ok": true
+    },
+    {
+      "pattern": "data",
+      "node": "M1",
+      "strategy": "consensus",
+      "ms": 60019,
+      "tokens": 0,
+      "quality": 0.0,
+      "ok": false
+    },
+    {
+      "pattern": "creative",
+      "node": "M1",
+      "strategy": "single",
+      "ms": 19693,
+      "tokens": 147,
+      "quality": 1.0,
+      "ok": true
+    },
+    {
+      "pattern": "reasoning",
+      "node": "M3",
+      "strategy": "category",
+      "ms": 60029,
+      "tokens": 0,
+      "quality": 0.0,
+      "ok": false
+    },
+    {
+      "pattern": "creative",
+      "node": "M1",
+      "strategy": "single",
+      "ms": 53801,
+      "tokens": 568,
+      "quality": 1.0,
+      "ok": true
+    },
+    {
+      "pattern": "math",
+      "node": "M1",
+      "strategy": "category:fallback=M1",
+      "ms": 28902,
+      "tokens": 183,
+      "quality": 1.0,
+      "ok": true
+    },
+    {
+      "pattern": "data",
+      "node": "M1",
+      "strategy": "consensus",
+      "ms": 43008,
+      "tokens": 415,
+      "quality": 1.0,
+      "ok": true
+    },
+    {
+      "pattern": "analysis",
+      "node": "M1",
+      "strategy": "consensus",
+      "ms": 60007,
+      "tokens": 0,
+      "quality": 0.0,
+      "ok": false
+    },
+    {
+      "pattern": "analysis",
+      "node": "M1",
+      "strategy": "consensus",
+      "ms": 60011,
+      "tokens": 0,
+      "quality": 0.0,
+      "ok": false
+    },
+    {
+      "pattern": "web",
+      "node": "OL1",
+      "strategy": "single",
+      "ms": 59996,
+      "tokens": 0,
+      "quality": 0.0,
+      "ok": false
+    },
+    {
+      "pattern": "data",
+      "node": "M1",
+      "strategy": "consensus",
+      "ms": 60013,
+      "tokens": 0,
+      "quality": 0.0,
+      "ok": false
+    },
+    {
+      "pattern": "security",
+      "node": "M1",
+      "strategy": "consensus",
+      "ms": 59999,
+      "tokens": 0,
+      "quality": 0.0,
+      "ok": false
+    },
+    {
+      "pattern": "creative",
+      "node": "M1",
+      "strategy": "single",
+      "ms": 30935,
+      "tokens": 168,
+      "quality": 1.0,
+      "ok": true
+    },
+    {
+      "pattern": "math",
+      "node": "M1",
+      "strategy": "category:fallback=M1",
+      "ms": 7023,
+      "tokens": 271,
+      "quality": 1.0,
+      "ok": true
+    },
+    {
+      "pattern": "creative",
+      "node": "OL1",
+      "strategy": "single:fallback=OL1",
+      "ms": 14318,
+      "tokens": 584,
+      "quality": 1.0,
+      "ok": true
+    },
+    {
+      "pattern": "web",
+      "node": "M1",
+      "strategy": "single:fallback=M1",
+      "ms": 15554,
+      "tokens": 111,
+      "quality": 1.0,
+      "ok": true
+    },
+    {
+      "pattern": "analysis",
+      "node": "M1",
+      "strategy": "consensus",
+      "ms": 45307,
+      "tokens": 0,
+      "quality": 0.0,
+      "ok": false
+    },
+    {
+      "pattern": "web",
+      "node": "OL1",
+      "strategy": "single:fallback=OL1",
+      "ms": 30790,
+      "tokens": 857,
+      "quality": 1.0,
+      "ok": true
+    },
+    {
+      "pattern": "web",
+      "node": "M1",
+      "strategy": "single:fallback=M1",
+      "ms": 16825,
+      "tokens": 74,
+      "quality": 1.0,
+      "ok": true
+    },
+    {
+      "pattern": "math",
+      "node": "M2",
+      "strategy": "category",
+      "ms": 58255,
+      "tokens": 175,
+      "quality": 1.0,
+      "ok": true
+    },
+    {
+      "pattern": "security",
+      "node": "M1",
+      "strategy": "consensus",
+      "ms": 13939,
+      "tokens": 0,
+      "quality": 0.0,
+      "ok": false
+    },
+    {
+      "pattern": "trading",
+      "node": "M1",
+      "strategy": "consensus",
+      "ms": 7683,
+      "tokens": 294,
+      "quality": 1.0,
+      "ok": true
+    },
+    {
+      "pattern": "security",
+      "node": "M1",
+      "strategy": "consensus",
+      "ms": 36619,
+      "tokens": 387,
+      "quality": 1.0,
+      "ok": true
+    },
+    {
+      "pattern": "architecture",
+      "node": "M1",
+      "strategy": "consensus",
+      "ms": 60004,
+      "tokens": 0,
+      "quality": 0.0,
+      "ok": false
+    },
+    {
+      "pattern": "devops",
+      "node": "M1",
+      "strategy": "category",
+      "ms": 31069,
+      "tokens": 360,
+      "quality": 1.0,
+      "ok": true
+    },
+    {
+      "pattern": "architecture",
+      "node": "M1",
+      "strategy": "consensus",
+      "ms": 59177,
+      "tokens": 720,
+      "quality": 1.0,
+      "ok": true
+    },
+    {
+      "pattern": "code",
+      "node": "M1",
+      "strategy": "consensus",
+      "ms": 12778,
+      "tokens": 167,
+      "quality": 1.0,
+      "ok": true
+    },
+    {
+      "pattern": "data",
+      "node": "M1",
+      "strategy": "consensus",
+      "ms": 45391,
+      "tokens": 504,
+      "quality": 1.0,
+      "ok": true
+    },
+    {
+      "pattern": "data",
+      "node": "M1",
+      "strategy": "consensus",
+      "ms": 41561,
+      "tokens": 502,
+      "quality": 1.0,
+      "ok": true
+    },
+    {
+      "pattern": "analysis",
+      "node": "M1",
+      "strategy": "consensus:M1+M2",
+      "ms": 46939,
+      "tokens": 689,
+      "quality": 1.8,
+      "ok": true
+    },
+    {
+      "pattern": "code",
+      "node": "M1",
+      "strategy": "consensus",
+      "ms": 20441,
+      "tokens": 209,
+      "quality": 1.0,
+      "ok": true
+    },
+    {
+      "pattern": "data",
+      "node": "M1",
+      "strategy": "consensus",
+      "ms": 15,
+      "tokens": 0,
+      "quality": 0.0,
+      "ok": false
+    },
+    {
+      "pattern": "architecture",
+      "node": "M1",
+      "strategy": "consensus",
+      "ms": 15,
+      "tokens": 0,
+      "quality": 0.0,
+      "ok": false
+    },
+    {
+      "pattern": "code",
+      "node": "M1",
+      "strategy": "consensus",
+      "ms": 16,
+      "tokens": 0,
+      "quality": 0.0,
+      "ok": false
+    },
+    {
+      "pattern": "math",
+      "node": "M1",
+      "strategy": "category:fallback=M1",
+      "ms": 10777,
+      "tokens": 263,
+      "quality": 1.0,
+      "ok": true
+    },
+    {
+      "pattern": "security",
+      "node": "M1",
+      "strategy": "consensus",
+      "ms": 16,
+      "tokens": 0,
+      "quality": 0.0,
+      "ok": false
+    },
+    {
+      "pattern": "devops",
+      "node": "OL1",
+      "strategy": "category:fallback=OL1",
+      "ms": 44390,
+      "tokens": 909,
+      "quality": 1.0,
+      "ok": true
+    },
+    {
+      "pattern": "reasoning",
+      "node": "M1",
+      "strategy": "category:fallback=M1",
+      "ms": 28495,
+      "tokens": 413,
+      "quality": 1.0,
+      "ok": true
+    },
+    {
+      "pattern": "classifier",
+      "node": "OL1",
+      "strategy": "category:fallback=OL1",
+      "ms": 5013,
+      "tokens": 163,
+      "quality": 1.0,
+      "ok": true
+    },
+    {
+      "pattern": "system",
+      "node": "OL1",
+      "strategy": "category:fallback=OL1",
+      "ms": 15083,
+      "tokens": 257,
+      "quality": 1.0,
+      "ok": true
+    },
+    {
+      "pattern": "devops",
+      "node": "OL1",
+      "strategy": "category",
+      "ms": 60021,
+      "tokens": 0,
+      "quality": 0.0,
+      "ok": false
+    },
+    {
+      "pattern": "math",
+      "node": "M2",
+      "strategy": "category",
+      "ms": 46798,
+      "tokens": 140,
+      "quality": 1.0,
+      "ok": true
+    },
+    {
+      "pattern": "analysis",
+      "node": "M1",
+      "strategy": "consensus",
+      "ms": 14605,
+      "tokens": 0,
+      "quality": 0.0,
+      "ok": false
+    },
+    {
+      "pattern": "reasoning",
+      "node": "M1",
+      "strategy": "category:fallback=M1",
+      "ms": 11820,
+      "tokens": 302,
+      "quality": 1.0,
+      "ok": true
+    },
+    {
+      "pattern": "simple",
+      "node": "OL1",
+      "strategy": "single",
+      "ms": 171,
+      "tokens": 1,
+      "quality": 0.009,
+      "ok": true
+    },
+    {
+      "pattern": "web",
+      "node": "OL1",
+      "strategy": "single:fallback=OL1",
+      "ms": 23246,
+      "tokens": 684,
+      "quality": 1.0,
+      "ok": true
+    },
+    {
+      "pattern": "devops",
+      "node": "M1",
+      "strategy": "category",
+      "ms": 37730,
+      "tokens": 456,
+      "quality": 1.0,
+      "ok": true
+    },
+    {
+      "pattern": "trading",
+      "node": "M1",
+      "strategy": "consensus",
+      "ms": 55593,
+      "tokens": 517,
+      "quality": 1.0,
+      "ok": true
+    },
+    {
+      "pattern": "code",
+      "node": "M1",
+      "strategy": "consensus",
+      "ms": 20605,
+      "tokens": 186,
+      "quality": 1.0,
+      "ok": true
+    },
+    {
+      "pattern": "reasoning",
+      "node": "M3",
+      "strategy": "category",
+      "ms": 60039,
+      "tokens": 0,
+      "quality": 0.0,
+      "ok": false
+    },
+    {
+      "pattern": "system",
+      "node": "M1",
+      "strategy": "category",
+      "ms": 38966,
+      "tokens": 378,
+      "quality": 1.0,
+      "ok": true
+    },
+    {
+      "pattern": "system",
+      "node": "M1",
+      "strategy": "category",
+      "ms": 26707,
+      "tokens": 211,
+      "quality": 1.0,
+      "ok": true
+    },
+    {
+      "pattern": "data",
+      "node": "M1",
+      "strategy": "consensus",
+      "ms": 60009,
+      "tokens": 0,
+      "quality": 0.0,
+      "ok": false
+    },
+    {
+      "pattern": "simple",
+      "node": "OL1",
+      "strategy": "single",
+      "ms": 403,
+      "tokens": 3,
+      "quality": 0.023,
+      "ok": true
+    },
+    {
+      "pattern": "security",
+      "node": "M1",
+      "strategy": "consensus",
+      "ms": 59999,
+      "tokens": 0,
+      "quality": 0.0,
+      "ok": false
+    },
+    {
+      "pattern": "simple",
+      "node": "OL1",
+      "strategy": "single",
+      "ms": 251,
+      "tokens": 1,
+      "quality": 0.009,
+      "ok": true
+    },
+    {
+      "pattern": "trading",
+      "node": "M2",
+      "strategy": "consensus",
+      "ms": 58431,
+      "tokens": 149,
+      "quality": 1.0,
+      "ok": true
+    },
+    {
+      "pattern": "system",
+      "node": "OL1",
+      "strategy": "category:fallback=OL1",
+      "ms": 21993,
+      "tokens": 516,
+      "quality": 1.0,
+      "ok": true
+    },
+    {
+      "pattern": "devops",
+      "node": "OL1",
+      "strategy": "category:fallback=OL1",
+      "ms": 15909,
+      "tokens": 346,
+      "quality": 1.0,
+      "ok": true
+    },
+    {
+      "pattern": "simple",
+      "node": "OL1",
+      "strategy": "single",
+      "ms": 222,
+      "tokens": 1,
+      "quality": 0.009,
+      "ok": true
+    },
+    {
+      "pattern": "simple",
+      "node": "OL1",
+      "strategy": "single",
+      "ms": 217,
+      "tokens": 1,
+      "quality": 0.009,
+      "ok": true
+    },
+    {
+      "pattern": "architecture",
+      "node": "M1",
+      "strategy": "consensus",
+      "ms": 32478,
+      "tokens": 0,
+      "quality": 0.0,
+      "ok": false
+    },
+    {
+      "pattern": "simple",
+      "node": "OL1",
+      "strategy": "single",
+      "ms": 313,
+      "tokens": 1,
+      "quality": 0.009,
+      "ok": true
+    },
+    {
+      "pattern": "security",
+      "node": "M1",
+      "strategy": "consensus",
+      "ms": 28099,
+      "tokens": 0,
+      "quality": 0.0,
+      "ok": false
+    },
+    {
+      "pattern": "security",
+      "node": "M1",
+      "strategy": "consensus",
+      "ms": 10214,
+      "tokens": 0,
+      "quality": 0.0,
+      "ok": false
+    },
+    {
+      "pattern": "code",
+      "node": "M1",
+      "strategy": "consensus",
+      "ms": 4889,
+      "tokens": 0,
+      "quality": 0.0,
+      "ok": false
+    },
+    {
+      "pattern": "web",
+      "node": "OL1",
+      "strategy": "single:fallback=OL1",
+      "ms": 11879,
+      "tokens": 361,
+      "quality": 1.0,
+      "ok": true
+    },
+    {
+      "pattern": "trading",
+      "node": "M2",
+      "strategy": "consensus",
+      "ms": 58913,
+      "tokens": 270,
+      "quality": 1.0,
+      "ok": true
+    },
+    {
+      "pattern": "simple",
+      "node": "OL1",
+      "strategy": "single",
+      "ms": 231,
+      "tokens": 1,
+      "quality": 0.009,
+      "ok": true
+    },
+    {
+      "pattern": "analysis",
+      "node": "M1",
+      "strategy": "consensus",
+      "ms": 18419,
+      "tokens": 0,
+      "quality": 0.0,
+      "ok": false
+    },
+    {
+      "pattern": "simple",
+      "node": "OL1",
+      "strategy": "single",
+      "ms": 251,
+      "tokens": 1,
+      "quality": 0.009,
+      "ok": true
+    }
+  ]
+}

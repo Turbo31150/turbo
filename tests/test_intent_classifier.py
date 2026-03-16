@@ -152,7 +152,7 @@ class TestExtractEntities:
     def test_file_path(self):
         with patch.object(IntentClassifier, "_load_stats"):
             ic = IntentClassifier()
-        entities = ic._extract_entities("ouvre /\Users/test.txt")
+        entities = ic._extract_entities("ouvre C:\\Users\\test.txt")
         assert "file_path" in entities
 
 

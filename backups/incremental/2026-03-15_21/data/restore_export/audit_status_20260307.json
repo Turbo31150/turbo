@@ -1,0 +1,10 @@
+{
+  "score": 86,
+  "modules": 228,
+  "test_files": 294,
+  "total_lines": 90009,
+  "coverage_pct": 100.0,
+  "critical": 0,
+  "major": 33,
+  "findings": 177
+}

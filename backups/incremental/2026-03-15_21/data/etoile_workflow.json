@@ -1,0 +1,177 @@
+{
+  "name": "Etoile - JARVIS Commander Pipeline v10.2",
+  "nodes": [
+    {
+      "parameters": {
+        "path": "etoile-commander",
+        "httpMethod": "POST",
+        "responseMode": "lastNode",
+        "options": {}
+      },
+      "id": "start",
+      "name": "Webhook Etoile",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2,
+      "position": [250, 300],
+      "webhookId": "etoile-commander"
+    },
+    {
+      "parameters": {
+        "url": "http://127.0.0.1:1234/api/v1/chat",
+        "sendHeaders": true,
+        "headerParameters": {"parameters": [{"name": "Authorization", "value": "Bearer sk-lm-LOkUylwu:1PMZR74wuxj7OpeyISV7"}, {"name": "Content-Type", "value": "application/json"}]},
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\"model\":\"qwen/qwen3-30b-a3b-2507\",\"input\":\"{{ $json.body.prompt }}\",\"system_prompt\":\"Classifie cette demande en UNE categorie: code, analyse, trading, systeme, web, simple. Reponds UNIQUEMENT avec le mot-cle.\",\"temperature\":0.1,\"max_output_tokens\":32,\"stream\":false,\"store\":false}",
+        "options": {}
+      },
+      "id": "classify",
+      "name": "1. M1 Classify (qwen3-30b)",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [500, 300]
+    },
+    {
+      "parameters": {
+        "rules": {
+          "values": [
+            {"conditions": {"conditions": [{"leftValue": "={{ $json.output[0].content }}", "rightValue": "code", "operator": {"type": "string", "operation": "contains"}}]}, "renameOutput": "Code"},
+            {"conditions": {"conditions": [{"leftValue": "={{ $json.output[0].content }}", "rightValue": "analyse", "operator": {"type": "string", "operation": "contains"}}]}, "renameOutput": "Analyse"},
+            {"conditions": {"conditions": [{"leftValue": "={{ $json.output[0].content }}", "rightValue": "trading", "operator": {"type": "string", "operation": "contains"}}]}, "renameOutput": "Trading"},
+            {"conditions": {"conditions": [{"leftValue": "={{ $json.output[0].content }}", "rightValue": "systeme", "operator": {"type": "string", "operation": "contains"}}]}, "renameOutput": "Systeme"},
+            {"conditions": {"conditions": [{"leftValue": "={{ $json.output[0].content }}", "rightValue": "web", "operator": {"type": "string", "operation": "contains"}}]}, "renameOutput": "Web"}
+          ]
+        },
+        "options": {"fallbackOutput": "extra"}
+      },
+      "id": "router",
+      "name": "2. Route by Type",
+      "type": "n8n-nodes-base.switch",
+      "typeVersion": 3.2,
+      "position": [800, 300]
+    },
+    {
+      "parameters": {
+        "url": "http://192.168.1.26:1234/api/v1/chat",
+        "sendHeaders": true,
+        "headerParameters": {"parameters": [{"name": "Authorization", "value": "Bearer sk-lm-keRZkUya:St9kRjCg3VXTX6Getdp4"}, {"name": "Content-Type", "value": "application/json"}]},
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\"model\":\"deepseek-coder-v2-lite-instruct\",\"input\":\"{{ $('Webhook Etoile').first().json.body.prompt }}\",\"temperature\":0.3,\"max_output_tokens\":8192,\"stream\":false,\"store\":false}",
+        "options": {}
+      },
+      "id": "m2code",
+      "name": "3a. M2 Code (deepseek)",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [1100, 50]
+    },
+    {
+      "parameters": {
+        "url": "http://127.0.0.1:1234/api/v1/chat",
+        "sendHeaders": true,
+        "headerParameters": {"parameters": [{"name": "Authorization", "value": "Bearer sk-lm-LOkUylwu:1PMZR74wuxj7OpeyISV7"}, {"name": "Content-Type", "value": "application/json"}]},
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\"model\":\"qwen/qwen3-30b-a3b-2507\",\"input\":\"Analyse en profondeur: {{ $('Webhook Etoile').first().json.body.prompt }}\",\"temperature\":0.4,\"max_output_tokens\":8192,\"stream\":false,\"store\":false}",
+        "options": {}
+      },
+      "id": "m1analyse",
+      "name": "3b. M1 Analyse (qwen3-30b)",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [1100, 250]
+    },
+    {
+      "parameters": {
+        "url": "http://127.0.0.1:1234/api/v1/chat",
+        "sendHeaders": true,
+        "headerParameters": {"parameters": [{"name": "Authorization", "value": "Bearer sk-lm-LOkUylwu:1PMZR74wuxj7OpeyISV7"}, {"name": "Content-Type", "value": "application/json"}]},
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\"model\":\"qwen/qwen3-30b-a3b-2507\",\"input\":\"Scan trading: {{ $('Webhook Etoile').first().json.body.prompt }}\",\"temperature\":0.3,\"max_output_tokens\":8192,\"stream\":false,\"store\":false}",
+        "options": {}
+      },
+      "id": "m1trading",
+      "name": "3c. M1 Trading (qwen3-30b)",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [1100, 450]
+    },
+    {
+      "parameters": {
+        "url": "http://127.0.0.1:11434/api/chat",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\"model\":\"qwen3:1.7b\",\"messages\":[{\"role\":\"user\",\"content\":\"Recherche: {{ $('Webhook Etoile').first().json.body.prompt }}\"}],\"stream\":false}",
+        "options": {}
+      },
+      "id": "ol1web",
+      "name": "3d. OL1 Web (qwen3:1.7b)",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [1100, 600]
+    },
+    {
+      "parameters": {
+        "url": "http://127.0.0.1:1234/api/v1/chat",
+        "sendHeaders": true,
+        "headerParameters": {"parameters": [{"name": "Authorization", "value": "Bearer sk-lm-LOkUylwu:1PMZR74wuxj7OpeyISV7"}, {"name": "Content-Type", "value": "application/json"}]},
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\"model\":\"qwen/qwen3-30b-a3b-2507\",\"input\":\"Systeme: {{ $('Webhook Etoile').first().json.body.prompt }}\",\"temperature\":0.2,\"max_output_tokens\":4096,\"stream\":false,\"store\":false}",
+        "options": {}
+      },
+      "id": "m1sys",
+      "name": "3e. M1 Systeme",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [1100, 750]
+    },
+    {
+      "parameters": {
+        "url": "http://127.0.0.1:1234/api/v1/chat",
+        "sendHeaders": true,
+        "headerParameters": {"parameters": [{"name": "Authorization", "value": "Bearer sk-lm-LOkUylwu:1PMZR74wuxj7OpeyISV7"}, {"name": "Content-Type", "value": "application/json"}]},
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\"model\":\"qwen/qwen3-30b-a3b-2507\",\"input\":\"Verifie ce resultat\",\"system_prompt\":\"Tu es un verificateur qualite. Evalue et donne un score 0.0-1.0. Reponds en JSON: {score, issues, recommendation}\",\"temperature\":0.2,\"max_output_tokens\":2048,\"stream\":false,\"store\":false}",
+        "options": {}
+      },
+      "id": "verify",
+      "name": "4. M1 Verify Quality",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [1400, 300]
+    },
+    {
+      "parameters": {
+        "jsCode": "const items = $input.all();\nconst results = [];\nfor (const item of items) {\n  const c = item.json?.output?.[0]?.content || item.json?.message?.content || 'N/A';\n  results.push(c);\n}\nreturn [{\n  json: {\n    synthesis: results.join('/n---/n'),\n    timestamp: new Date().toISOString(),\n    pipeline: 'Etoile Commander v10.2',\n    nodes_count: items.length\n  }\n}];"
+      },
+      "id": "synthesize",
+      "name": "5. Synthesize",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [1650, 300]
+    }
+  ],
+  "connections": {
+    "Webhook Etoile": {"main": [[{"node": "1. M1 Classify (qwen3-30b)", "type": "main", "index": 0}]]},
+    "1. M1 Classify (qwen3-30b)": {"main": [[{"node": "2. Route by Type", "type": "main", "index": 0}]]},
+    "2. Route by Type": {"main": [
+      [{"node": "3a. M2 Code (deepseek)", "type": "main", "index": 0}],
+      [{"node": "3b. M1 Analyse (qwen3-30b)", "type": "main", "index": 0}],
+      [{"node": "3c. M1 Trading (qwen3-30b)", "type": "main", "index": 0}],
+      [{"node": "3e. M1 Systeme", "type": "main", "index": 0}],
+      [{"node": "3d. OL1 Web (qwen3:1.7b)", "type": "main", "index": 0}],
+      [{"node": "3b. M1 Analyse (qwen3-30b)", "type": "main", "index": 0}]
+    ]},
+    "3a. M2 Code (deepseek)": {"main": [[{"node": "4. M1 Verify Quality", "type": "main", "index": 0}]]},
+    "3b. M1 Analyse (qwen3-30b)": {"main": [[{"node": "4. M1 Verify Quality", "type": "main", "index": 0}]]},
+    "3c. M1 Trading (qwen3-30b)": {"main": [[{"node": "4. M1 Verify Quality", "type": "main", "index": 0}]]},
+    "3d. OL1 Web (qwen3:1.7b)": {"main": [[{"node": "4. M1 Verify Quality", "type": "main", "index": 0}]]},
+    "3e. M1 Systeme": {"main": [[{"node": "4. M1 Verify Quality", "type": "main", "index": 0}]]},
+    "4. M1 Verify Quality": {"main": [[{"node": "5. Synthesize", "type": "main", "index": 0}]]}
+  },
+  "settings": {"executionOrder": "v1"}
+}

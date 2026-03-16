@@ -27,7 +27,7 @@ from pathlib import Path
 APP_MAP = {
     "chrome": "chrome",  # relies on PATH or default install location
     "vscode": "code",   # VS Code command line
-    "terminal": "powershell",  # opens a new PowerShell window
+    "terminal": "bash",  # opens a new PowerShell window
     "discord": "discord",  # assumes discord is on PATH
     "spotify": "spotify",  # Spotify client
     "steam": "steam",      # Steam client
@@ -59,7 +59,7 @@ APP_MAP = {
 def ps(command: str):
     try:
         result = subprocess.check_output([
-            "powershell", "-NoProfile", "-Command", command
+            "bash", "-NoProfile", "-Command", command
         ], text=True, timeout=10)
         return result.strip()
     except Exception as e:

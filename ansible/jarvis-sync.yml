@@ -1,0 +1,21 @@
+- name: Sync JARVIS Nodes
+  hosts: jarvis_cluster
+  tasks:
+    - name: Ensure project directory exists
+      file:
+        path: ~/jarvis
+        state: directory
+
+    - name: Sync JARVIS code (M1 to Nodes)
+      synchronize:
+        src: /home/turbo/jarvis/
+        dest: ~/jarvis/
+        recursive: yes
+        delete: yes
+        rsync_opts:
+          - "--exclude=.git"
+          - "--exclude=.venv"
+          - "--exclude=data/backups"
+
+    - name: Run remote install dependencies
+      shell: cd ~/jarvis && ./jarvis-ctl.sh update

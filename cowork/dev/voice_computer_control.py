@@ -34,7 +34,7 @@ from pathlib import Path
 BROWSER_PILOT = Path(__file__).parent / "browser_pilot.py"
 PYTHON = sys.executable
 CDP_PORT = 9222
-POWERSHELL = "powershell"
+POWERSHELL = "bash"
 SCREENSHOT_DIR = Path(os.path.expanduser("~")) / "Pictures" / "Screenshots"
 
 
@@ -251,7 +251,7 @@ Start-Sleep -Milliseconds 200
             "terminal": "wt",
             "wt": "wt",
             "cmd": "cmd",
-            "powershell": "powershell",
+            "bash": "bash",
             "paint": "mspaint",
             "snip": "SnippingTool",
             "capture": "SnippingTool",
@@ -888,7 +888,7 @@ VOICE_COMMANDS = {
     "ouvre le terminal": ("win_open_app", {"name": "wt"}),
     "terminal": ("win_open_app", {"name": "wt"}),
     "ouvre un terminal": ("win_open_app", {"name": "wt"}),
-    "ouvre powershell": ("win_open_app", {"name": "powershell"}),
+    "ouvre bash": ("win_open_app", {"name": "bash"}),
     "ouvre cmd": ("win_open_app", {"name": "cmd"}),
     "invite de commandes": ("win_open_app", {"name": "cmd"}),
     "ouvre les parametres": ("win_open_app", {"name": "ms-settings:"}),

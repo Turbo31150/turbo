@@ -1,4 +1,4 @@
-"""Tests for src/audio_controller.py — Windows audio volume and device management.
+"""Tests for src/audio_controller.py — Linux audio volume and device management.
 
 Covers: AudioEvent, AudioDevice, AudioController (presets CRUD, _record,
 get_events, get_stats), audio_controller singleton.
@@ -85,33 +85,37 @@ class TestPresets:
 
 
 # ===========================================================================
-# AudioController — volume/mute (mocked subprocess)
+# AudioController — volume/mute (mocked subprocess for Linux pactl/amixer)
 # ===========================================================================
 
 class TestVolumeControl:
-    def test_set_volume_nircmd(self):
+    def test_set_volume_pactl(self):
         ac = AudioController()
         with patch("subprocess.run") as mock_run:
+            mock_run.return_value = MagicMock(returncode=0)
             result = ac.set_volume(50)
         assert result is True
         assert mock_run.called
 
     def test_set_volume_clamps(self):
         ac = AudioController()
-        with patch("subprocess.run"):
+        with patch("subprocess.run") as mock_run:
+            mock_run.return_value = MagicMock(returncode=0)
             ac.set_volume(150)  # should clamp to 100
         events = ac.get_events()
-        assert any("level=100" in e["detail"] for e in events)
+        assert any("100" in e["detail"] for e in events)
 
     def test_mute(self):
         ac = AudioController()
-        with patch("subprocess.run"):
+        with patch("subprocess.run") as mock_run:
+            mock_run.return_value = MagicMock(returncode=0)
             result = ac.mute()
         assert result is True
 
     def test_unmute(self):
         ac = AudioController()
-        with patch("subprocess.run"):
+        with patch("subprocess.run") as mock_run:
+            mock_run.return_value = MagicMock(returncode=0)
             result = ac.unmute()
         assert result is True
 

@@ -17,6 +17,7 @@ version: 1.0.0
 
 ## Health check rapide
 
+### Windows
 ```bash
 # OL1
 curl -s --max-time 3 http://127.0.0.1:11434/api/tags | python3 -c "import sys,json;print('OL1:',len(json.load(sys.stdin).get('models',[])),'modeles')"
@@ -26,6 +27,26 @@ curl -s --max-time 3 http://192.168.1.26:1234/api/v1/models -H "Authorization: B
 
 # GPU local
 nvidia-smi --query-gpu=index,name,temperature.gpu,memory.used,memory.total --format=csv,noheader
+```
+
+### Linux
+```bash
+# OL1 — meme commande curl (cross-platform)
+curl -s --max-time 3 http://127.0.0.1:11434/api/tags | python3 -c "import sys,json;print('OL1:',len(json.load(sys.stdin).get('models',[])),'modeles')"
+
+# Services JARVIS via systemd
+systemctl --user list-units 'jarvis-*' --no-pager
+systemctl --user status jarvis-mcp jarvis-canvas jarvis-ollama
+
+# Logs recents (dernières 5 min)
+journalctl --user -u 'jarvis-*' --since "5 min ago" --no-pager
+
+# GPU (nvidia-smi identique sur Linux)
+nvidia-smi --query-gpu=index,name,temperature.gpu,memory.used,memory.total --format=csv,noheader
+
+# Docker — etat des conteneurs JARVIS
+docker compose -f projects/linux/docker-compose.yml ps
+docker compose -f projects/linux/docker-compose.yml logs --tail=50
 ```
 
 ## Gestion modeles LM Studio
@@ -40,11 +61,18 @@ curl -s http://HOST:1234/v1/models/load -H "Content-Type: application/json" -H "
 curl -s http://HOST:1234/v1/models/unload -H "Content-Type: application/json" -H "Authorization: Bearer KEY" -d '{"model":"MODEL_ID"}'
 ```
 
-**CLI local (M1 seulement):**
+**CLI local — Windows (M1 seulement):**
 ```bash
 "/home/turbo\.lmstudio\bin\lms.exe" load MODEL_ID --gpu max --context-length 32768
 "/home/turbo\.lmstudio\bin\lms.exe" unload MODEL_ID
 "/home/turbo\.lmstudio\bin\lms.exe" ps
+```
+
+**CLI local — Linux:**
+```bash
+~/.lmstudio/bin/lms load MODEL_ID --gpu max --context-length 32768
+~/.lmstudio/bin/lms unload MODEL_ID
+~/.lmstudio/bin/lms ps
 ```
 
 ## Seuils thermiques GPU
@@ -66,11 +94,38 @@ curl -s http://HOST:1234/v1/models/unload -H "Content-Type: application/json" -H
 
 ## Procedures de recovery
 
+### Windows
+
 **Noeud offline:**
 1. Ping HTTP avec timeout 3s
 2. Si offline, verifier si la machine repond (`ping -n 1 IP`)
 3. Si machine up mais service down → redemarrage LM Studio
 4. Si machine down → fallback sur noeud suivant
+
+### Linux
+
+**Noeud offline:**
+1. Ping HTTP avec timeout 3s
+2. Si offline, verifier si la machine repond (`ping -c 1 IP`)
+3. Si machine up mais service down:
+   - Services systemd: `systemctl --user restart jarvis-mcp`
+   - Ollama: `systemctl restart ollama` (ou `ollama serve &`)
+   - Docker: `docker compose -f projects/linux/docker-compose.yml restart`
+4. Si machine down → fallback sur noeud suivant
+
+**jarvis-ctl.sh (utilitaire Linux):**
+```bash
+# Status complet du cluster
+bash projects/linux/jarvis-ctl.sh status
+
+# Redemarrer tous les services JARVIS
+bash projects/linux/jarvis-ctl.sh restart
+
+# Arreter proprement
+bash projects/linux/jarvis-ctl.sh stop
+```
+
+### Commun (Windows + Linux)
 
 **GPU thermal critical:**
 1. Reduire la charge (unload modeles non-essentiels)

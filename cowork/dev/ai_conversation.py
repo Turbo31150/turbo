@@ -60,7 +60,7 @@ def check_exec_request(response):
         lines = response.split("```")
         for i in range(1, len(lines), 2):
             code = lines[i].strip()
-            if code.startswith(("bash\n", "powershell\n", "python\n")):
+            if code.startswith(("bash\n", "bash\n", "python\n")):
                 return code.split("\n", 1)[1] if "\n" in code else None
     return None
 

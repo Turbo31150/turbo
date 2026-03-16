@@ -15,7 +15,7 @@ Un workflow est un objet JSON stocké dans ``automator.json`` :
         "condition": "(Get-Process -Name notepad -ErrorAction SilentlyContinue) -eq $null",
         "retry": 2
       },
-      {"command": "powershell -Command \"Get-Date\""}
+      {"command": "bash -Command \"Get-Date\""}
     ]
   }
 }
@@ -122,7 +122,7 @@ def evaluate_condition(condition: str) -> bool:
     """Execute the PowerShell condition, return True if exit code 0."""
     try:
         subprocess.check_output([
-            "powershell", "-NoProfile", "-Command", condition
+            "bash", "-NoProfile", "-Command", condition
         ], stderr=subprocess.STDOUT, timeout=15)
         return True
     except subprocess.CalledProcessError:
@@ -136,7 +136,7 @@ def run_command(command: str) -> int:
     try:
         # Use PowerShell to keep consistency with condition syntax
         subprocess.check_call([
-            "powershell", "-NoProfile", "-Command", command
+            "bash", "-NoProfile", "-Command", command
         ], timeout=120)
         return 0
     except subprocess.CalledProcessError as e:

@@ -1,0 +1,52 @@
+========================================
+JARVIS — TEST CLUSTER MULTI-CANAL v1.0
+========================================
+Copier chaque tache une par une.
+Comparer les reponses entre:
+  [A] Claude Code (ici)
+  [B] Telegram @turboSSebot
+  [C] JARVIS Electron (Chat)
+
+Pour chaque tache, noter:
+  - Quel modele a repondu [M1/OL1/M3]
+  - Temps de reponse (secondes)
+  - Qualite (1-5)
+========================================
+
+--- TACHE 1: Question simple (→ OL1) ---
+Quelle est la capitale de l'Australie et combien d'habitants a-t-elle ?
+
+--- TACHE 2: Calcul mathematique (→ M1) ---
+Calcule 127 * 43 + 891 / 3 et explique chaque etape
+
+--- TACHE 3: Code Python (→ M1) ---
+Ecris une fonction Python qui inverse une liste sans utiliser reverse() ni slicing
+
+--- TACHE 4: Raisonnement logique (→ M3) ---
+Un escargot grimpe un mur de 10m. Il monte 3m le jour et glisse de 2m la nuit. Combien de jours pour atteindre le sommet ?
+
+--- TACHE 5: Trading crypto (→ OL1 web) ---
+Quel est le prix actuel du Bitcoin et quelle est la tendance des dernieres 24h ?
+
+--- TACHE 6: Systeme et GPU (→ M1 tools) ---
+Donne-moi le statut du cluster JARVIS : noeuds actifs, GPU, temperature
+
+--- TACHE 7: Creativite (→ M1) ---
+Invente un nom de startup IA en 3 mots maximum avec un slogan de 10 mots
+
+========================================
+GRILLE DE NOTATION
+========================================
+| Tache | Canal A | Canal B | Canal C |
+|-------|---------|---------|---------|
+| T1    |   /5    |   /5    |   /5    |
+| T2    |   /5    |   /5    |   /5    |
+| T3    |   /5    |   /5    |   /5    |
+| T4    |   /5    |   /5    |   /5    |
+| T5    |   /5    |   /5    |   /5    |
+| T6    |   /5    |   /5    |   /5    |
+| T7    |   /5    |   /5    |   /5    |
+========================================
+Score total: __/105
+Meilleur canal: __
+========================================

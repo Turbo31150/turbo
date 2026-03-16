@@ -47,6 +47,12 @@ else
 fi
 cd "$JARVIS_HOME"
 
+# Verify this is a valid git repo
+if [ ! -d "$JARVIS_HOME/.git" ]; then
+    err "$JARVIS_HOME is not a git repository — clone failed or path is wrong"
+fi
+log "Git repo verified at $JARVIS_HOME"
+
 # ── Step 4: Python venv + dependencies ───────────────────────
 log "Step 4/7: Python environment..."
 uv venv .venv --python python3
@@ -154,7 +160,7 @@ After=network.target jarvis-ws.service
 [Service]
 Type=simple
 WorkingDirectory=$JARVIS_HOME
-ExecStart=$JARVIS_HOME/.venv/bin/python -m src.openclaw_bridge
+ExecStart=$JARVIS_HOME/.venv/bin/python -m src.openclaw_server
 Restart=always
 RestartSec=10
 Environment=TURBO=$JARVIS_HOME
@@ -182,7 +188,75 @@ WantedBy=default.target
 EOF
 
 systemctl --user daemon-reload
+
+# Enable lingering so user services persist after logout
+loginctl enable-linger "$USER" 2>/dev/null && \
+    log "Lingering enabled for $USER (services persist after logout)" || \
+    warn "Could not enable lingering — services may stop on logout"
+
 log "Systemd services created (not started yet)"
+
+# ── Step 8: Seed learned_actions.db ────────────────────────────
+log "Step 8: Seeding learned_actions.db..."
+LEARNED_DB="$JARVIS_HOME/data/learned_actions.db"
+if [ ! -f "$LEARNED_DB" ]; then
+    mkdir -p "$JARVIS_HOME/data"
+    python3 - "$LEARNED_DB" << 'PYEOF'
+import sqlite3, sys
+db_path = sys.argv[1]
+conn = sqlite3.connect(db_path)
+c = conn.cursor()
+c.execute("""CREATE TABLE IF NOT EXISTS learned_actions (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    action TEXT NOT NULL,
+    category TEXT DEFAULT 'general',
+    source TEXT DEFAULT 'seed',
+    confidence REAL DEFAULT 0.5,
+    usage_count INTEGER DEFAULT 0,
+    last_used TEXT,
+    created_at TEXT DEFAULT (datetime('now'))
+)""")
+c.execute("""CREATE TABLE IF NOT EXISTS dominos (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    name TEXT NOT NULL UNIQUE,
+    description TEXT,
+    steps TEXT,
+    enabled INTEGER DEFAULT 1,
+    created_at TEXT DEFAULT (datetime('now'))
+)""")
+# Seed initial dominos
+seeds = [
+    ("health_check", "Run full cluster health check", '["check_ws", "check_proxy", "check_openclaw", "check_cluster"]'),
+    ("daily_audit", "Run daily system audit", '["system_audit", "db_maintenance", "log_rotate"]'),
+    ("restart_all", "Restart all JARVIS services", '["stop_services", "wait_5s", "start_services", "health_check"]'),
+]
+for name, desc, steps in seeds:
+    c.execute("INSERT OR IGNORE INTO dominos (name, description, steps) VALUES (?, ?, ?)", (name, desc, steps))
+conn.commit()
+conn.close()
+print(f"Seeded {db_path}")
+PYEOF
+    log "learned_actions.db created with seed data"
+else
+    log "learned_actions.db already exists"
+fi
+
+# ── Step 9: Health check after install ─────────────────────────
+log "Step 9: Post-install health verification..."
+health_check_service() {
+    local name="$1" url="$2"
+    if curl -sf --max-time 5 "$url" >/dev/null 2>&1; then
+        echo -e "  ${GREEN}●${NC} $name — ${GREEN}responding${NC}"
+        return 0
+    else
+        echo -e "  ${ORANGE}●${NC} $name — ${ORANGE}not yet running (start services first)${NC}"
+        return 1
+    fi
+}
+echo -e "${CYAN}Service readiness (pre-start check):${NC}"
+health_check_service "WS Server"       "http://127.0.0.1:9742/health"
+health_check_service "Direct Proxy"    "http://127.0.0.1:18800/health"
+health_check_service "OpenClaw Gateway" "http://127.0.0.1:18789/health"
 
 # ── Summary ──────────────────────────────────────────────────
 echo ""
@@ -192,11 +266,8 @@ echo -e "${CYAN}═════════════════════�
 echo ""
 echo "  Next steps:"
 echo "    1. Edit $ENV_FILE with your API keys"
-echo "    2. Start services:"
-echo "       systemctl --user enable --now jarvis-ws"
-echo "       systemctl --user enable --now jarvis-proxy"
-echo "       systemctl --user enable --now jarvis-openclaw"
-echo "       systemctl --user enable --now jarvis-pipeline"
+echo "    2. Start all services:"
+echo "       ./projects/linux/jarvis-ctl.sh start"
 echo ""
 echo "    3. Or start manually:"
 echo "       cd $JARVIS_HOME && source .venv/bin/activate"

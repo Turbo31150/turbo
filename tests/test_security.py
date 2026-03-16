@@ -62,7 +62,7 @@ class TestSanitizeInput:
 
 class TestSanitizeMCPArgs:
     def test_powershell_sanitization(self):
-        args = {"command": "Get-Process; Remove-Item /\"}
+        args = {"command": "Get-Process; Remove-Item C:\\"}
         result = sanitize_mcp_args("powershell_run", args)
         assert ";" not in result["command"]
 

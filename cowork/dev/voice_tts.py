@@ -12,7 +12,7 @@ async def speak_edge_tts(text: str, voice: str = VOICE):
         await comm.save(tmp)
         if sys.platform == "win32":
             subprocess.run(
-                ["powershell", "-c", f'(New-Object Media.SoundPlayer "{tmp}").PlaySync()'],
+                ["bash", "-c", f'(New-Object Media.SoundPlayer "{tmp}").PlaySync()'],
                 capture_output=True, timeout=30,
             )
         return True

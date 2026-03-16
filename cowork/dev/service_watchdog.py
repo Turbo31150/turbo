@@ -70,7 +70,7 @@ def send_telegram(message: str):
 def get_windows_service_status(name: str) -> str:
     try:
         result = subprocess.run([
-            "powershell", "-Command",
+            "bash", "-Command",
             f"(Get-Service -Name '{name}').Status"
         ], capture_output=True, text=True, timeout=10)
         status = result.stdout.strip()
@@ -126,7 +126,7 @@ def update_db(service: str, status: str, restarted: bool = False):
 def restart_service(name: str) -> bool:
     try:
         subprocess.run([
-            "powershell", "-Command",
+            "bash", "-Command",
             f"Restart-Service -Name '{name}' -Force"
         ], check=True, timeout=30)
         send_telegram(f"✅ Service <b>{name}</b> redémarré avec succès.")
@@ -180,15 +180,15 @@ def main():
             sys.exit(1)
         if name == "FastAPI":
             # FastAPI n'est pas un service Windows, on tente de tuer le processus qui écoute le port
-            # Utilisation de powershell pour récupérer le PID
+            # Utilisation de bash pour récupérer le PID
             try:
                 pid_res = subprocess.run([
-                    "powershell", "-Command",
+                    "bash", "-Command",
                     f"(Get-NetTCPConnection -LocalPort {FASTAPI_PORT} -State Listen).OwningProcess"
                 ], capture_output=True, text=True, timeout=5)
                 pid = pid_res.stdout.strip()
                 if pid:
-                    subprocess.run(["powershell", "-Command", f"Stop-Process -Id {pid} -Force"], check=True)
+                    subprocess.run(["bash", "-Command", f"Stop-Process -Id {pid} -Force"], check=True)
                     time.sleep(2)
                     # relance éventuelle via le script fastapi si connu – ici on suppose que le service est déjà configuré pour redémarrer automatiquement.
                     print(f"FastAPI process {pid} arrêté.")

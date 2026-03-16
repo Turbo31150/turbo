@@ -1,0 +1,125 @@
+{
+  "auto_updater": {
+    "enabled": true,
+    "check_interval_hours": 6,
+    "auto_apply": false,
+    "pre_update_backup": true,
+    "max_backups": 5,
+    "rollback_on_error": true
+  },
+  "github": {
+    "repository": "turbONE/jarvis",
+    "api_endpoint": "https://api.github.com",
+    "timeout_seconds": 30,
+    "verify_ssl": true
+  },
+  "integrity": {
+    "verify_sha256": true,
+    "verify_signatures": false
+  },
+  "logging": {
+    "level": "INFO",
+    "file": "logs/auto_updater.log",
+    "max_size_mb": 10,
+    "backup_count": 5
+  },
+  "components": {
+    "core": {
+      "name": "core",
+      "type": "system",
+      "version": "10.6.0",
+      "critical": true
+    },
+    "plugins": {
+      "name": "plugins",
+      "type": "plugin",
+      "version": "2.1.0",
+      "critical": false
+    },
+    "models": {
+      "name": "models",
+      "type": "model",
+      "version": "1.5.0",
+      "critical": true
+    },
+    "configs": {
+      "name": "configs",
+      "type": "config",
+      "version": "3.2.1",
+      "critical": false
+    }
+  },
+  "feature_flags": {
+    "advanced_analytics": {
+      "enabled": true,
+      "min_version": "10.6.0",
+      "max_version": null,
+      "description": "Analyse avancée des données"
+    },
+    "new_ui": {
+      "enabled": false,
+      "min_version": "10.7.0",
+      "max_version": null,
+      "description": "Nouvelle interface utilisateur"
+    },
+    "gpu_acceleration": {
+      "enabled": true,
+      "min_version": "10.5.0",
+      "max_version": null,
+      "description": "Accélération GPU pour les modèles"
+    }
+  },
+  "machines": {
+    "M1": {
+      "host": "127.0.0.1",
+      "port": 1234,
+      "type": "primary",
+      "models": ["qwen3-8b"]
+    },
+    "M2": {
+      "host": "192.168.1.26",
+      "port": 1234,
+      "type": "secondary",
+      "models": ["deepseek-r1-0528-qwen3-8b"]
+    },
+    "M3": {
+      "host": "192.168.1.113",
+      "port": 1234,
+      "type": "secondary",
+      "models": ["deepseek-r1-0528-qwen3-8b"]
+    }
+  },
+  "health_checks": {
+    "enabled": true,
+    "interval_seconds": 300,
+    "cpu_threshold": 85,
+    "memory_threshold": 90,
+    "disk_threshold": 85,
+    "check_critical_files": true
+  },
+  "notifications": {
+    "telegram": {
+      "enabled": true,
+      "chat_id": "YOUR_CHAT_ID",
+      "token": "YOUR_BOT_TOKEN"
+    },
+    "email": {
+      "enabled": false,
+      "smtp_server": "smtp.gmail.com",
+      "from_address": "updates@jarvis.local"
+    }
+  },
+  "paths": {
+    "base": "F:/BUREAU/turbo",
+    "src": "F:/BUREAU/turbo/src",
+    "backups": "F:/BUREAU/turbo/backups",
+    "logs": "F:/BUREAU/turbo/logs",
+    "migrations": "F:/BUREAU/turbo/migrations",
+    "config": "F:/BUREAU/turbo/config"
+  },
+  "database": {
+    "path": "F:/BUREAU/turbo/jarvis.db",
+    "auto_backup": true,
+    "vacuum_interval_hours": 24
+  }
+}

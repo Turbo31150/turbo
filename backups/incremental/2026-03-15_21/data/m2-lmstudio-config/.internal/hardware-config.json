@@ -1,0 +1,1 @@
+{"json":[["llama.cpp-win-x86_64-nvidia-cuda12-avx2",{"fields":[{"key":"load.gpuStrictVramCap","value":false},{"key":"llm.load.offloadKVCacheToGpu","value":true},{"key":"load.gpuSplitConfig","value":{"strategy":"evenly","disabledGpus":[],"priority":[],"customRatio":[]}},{"key":"llm.load.llama.flashAttention","value":true}]}]],"meta":{"values":["map"]}}

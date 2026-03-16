@@ -434,20 +434,20 @@ class TestClipboard:
 
 class TestFilesAndFolders:
     def test_open_folder(self, mock_subprocess_run):
-        mock_subprocess_run.return_value = _ok("Dossier ouvert: /\Users")
-        result = win.open_folder("/\Users")
+        mock_subprocess_run.return_value = _ok("Dossier ouvert: C:\\Users")
+        result = win.open_folder("C:\\Users")
         assert "Dossier ouvert" in result
 
     def test_list_folder(self, mock_subprocess_run):
         mock_subprocess_run.return_value = _ok("file1.txt  file2.txt")
-        result = win.list_folder("/\temp", "*.txt")
+        result = win.list_folder("C:\\temp", "*.txt")
         assert "file1" in result
         cmd = mock_subprocess_run.call_args[0][0][4]
         assert "*.txt" in cmd
 
     def test_create_folder(self, mock_subprocess_run):
-        mock_subprocess_run.return_value = _ok("/\new_folder")
-        result = win.create_folder("/\new_folder")
+        mock_subprocess_run.return_value = _ok("C:\\new_folder")
+        result = win.create_folder("C:\\new_folder")
         assert "new_folder" in result
 
     def test_copy_item(self, mock_subprocess_run):

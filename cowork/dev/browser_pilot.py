@@ -210,7 +210,7 @@ Write-Output $response
 $ws.CloseAsync([System.Net.WebSockets.WebSocketCloseStatus]::NormalClosure, "", $ct).Wait()
 '''
         result = subprocess.run(
-            ["powershell", "-NoProfile", "-Command", ps_script],
+            ["bash", "-NoProfile", "-Command", ps_script],
             capture_output=True, text=True, timeout=15
         )
         if result.returncode == 0 and result.stdout.strip():

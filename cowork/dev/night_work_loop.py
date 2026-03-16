@@ -20,8 +20,6 @@ import time
 from concurrent.futures import ThreadPoolExecutor, as_completed
 from pathlib import Path
 
-sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding="utf-8")
-
 from _paths import TURBO_DIR as TURBO
 DB_PATH = TURBO / "data" / "etoile.db"
 

@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <style>
+    body {
+      margin: 0; padding: 10px;
+      background: rgba(10, 14, 20, 0.7);
+      border: 1px solid rgba(0, 255, 136, 0.4);
+      border-radius: 8px;
+      color: #00ff88;
+      font-family: 'Ubuntu Mono', monospace;
+      overflow: hidden;
+      backdrop-filter: blur(8px);
+    }
+    .price { font-size: 14px; font-weight: bold; text-shadow: 0 0 5px rgba(0, 255, 136, 0.5); }
+    .label { font-size: 10px; color: rgba(0, 255, 255, 0.6); }
+    .trend-up { color: #00ff88; }
+    .trend-down { color: #ff0055; }
+  </style>
+</head>
+<body>
+  <div id="btc-row">
+    <span class="label">BTC/USDT</span><br>
+    <span class="price" id="btc-price">Chargement...</span>
+  </div>
+  <div style="margin-top: 8px;" id="eth-row">
+    <span class="label">ETH/USDT</span><br>
+    <span class="price" id="eth-price">Chargement...</span>
+  </div>
+  <script>
+    async function updateCrypto() {
+      try {
+        const response = await fetch('https://api.mexc.com/api/v3/ticker/price?symbol=BTCUSDT');
+        const btc = await response.json();
+        const response2 = await fetch('https://api.mexc.com/api/v3/ticker/price?symbol=ETHUSDT');
+        const eth = await response2.json();
+        
+        document.getElementById('btc-price').innerText = '$' + parseFloat(btc.price).toLocaleString();
+        document.getElementById('eth-price').innerText = '$' + parseFloat(eth.price).toLocaleString();
+      } catch (e) {
+        document.getElementById('btc-price').innerText = 'API ERROR';
+      }
+    }
+    setInterval(updateCrypto, 5000);
+    updateCrypto();
+  </script>
+</body>
+</html>

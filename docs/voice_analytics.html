@@ -1,0 +1,540 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="refresh" content="60">
+    <title>JARVIS Voice Analytics Dashboard</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.7/dist/chart.umd.min.js"></script>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            background: #0a0e17;
+            color: #c8d6e5;
+            font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+            padding: 20px;
+            min-height: 100vh;
+        }
+        .header {
+            text-align: center;
+            padding: 20px 0;
+            border-bottom: 1px solid #00e5ff33;
+            margin-bottom: 24px;
+        }
+        .header h1 {
+            color: #00e5ff;
+            font-size: 28px;
+            letter-spacing: 2px;
+            text-shadow: 0 0 20px #00e5ff44;
+        }
+        .header .subtitle {
+            color: #5f7d95;
+            font-size: 13px;
+            margin-top: 6px;
+        }
+        .kpis {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+            gap: 16px;
+            margin-bottom: 24px;
+        }
+        .kpi {
+            background: linear-gradient(135deg, #111827, #1a2332);
+            border: 1px solid #00e5ff22;
+            border-radius: 12px;
+            padding: 20px;
+            text-align: center;
+            transition: border-color 0.3s;
+        }
+        .kpi:hover { border-color: #00e5ff66; }
+        .kpi .value {
+            font-size: 32px;
+            font-weight: 700;
+            color: #00e5ff;
+            text-shadow: 0 0 10px #00e5ff44;
+        }
+        .kpi .label {
+            font-size: 12px;
+            color: #5f7d95;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-top: 6px;
+        }
+        .kpi .value.green { color: #00ff88; text-shadow: 0 0 10px #00ff8844; }
+        .kpi .value.orange { color: #ffaa00; text-shadow: 0 0 10px #ffaa0044; }
+        .kpi .value.red { color: #ff4444; text-shadow: 0 0 10px #ff444444; }
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(480px, 1fr));
+            gap: 20px;
+            margin-bottom: 24px;
+        }
+        .card {
+            background: #111827;
+            border: 1px solid #1e293b;
+            border-radius: 12px;
+            padding: 20px;
+        }
+        .card h2 {
+            color: #00e5ff;
+            font-size: 16px;
+            margin-bottom: 16px;
+            padding-bottom: 8px;
+            border-bottom: 1px solid #1e293b;
+        }
+        .card canvas { max-height: 280px; }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 13px;
+        }
+        th, td {
+            padding: 8px 12px;
+            text-align: left;
+            border-bottom: 1px solid #1e293b;
+        }
+        th {
+            color: #00e5ff;
+            font-weight: 600;
+            font-size: 11px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+        tr:hover td { background: #1a2332; }
+        .badge {
+            display: inline-block;
+            padding: 2px 8px;
+            border-radius: 10px;
+            font-size: 11px;
+            font-weight: 600;
+        }
+        .badge-success { background: #00ff8822; color: #00ff88; }
+        .badge-danger { background: #ff444422; color: #ff4444; }
+        .badge-warn { background: #ffaa0022; color: #ffaa00; }
+        .error-timeline {
+            max-height: 300px;
+            overflow-y: auto;
+            font-size: 12px;
+        }
+        .error-item {
+            padding: 8px 12px;
+            border-left: 3px solid #ff4444;
+            margin-bottom: 8px;
+            background: #1a0a0a;
+            border-radius: 0 6px 6px 0;
+        }
+        .error-ts { color: #5f7d95; font-size: 11px; }
+        .error-stage { color: #ffaa00; font-weight: 600; }
+        .error-text { color: #c8d6e5; }
+        .error-lat { color: #5f7d95; }
+        .suggestion {
+            padding: 12px;
+            background: #0a1628;
+            border-left: 3px solid #00e5ff;
+            border-radius: 0 8px 8px 0;
+            margin-bottom: 10px;
+            font-size: 13px;
+        }
+        .suggestion .pattern { color: #ffaa00; font-weight: 600; }
+        .suggestion .fix { color: #aabbcc; margin-top: 4px; }
+        .footer {
+            text-align: center;
+            color: #334155;
+            font-size: 11px;
+            padding: 20px 0;
+            border-top: 1px solid #1e293b;
+        }
+        ::-webkit-scrollbar { width: 6px; }
+        ::-webkit-scrollbar-track { background: #0a0e17; }
+        ::-webkit-scrollbar-thumb { background: #1e293b; border-radius: 3px; }
+        ::-webkit-scrollbar-thumb:hover { background: #00e5ff44; }
+    </style>
+</head>
+<body>
+
+<div class="header">
+    <h1>JARVIS VOICE ANALYTICS</h1>
+    <div class="subtitle">Generated: 2026-03-15T20:16:36.946355 | Period: 24h | Auto-refresh: 60s</div>
+</div>
+
+<!-- KPIs -->
+<div class="kpis">
+    <div class="kpi">
+        <div class="value">42</div>
+        <div class="label">Commands (period)</div>
+    </div>
+    <div class="kpi">
+        <div class="value">286</div>
+        <div class="label">Total All Time</div>
+    </div>
+    <div class="kpi">
+        <div class="value green">100.0%</div>
+        <div class="label">Success Rate</div>
+    </div>
+    <div class="kpi">
+        <div class="value orange">627.9ms</div>
+        <div class="label">Avg Latency</div>
+    </div>
+    <div class="kpi">
+        <div class="value red">0</div>
+        <div class="label">Failures</div>
+    </div>
+    <div class="kpi">
+        <div class="value">215</div>
+        <div class="label">Active Commands</div>
+    </div>
+</div>
+
+<!-- Graphiques -->
+<div class="grid">
+    <div class="card">
+        <h2>Commands per Hour</h2>
+        <canvas id="chartHourly"></canvas>
+    </div>
+    <div class="card">
+        <h2>Module Distribution</h2>
+        <canvas id="chartModules"></canvas>
+    </div>
+    <div class="card">
+        <h2>Latency by Pipeline Stage</h2>
+        <canvas id="chartLatency"></canvas>
+    </div>
+    <div class="card">
+        <h2>STT Method Distribution</h2>
+        <canvas id="chartSTT"></canvas>
+    </div>
+</div>
+
+<!-- Tableaux et timeline -->
+<div class="grid">
+    <div class="card">
+        <h2>Top 10 Commands</h2>
+        <div style="overflow-x: auto;">
+            <table id="tableTop">
+                <thead>
+                    <tr><th>Command</th><th>Category</th><th>Uses</th><th>Success</th><th>Fails</th></tr>
+                </thead>
+                <tbody></tbody>
+            </table>
+        </div>
+    </div>
+    <div class="card">
+        <h2>Top 10 Failing Commands</h2>
+        <div style="overflow-x: auto;">
+            <table id="tableFails">
+                <thead>
+                    <tr><th>Command</th><th>Category</th><th>Fails</th><th>Fail Rate</th></tr>
+                </thead>
+                <tbody></tbody>
+            </table>
+        </div>
+    </div>
+    <div class="card">
+        <h2>Recent Errors Timeline</h2>
+        <div class="error-timeline" id="errorTimeline"></div>
+    </div>
+    <div class="card">
+        <h2>Failure Analysis &amp; Suggestions</h2>
+        <div id="failureAnalysis"></div>
+    </div>
+</div>
+
+<!-- Tendances -->
+<div class="grid">
+    <div class="card" style="grid-column: 1 / -1;">
+        <h2>7-Day Trend</h2>
+        <canvas id="chartTrend"></canvas>
+    </div>
+</div>
+
+<div class="footer">
+    JARVIS Voice Analytics Dashboard &mdash; Powered by JARVIS OS
+</div>
+
+<script>
+    // Données injectées (sources internes de confiance uniquement)
+    const hourlyData = [{"hour": 0, "count": 0, "success": 0}, {"hour": 1, "count": 0, "success": 0}, {"hour": 2, "count": 0, "success": 0}, {"hour": 3, "count": 0, "success": 0}, {"hour": 4, "count": 0, "success": 0}, {"hour": 5, "count": 0, "success": 0}, {"hour": 6, "count": 0, "success": 0}, {"hour": 7, "count": 0, "success": 0}, {"hour": 8, "count": 0, "success": 0}, {"hour": 9, "count": 0, "success": 0}, {"hour": 10, "count": 0, "success": 0}, {"hour": 11, "count": 0, "success": 0}, {"hour": 12, "count": 0, "success": 0}, {"hour": 13, "count": 0, "success": 0}, {"hour": 14, "count": 0, "success": 0}, {"hour": 15, "count": 0, "success": 0}, {"hour": 16, "count": 0, "success": 0}, {"hour": 17, "count": 0, "success": 0}, {"hour": 18, "count": 4, "success": 4}, {"hour": 19, "count": 4, "success": 4}, {"hour": 20, "count": 34, "success": 34}, {"hour": 21, "count": 0, "success": 0}, {"hour": 22, "count": 0, "success": 0}, {"hour": 23, "count": 0, "success": 0}];
+    const modulesData = {"desktop": {"total": 39, "success": 39, "rate": 100.0}, "window": {"total": 0, "success": 0, "rate": 0}, "mouse": {"total": 0, "success": 0, "rate": 0}, "dictation": {"total": 0, "success": 0, "rate": 0}, "screen_reader": {"total": 0, "success": 0, "rate": 0}};
+    const topCommands = [{"name": "hello", "category": "analytics", "usage_count": 34, "success_count": 34, "fail_count": 0}, {"name": "refais", "category": "analytics", "usage_count": 30, "success_count": 30, "fail_count": 0}, {"name": "pareil", "category": "analytics", "usage_count": 30, "success_count": 30, "fail_count": 0}, {"name": "le contraire", "category": "analytics", "usage_count": 30, "success_count": 30, "fail_count": 0}, {"name": "temperatures gpu", "category": "analytics", "usage_count": 6, "success_count": 6, "fail_count": 0}, {"name": "jarvis rapport", "category": "analytics", "usage_count": 6, "success_count": 6, "fail_count": 0}, {"name": "status cluster", "category": "analytics", "usage_count": 5, "success_count": 5, "fail_count": 0}, {"name": "raconte moi une blague", "category": "analytics", "usage_count": 4, "success_count": 3, "fail_count": 1}, {"name": "quelle chanson", "category": "analytics", "usage_count": 4, "success_count": 4, "fail_count": 0}, {"name": "combien font 42 fois 13", "category": "analytics", "usage_count": 4, "success_count": 1, "fail_count": 3}];
+    const topFailures = [{"name": "mosaique 4", "category": "analytics", "fail_count": 3, "usage_count": 3, "fail_rate": 100.0}, {"name": "combien font 42 fois 13", "category": "analytics", "fail_count": 3, "usage_count": 3, "fail_rate": 100.0}, {"name": "quelle est la capitale du japon", "category": "analytics", "fail_count": 2, "usage_count": 2, "fail_rate": 100.0}, {"name": "raconte moi une blague", "category": "analytics", "fail_count": 1, "usage_count": 1, "fail_rate": 100.0}, {"name": "qui est le president de la france", "category": "analytics", "fail_count": 1, "usage_count": 1, "fail_rate": 100.0}, {"name": "quel temps fait-il", "category": "analytics", "fail_count": 1, "usage_count": 1, "fail_rate": 100.0}];
+    const latencyData = {"route": {"avg_ms": 627.9, "min_ms": 0.2, "max_ms": 14470.3, "count": 30}, "vad": {"avg_ms": 0, "min_ms": 0, "max_ms": 0, "count": 0}, "stt": {"avg_ms": 0, "min_ms": 0, "max_ms": 0, "count": 0}, "routing": {"avg_ms": 0, "min_ms": 0, "max_ms": 0, "count": 0}, "execution": {"avg_ms": 0, "min_ms": 0, "max_ms": 0, "count": 0}, "tts": {"avg_ms": 0, "min_ms": 0, "max_ms": 0, "count": 0}};
+    const sttDist = {"whisper_local": 1, "whisper_cloud": 0, "other": 38};
+    const recentErrors = [{"timestamp": "2026-03-14 17:59:03", "stage": "route", "text": "mosaique 4", "method": "unknown", "latency_ms": 4121.6}, {"timestamp": "2026-03-14 17:58:36", "stage": "route", "text": "mosaique 4", "method": "unknown", "latency_ms": 4025.0}, {"timestamp": "2026-03-14 17:58:27", "stage": "route", "text": "mosaique 4", "method": "unknown", "latency_ms": 5088.6}, {"timestamp": "2026-03-14 17:49:52", "stage": "route", "text": "quelle est la capitale du japon", "method": "unknown", "latency_ms": 3903.9}, {"timestamp": "2026-03-14 17:49:48", "stage": "route", "text": "combien font 42 fois 13", "method": "unknown", "latency_ms": 3892.0}, {"timestamp": "2026-03-14 17:49:21", "stage": "route", "text": "quelle est la capitale du japon", "method": "unknown", "latency_ms": 4138.7}, {"timestamp": "2026-03-14 17:49:17", "stage": "route", "text": "qui est le president de la france", "method": "unknown", "latency_ms": 3904.1}, {"timestamp": "2026-03-14 17:49:13", "stage": "route", "text": "combien font 42 fois 13", "method": "unknown", "latency_ms": 3910.5}, {"timestamp": "2026-03-14 17:49:09", "stage": "route", "text": "raconte moi une blague", "method": "unknown", "latency_ms": 4133.1}, {"timestamp": "2026-03-14 17:48:42", "stage": "route", "text": "combien font 42 fois 13", "method": "unknown", "latency_ms": 4136.1}, {"timestamp": "2026-03-14 17:48:37", "stage": "route", "text": "quel temps fait-il", "method": "unknown", "latency_ms": 4140.3}];
+    const trends = {"period_days": 7, "daily": [{"date": "2026-03-13", "total": 112, "successes": 112, "failures": 0, "success_rate": 100.0, "avg_latency_ms": 0}, {"date": "2026-03-14", "total": 162, "successes": 151, "failures": 11, "success_rate": 93.2, "avg_latency_ms": 625.3}, {"date": "2026-03-15", "total": 12, "successes": 12, "failures": 0, "success_rate": 100.0, "avg_latency_ms": 0}], "first_half": {"count": 0, "avg_latency": 0}, "second_half": {"count": 286, "avg_latency": 354.2}, "volume_trend_pct": 0};
+    const failureAnalysis = [{"pattern": "Failures in stage: route", "count": 11, "examples": ["quel temps fait-il", "combien font 42 fois 13", "raconte moi une blague", "qui est le president de la france", "quelle est la capitale du japon"], "suggestion": "Command routing issues. Check that command patterns match the intent classifier rules."}, {"pattern": "Peak failure hours", "count": 11, "examples": ["17h (11 fails)"], "suggestion": "Check for ambient noise or system load during these hours. Consider adjusting VAD sensitivity or STT model."}];
+
+    // Couleurs JARVIS
+    const CYAN = '#00e5ff';
+    const GREEN = '#00ff88';
+    const ORANGE = '#ffaa00';
+    const RED = '#ff4444';
+    const PURPLE = '#a855f7';
+    const BLUE = '#3b82f6';
+
+    Chart.defaults.color = '#5f7d95';
+    Chart.defaults.borderColor = '#1e293b';
+
+    // 1. Commandes par heure (barres empilées)
+    new Chart(document.getElementById('chartHourly'), {
+        type: 'bar',
+        data: {
+            labels: hourlyData.map(d => d.hour + 'h'),
+            datasets: [
+                {
+                    label: 'Success',
+                    data: hourlyData.map(d => d.success),
+                    backgroundColor: GREEN + '88',
+                    borderColor: GREEN,
+                    borderWidth: 1,
+                },
+                {
+                    label: 'Failures',
+                    data: hourlyData.map(d => d.count - d.success),
+                    backgroundColor: RED + '88',
+                    borderColor: RED,
+                    borderWidth: 1,
+                }
+            ]
+        },
+        options: {
+            responsive: true,
+            plugins: { legend: { position: 'top' } },
+            scales: {
+                x: { stacked: true },
+                y: { stacked: true, beginAtZero: true }
+            }
+        }
+    });
+
+    // 2. Répartition par module (camembert)
+    const moduleNames = Object.keys(modulesData);
+    const moduleTotals = moduleNames.map(k => modulesData[k].total);
+    new Chart(document.getElementById('chartModules'), {
+        type: 'doughnut',
+        data: {
+            labels: moduleNames.map(n => n.charAt(0).toUpperCase() + n.slice(1)),
+            datasets: [{
+                data: moduleTotals,
+                backgroundColor: [CYAN + 'cc', GREEN + 'cc', ORANGE + 'cc', PURPLE + 'cc', BLUE + 'cc'],
+                borderColor: '#0a0e17',
+                borderWidth: 2,
+            }]
+        },
+        options: {
+            responsive: true,
+            plugins: {
+                legend: { position: 'right' },
+                tooltip: {
+                    callbacks: {
+                        afterLabel: function(ctx) {
+                            const mod = moduleNames[ctx.dataIndex];
+                            return 'Success: ' + modulesData[mod].rate + '%';
+                        }
+                    }
+                }
+            }
+        }
+    });
+
+    // 3. Latence par étape (barres horizontales)
+    const stageNames = Object.keys(latencyData);
+    new Chart(document.getElementById('chartLatency'), {
+        type: 'bar',
+        data: {
+            labels: stageNames.map(s => s.toUpperCase()),
+            datasets: [
+                {
+                    label: 'Avg (ms)',
+                    data: stageNames.map(s => latencyData[s].avg_ms),
+                    backgroundColor: CYAN + '88',
+                    borderColor: CYAN,
+                    borderWidth: 1,
+                },
+                {
+                    label: 'Max (ms)',
+                    data: stageNames.map(s => latencyData[s].max_ms),
+                    backgroundColor: ORANGE + '44',
+                    borderColor: ORANGE,
+                    borderWidth: 1,
+                }
+            ]
+        },
+        options: {
+            indexAxis: 'y',
+            responsive: true,
+            plugins: { legend: { position: 'top' } },
+            scales: { x: { beginAtZero: true } }
+        }
+    });
+
+    // 4. Distribution STT (camembert)
+    new Chart(document.getElementById('chartSTT'), {
+        type: 'pie',
+        data: {
+            labels: ['Whisper Local', 'Whisper Cloud', 'Other'],
+            datasets: [{
+                data: [sttDist.whisper_local, sttDist.whisper_cloud, sttDist.other],
+                backgroundColor: [CYAN + 'cc', PURPLE + 'cc', ORANGE + 'cc'],
+                borderColor: '#0a0e17',
+                borderWidth: 2,
+            }]
+        },
+        options: {
+            responsive: true,
+            plugins: { legend: { position: 'right' } }
+        }
+    });
+
+    // 5. Tendances 7 jours
+    if (trends.daily && trends.daily.length > 0) {
+        new Chart(document.getElementById('chartTrend'), {
+            type: 'line',
+            data: {
+                labels: trends.daily.map(d => d.date),
+                datasets: [
+                    {
+                        label: 'Total Commands',
+                        data: trends.daily.map(d => d.total),
+                        borderColor: CYAN,
+                        backgroundColor: CYAN + '22',
+                        fill: true,
+                        tension: 0.3,
+                    },
+                    {
+                        label: 'Successes',
+                        data: trends.daily.map(d => d.successes),
+                        borderColor: GREEN,
+                        backgroundColor: GREEN + '11',
+                        fill: true,
+                        tension: 0.3,
+                    },
+                    {
+                        label: 'Failures',
+                        data: trends.daily.map(d => d.failures),
+                        borderColor: RED,
+                        backgroundColor: RED + '11',
+                        fill: true,
+                        tension: 0.3,
+                    }
+                ]
+            },
+            options: {
+                responsive: true,
+                plugins: { legend: { position: 'top' } },
+                scales: { y: { beginAtZero: true } }
+            }
+        });
+    }
+
+    // Remplir un tableau de manière sécurisée (textContent uniquement)
+    function fillTable(tableId, data, columns) {
+        var tbody = document.querySelector('#' + tableId + ' tbody');
+        while (tbody.firstChild) tbody.removeChild(tbody.firstChild);
+        data.forEach(function(row) {
+            var tr = document.createElement('tr');
+            columns.forEach(function(col) {
+                var td = document.createElement('td');
+                var val = row[col.key];
+                if (col.badge) {
+                    var span = document.createElement('span');
+                    span.className = 'badge ' + col.badge(val);
+                    span.textContent = val !== undefined ? val : '-';
+                    td.appendChild(span);
+                } else {
+                    td.textContent = val !== undefined ? val : '-';
+                }
+                tr.appendChild(td);
+            });
+            tbody.appendChild(tr);
+        });
+    }
+
+    fillTable('tableTop', topCommands, [
+        { key: 'name' },
+        { key: 'category' },
+        { key: 'usage_count' },
+        { key: 'success_count', badge: function(v) { return v > 0 ? 'badge-success' : ''; } },
+        { key: 'fail_count', badge: function(v) { return v > 0 ? 'badge-danger' : 'badge-success'; } }
+    ]);
+
+    fillTable('tableFails', topFailures, [
+        { key: 'name' },
+        { key: 'category' },
+        { key: 'fail_count', badge: function() { return 'badge-danger'; } },
+        { key: 'fail_rate', badge: function(v) { return v > 50 ? 'badge-danger' : 'badge-warn'; } }
+    ]);
+
+    // Timeline erreurs (construction DOM sécurisée avec textContent)
+    (function() {
+        var timeline = document.getElementById('errorTimeline');
+        if (recentErrors.length === 0) {
+            var p = document.createElement('p');
+            p.style.cssText = 'color:#5f7d95;text-align:center;padding:20px;';
+            p.textContent = 'No recent errors';
+            timeline.appendChild(p);
+        } else {
+            recentErrors.forEach(function(err) {
+                var div = document.createElement('div');
+                div.className = 'error-item';
+
+                var tsSpan = document.createElement('span');
+                tsSpan.className = 'error-ts';
+                tsSpan.textContent = err.timestamp;
+                div.appendChild(tsSpan);
+
+                div.appendChild(document.createTextNode(' '));
+
+                var stageSpan = document.createElement('span');
+                stageSpan.className = 'error-stage';
+                stageSpan.textContent = '[' + err.stage + ']';
+                div.appendChild(stageSpan);
+
+                div.appendChild(document.createTextNode(' '));
+
+                var textSpan = document.createElement('span');
+                textSpan.className = 'error-text';
+                textSpan.textContent = err.text || 'N/A';
+                div.appendChild(textSpan);
+
+                if (err.latency_ms) {
+                    var latSpan = document.createElement('span');
+                    latSpan.className = 'error-lat';
+                    latSpan.textContent = ' (' + err.latency_ms + 'ms)';
+                    div.appendChild(latSpan);
+                }
+
+                timeline.appendChild(div);
+            });
+        }
+    })();
+
+    // Analyse des échecs (construction DOM sécurisée avec textContent)
+    (function() {
+        var analysisDiv = document.getElementById('failureAnalysis');
+        if (failureAnalysis.length === 0) {
+            var p = document.createElement('p');
+            p.style.cssText = 'color:#5f7d95;text-align:center;padding:20px;';
+            p.textContent = 'No failure patterns detected';
+            analysisDiv.appendChild(p);
+        } else {
+            failureAnalysis.forEach(function(item) {
+                var div = document.createElement('div');
+                div.className = 'suggestion';
+
+                var patDiv = document.createElement('div');
+                patDiv.className = 'pattern';
+                patDiv.textContent = item.pattern + ' (' + item.count + ' occurrences)';
+                div.appendChild(patDiv);
+
+                var fixDiv = document.createElement('div');
+                fixDiv.className = 'fix';
+                fixDiv.textContent = item.suggestion;
+                div.appendChild(fixDiv);
+
+                analysisDiv.appendChild(div);
+            });
+        }
+    })();
+</script>
+</body>
+</html>

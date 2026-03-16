@@ -90,7 +90,7 @@ def send_toast(title: str, message: str) -> bool:
     try:
         flags = subprocess.CREATE_NO_WINDOW if sys.platform == "win32" else 0
         r = subprocess.run(
-            ["powershell", "-NoProfile", "-Command", ps],
+            ["notify-send", title, message],
             capture_output=True, timeout=15, creationflags=flags,
         )
         return r.returncode == 0
@@ -112,7 +112,7 @@ def show_input_dialog(prompt: str = "Commande pour JARVIS:") -> str | None:
     try:
         flags = subprocess.CREATE_NO_WINDOW if sys.platform == "win32" else 0
         r = subprocess.run(
-            ["powershell", "-NoProfile", "-Command", ps],
+            ["notify-send", title, message],
             capture_output=True, text=True, timeout=300, creationflags=flags,
         )
         text = r.stdout.strip()

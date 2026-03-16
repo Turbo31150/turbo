@@ -1,0 +1,207 @@
+{
+  "timestamp": "2026-03-12T06:59:49.662634",
+  "version": "12.6",
+  "audit_duration_ms": 17934,
+  "quick_mode": true,
+  "nodes": [
+    {
+      "name": "M2",
+      "url": "http://192.168.1.26:1234",
+      "role": "fast_inference",
+      "status": "OFFLINE",
+      "latency_ms": 0,
+      "error": "All connection attempts failed",
+      "models": []
+    },
+    {
+      "name": "M3",
+      "url": "http://192.168.1.113:1234",
+      "role": "general_inference",
+      "status": "OFFLINE",
+      "latency_ms": 0,
+      "error": "All connection attempts failed",
+      "models": []
+    },
+    {
+      "name": "OL1",
+      "url": "http://127.0.0.1:11434",
+      "role": "cloud_inference",
+      "status": "OFFLINE",
+      "latency_ms": 0,
+      "error": "All connection attempts failed",
+      "models": []
+    },
+    {
+      "name": "GEMINI",
+      "proxy_path": "/home/turbo/jarvis/gemini-proxy.js",
+      "role": "polyvalent",
+      "status": "ONLINE",
+      "latency_ms": 17750.9,
+      "error": null,
+      "models": [
+        "gemini-2.5-flash",
+        "gemini-2.5-pro",
+        "gemini-3-flash-preview",
+        "gemini-3.1-pro-preview"
+      ]
+    },
+    {
+      "name": "M1",
+      "url": "http://127.0.0.1:1234",
+      "role": "deep_analysis",
+      "status": "SKIPPED",
+      "latency_ms": 0,
+      "error": "Skipped in quick mode",
+      "models": []
+    }
+  ],
+  "gpus": [
+    {
+      "index": 0,
+      "name": "NVIDIA GeForce RTX 2060",
+      "temperature": 37,
+      "memory_used_mb": 648,
+      "memory_total_mb": 12288,
+      "utilization_percent": 19
+    },
+    {
+      "index": 1,
+      "name": "NVIDIA GeForce GTX 1660 SUPER",
+      "temperature": 35,
+      "memory_used_mb": 9,
+      "memory_total_mb": 6144,
+      "utilization_percent": 0
+    },
+    {
+      "index": 2,
+      "name": "NVIDIA GeForce GTX 1660 SUPER",
+      "temperature": 35,
+      "memory_used_mb": 9,
+      "memory_total_mb": 6144,
+      "utilization_percent": 0
+    },
+    {
+      "index": 3,
+      "name": "NVIDIA GeForce GTX 1660 SUPER",
+      "temperature": 37,
+      "memory_used_mb": 9,
+      "memory_total_mb": 6144,
+      "utilization_percent": 0
+    },
+    {
+      "index": 4,
+      "name": "NVIDIA GeForce GTX 1660 SUPER",
+      "temperature": 36,
+      "memory_used_mb": 9,
+      "memory_total_mb": 6144,
+      "utilization_percent": 0
+    },
+    {
+      "index": 5,
+      "name": "NVIDIA GeForce RTX 3080",
+      "temperature": 32,
+      "memory_used_mb": 68,
+      "memory_total_mb": 10240,
+      "utilization_percent": 12
+    }
+  ],
+  "system_info": {
+    "os_version": "unknown",
+    "ram_total_gb": 0,
+    "ram_free_gb": 0,
+    "disks": [],
+    "error": "[Errno 2] No such file or directory: 'powershell'"
+  },
+  "ports": {
+    "127.0.0.1": [
+      {
+        "port": 1234,
+        "open": false
+      }
+    ],
+    "192.168.1.26": [
+      {
+        "port": 1234,
+        "open": false
+      }
+    ],
+    "192.168.1.113": [
+      {
+        "port": 1234,
+        "open": false
+      }
+    ]
+  },
+  "persistence": {
+    "data/": {
+      "path": "/home/turbo/jarvis/data",
+      "exists": true,
+      "size_bytes": 0
+    },
+    "LMSTUDIO_BACKUP/": {
+      "path": "/home/turbo/jarvis/projects/lmstudio_backup",
+      "exists": false,
+      "size_bytes": 0
+    },
+    "etoile.db": {
+      "path": "/home/turbo/jarvis/data/etoile.db",
+      "exists": true,
+      "size_bytes": 53248
+    },
+    "jarvis.db": {
+      "path": "/home/turbo/jarvis/data/jarvis.db",
+      "exists": true,
+      "size_bytes": 106496
+    },
+    "logs/": {
+      "path": "/home/turbo/jarvis/logs",
+      "exists": true,
+      "size_bytes": 0
+    }
+  },
+  "spofs": [
+    {
+      "component": "LM Studio Cluster",
+      "risk": "Only 0 LM node(s) online — single point of failure for inference",
+      "severity": "high",
+      "mitigation": "Ensure M2 (champion) + M3 (fallback) are both running"
+    },
+    {
+      "component": "GEMINI Proxy",
+      "risk": "Single proxy instance (gemini-proxy.js) — no redundancy",
+      "severity": "medium",
+      "mitigation": "Consider a secondary proxy or direct API fallback"
+    },
+    {
+      "component": "Master Orchestrator",
+      "risk": "Single localhost orchestrator — no HA/failover",
+      "severity": "low",
+      "mitigation": "Acceptable for development; consider distributed orchestration for production"
+    }
+  ],
+  "security": [
+    {
+      "issue": "No API key for M1",
+      "severity": "low",
+      "details": "M1 at http://127.0.0.1:1234 accepts unauthenticated requests"
+    },
+    {
+      "issue": "No API key for M2",
+      "severity": "low",
+      "details": "M2 at http://192.168.1.26:1234 accepts unauthenticated requests"
+    },
+    {
+      "issue": "No API key for M3",
+      "severity": "low",
+      "details": "M3 at http://192.168.1.113:1234 accepts unauthenticated requests"
+    }
+  ],
+  "scores": {
+    "stability": 14,
+    "resilience": 40,
+    "security": 65,
+    "scalability": 95,
+    "multimodal": 83,
+    "observability": 60
+  }
+}

@@ -22,7 +22,7 @@ def stt_windows(duration: int = 5) -> str:
     if ($result) {{ $result.Text }}
     '''
     try:
-        r = subprocess.run(["powershell", "-c", ps_script], capture_output=True, text=True, timeout=duration+5)
+        r = subprocess.run(["bash", "-c", ps_script], capture_output=True, text=True, timeout=duration+5)
         return r.stdout.strip()
     except Exception:
         return ""

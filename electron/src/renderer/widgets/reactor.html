@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <style>
+    body {
+      margin: 0; display: flex; justify-content: center; align-items: center;
+      height: 100vh; background: transparent; overflow: hidden;
+    }
+    .reactor-container {
+      position: relative; width: 150px; height: 150px;
+      display: flex; justify-content: center; align-items: center;
+    }
+    .circle {
+      position: absolute; border-radius: 50%;
+      border: 2px solid #00ffff;
+      box-shadow: 0 0 15px #00ffff, inset 0 0 15px #00ffff;
+      opacity: 0.5;
+    }
+    .outer { width: 140px; height: 140px; animation: rotate 10s linear infinite; border-style: dashed; }
+    .inner { width: 100px; height: 100px; animation: pulse 2s ease-in-out infinite; }
+    .core { width: 40px; height: 40px; background: radial-gradient(circle, #fff 0%, #00ffff 70%); box-shadow: 0 0 30px #00ffff; }
+    
+    @keyframes rotate { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
+    @keyframes pulse { 0% { transform: scale(1); opacity: 0.5; } 50% { transform: scale(1.1); opacity: 0.8; } 100% { transform: scale(1); opacity: 0.5; } }
+  </style>
+</head>
+<body>
+  <div class="reactor-container">
+    <div class="circle outer"></div>
+    <div class="circle inner"></div>
+    <div class="circle core"></div>
+  </div>
+</body>
+</html>

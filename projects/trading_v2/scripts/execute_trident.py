@@ -4,6 +4,7 @@ TRIDENT STRATEGY - Execution automatique MEXC Futures
 BERA (Reversal) + RESOLV (Breakout) + LSK (Agressif)
 Pipeline Intensif - 10 cycles consensus
 """
+import os
 import sys
 import json
 import time
@@ -18,7 +19,7 @@ DRY_RUN = True  # True = simulation, False = ORDRES REELS
 MEXC_API_KEY = "mx0vglrR6uWgWEB6Vm"
 MEXC_SECRET_KEY = "ba096c7a96c149409914dc0eebdfa53f"
 
-TELEGRAM_TOKEN = "8369376863:AAF-7YGDbun8mXWwqYJFj-eX6P78DeIu9Aw"
+TELEGRAM_TOKEN = os.environ.get("TELEGRAM_TOKEN", "")
 TELEGRAM_CHAT = "2010747443"
 
 # Taille par trade en USDT (avant levier)

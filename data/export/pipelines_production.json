@@ -1,0 +1,20 @@
+[
+  {
+    "id": 1,
+    "name": "Daily Audit",
+    "steps": "[{\"name\": \"git_pull\", \"cmd\": \"git pull\"}, {\"name\": \"check_health\", \"cmd\": \"./jarvis-ctl.sh health\"}]",
+    "status": "active"
+  },
+  {
+    "id": 2,
+    "name": "Crypto Scanner",
+    "steps": "[{\"name\": \"fetch_prices\", \"cmd\": \"python3 projects/trading_v2/scripts/scanner.py\"}]",
+    "status": "active"
+  },
+  {
+    "id": 3,
+    "name": "System Cleanup",
+    "steps": "[{\"name\": \"apt_clean\", \"cmd\": \"sudo apt clean\"}, {\"name\": \"log_rotate\", \"cmd\": \"journalctl --vacuum-time=7d\"}]",
+    "status": "active"
+  }
+]

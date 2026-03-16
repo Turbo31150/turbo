@@ -1,0 +1,21 @@
+{
+  "timestamp": "2026-03-08T00:17:59.926669",
+  "system": {
+    "total_tasks": 155,
+    "total_runs": 2472,
+    "failed_24h": 53,
+    "completed_24h": 2419,
+    "disk_C_free_gb": 62.8,
+    "disk_F_free_gb": 82.3,
+    "services": {
+      "M1": true,
+      "OL1": true,
+      "WS": true,
+      "OpenClaw": true,
+      "Proxy": true
+    },
+    "git_head": "271f043 fix(singleton): prevent uvicorn child from killing its own parent PID",
+    "src_modules": 232,
+    "test_files": 298
+  }
+}

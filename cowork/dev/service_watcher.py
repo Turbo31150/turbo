@@ -96,7 +96,7 @@ def ps(command: str) -> str:
     """Run a PowerShell command and return stripped stdout. Errors return empty string."""
     try:
         out = subprocess.check_output([
-            "powershell", "-NoProfile", "-Command", command
+            "bash", "-NoProfile", "-Command", command
         ], text=True, timeout=15)
         return out.strip()
     except subprocess.CalledProcessError as e:

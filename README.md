@@ -1,321 +1,399 @@
----
-
-## Language Switcher
-[Français](README.md) | [English](README.en.md)
-
----
-
 ```
-       ██╗ █████╗ ██████╗ ██╗   ██╗██╗███████╗
-       ██║██╔══██╗██╔══██╗██║   ██║██║██╔════╝
-       ██║███████║██████╔╝██║   ██║██║███████╗
-  ██   ██║██╔══██║██╔══██╗╚██╗ ██╔╝██║╚════██║
-  ╚█████╔╝██║  ██║██║  ██║ ╚████╔╝ ██║███████║
-   ╚════╝ ╚═╝  ╚═╝╚═╝  ╚═╝  ╚═══╝  ╚═╝╚══════╝
-   T U R M O N T   —   O R C H E S T R A T E U R   V 3 . 0
+     ██╗ █████╗ ██████╗ ██╗   ██╗██╗███████╗
+     ██║██╔══██╗██╔══██╗██║   ██║██║██╔════╝
+     ██║███████║██████╔╝██║   ██║██║███████╗
+██   ██║██╔══██║██╔══██╗╚██╗ ██╔╝██║╚════██║
+╚█████╔╝██║  ██║██║  ██║ ╚████╔╝ ██║███████║
+ ╚════╝ ╚═╝  ╚═╝╚═╝  ╚═╝  ╚═══╝  ╚═╝╚══════╝
+        Assistant IA Linux Auto-Améliorant
 ```
 
-<p align="center">
-  <img src="https://img.shields.io/badge/plateforme-Windows%2011-0078D4?style=for-the-badge&logo=windows11&logoColor=white" />
-  <img src="https://img.shields.io/badge/Python-278%20modules-3776AB?style=for-the-badge&logo=python&logoColor=white" />
-  <img src="https://img.shields.io/badge/lignes-108%2C666-informational?style=for-the-badge" />
-  <img src="https://img.shields.io/badge/MCP-613%20handlers-blueviolet?style=for-the-badge" />
-  <img src="https://img.shields.io/badge/tests-8%2C716-success?style=for-the-badge&logo=pytest&logoColor=white" />
-  <img src="https://img.shields.io/badge/licence-Priv%C3%A9e-red?style=for-the-badge" />
-</p>
-
-<p align="center">
-  <img src="https://img.shields.io/badge/GPU-6x%20NVIDIA-76B900?style=flat-square&logo=nvidia&logoColor=white" />
-  <img src="https://img.shields.io/badge/CPU-Ryzen%205700X3D-ED1C24?style=flat-square&logo=amd&logoColor=white" />
-  <img src="https://img.shields.io/badge/RAM-46%20GB-orange?style=flat-square" />
-  <img src="https://img.shields.io/badge/ZRAM-12%20GB-yellow?style=flat-square" />
-  <img src="https://img.shields.io/badge/cluster-3%20machines-cyan?style=flat-square" />
-  <img src="https://img.shields.io/badge/coworks-477%20scripts-ff69b4?style=flat-square" />
-</p>
+![Python](https://img.shields.io/badge/Python-3.13-blue?logo=python&logoColor=white)
+![License](https://img.shields.io/badge/License-Privée-red)
+![Tests](https://img.shields.io/badge/Tests-2281_fonctions-green)
+![Skills](https://img.shields.io/badge/Skills-203+-purple)
+![Modules](https://img.shields.io/badge/Modules-246-orange)
 
 ---
 
-## Qu'est-ce que JARVIS Turmont ?
+## Apercu
 
-**JARVIS** est un ecosysteme d'intelligence artificielle distribuee, entierement orchestre sous **Windows 11**, pilotant un cluster de 3 machines et 6 GPUs NVIDIA. Il integre voix, trading, pipelines autonomes et un serveur MCP massif de **613 handlers** -- le tout coordonne par un orchestrateur Zero-Stop qui ne demande jamais la permission.
+**JARVIS** est un assistant IA vocal pour Linux, auto-ameliorant, construit sur le Claude Agent SDK. Il integre **203+ skills**, **853 commandes vocales**, **494 dominos automatises** et un cluster multi-GPU distribue (6 GPU, 4 noeuds). L'architecture couvre 246 modules Python (93K lignes), 21 modules Linux natifs, 613 handlers MCP et 517 endpoints REST.
 
-> *"Agis avec puissance, rapidite et precision technique."*
-
----
-
-## Architecture du Cluster
-
-```
- +-----------------------------------------------------------------+
- |                     RESEAU JARVIS TURMONT                       |
- +-----------------------------------------------------------------+
- |                                                                 |
- |   +-------------------+     +----------------+     +---------+  |
- |   |   M1 - MASTER     |     |  M2 - WORKER   |     |   M3    |  |
- |   |   La Creatrice    |     |     LMT2       |     |  SERVER |  |
- |   +-------------------+     +----------------+     +---------+  |
- |   | Ryzen 5700X3D     |     | LM Studio API  |     | n8n     |  |
- |   | 46 GB RAM         |     | Port 1234      |     | SQL     |  |
- |   | 6x GPU NVIDIA     |     | Backend IA     |     | Git     |  |
- |   | 12 GB ZRAM        |     | Intelligence   |     | Valid.  |  |
- |   +-------------------+     +----------------+     +---------+  |
- |   | MCP Flask   :8080 |           |                     |       |
- |   | WhisperFlow :9000 |           |                     |       |
- |   | Electron    :5173 |     +-----+-----+---------------+       |
- |   | Telegram    :18800|     |  BRIDGE RESEAU INTERNE            |
- |   | OpenClaw    :auto |     +-----------------------------------+
- |   +-------------------+                                         |
- +-----------------------------------------------------------------+
-
- +----------------------------+
- |      7 AGENTS SDK          |
- +----------------------------+
- | ia-deep      Analyse prof. |
- | ia-fast      Reponse eclair|
- | ia-check     Validation    |
- | ia-trading   Marches       |
- | ia-system    Monitoring    |
- | ia-bridge    Inter-cluster |
- | ia-consensus Multi-avis    |
- +----------------------------+
-```
+JARVIS pilote integralement un poste Linux par la voix, les raccourcis clavier, l'API REST ou un dashboard web — tout en apprenant de chaque interaction pour s'ameliorer en continu.
 
 ---
 
-## Fonctionnalites Principales
+## Fonctionnalites
 
-### Orchestrateur V3.0 Zero-Stop
-Coeur du systeme. Execution asynchrone, boucle de debug interne recursive, resolution autonome des erreurs de permissions, code et dependances. Aucune confirmation humaine requise pour les operations techniques.
+### Controle vocal
+- **853 commandes vocales** enregistrees en base (16 categories)
+- **2 628 corrections STT** pour une reconnaissance robuste
+- **Macros** : enchainer plusieurs commandes en une phrase
+- Classification multi-intent (decomposition automatique des demandes complexes)
+- Match fuzzy (SequenceMatcher + Jaccard, seuil 0.75)
 
-### MCP Server — 613 Handlers
-Serveur Model Context Protocol massif exposant 613 outils via Flask sur le port 8080. Integration native avec **Claude Desktop** et **Claude Code** pour piloter JARVIS directement depuis l'interface Anthropic.
+### Cerveau auto-ameliorant (Brain)
+- Apprentissage par renforcement : chaque pipeline reussi est sauvegarde automatiquement
+- **41 dominos conversationnels** (5 categories : system, cluster, dev, trading, voice)
+- Detection de patterns et generation automatique de skills
+- Prediction d'intentions basee sur le contexte et l'historique
 
-### OpenClaw — 96 Patterns d'Autonomie
-Moteur d'autonomie avancee avec 96 patterns de decision qui permettent a JARVIS d'agir, apprendre et s'adapter sans intervention humaine.
+### Pipelines automatises (Dominos)
+- **494 dominos** executables en cascade
+- Triggers parametres avec match fuzzy
+- Replay automatique des sequences apprises
+- 4 handlers MCP : `learned_action_list`, `learned_action_match`, `learned_action_save`, `learned_action_stats`
 
-### WhisperFlow — Pipeline Vocal CUDA
-Pipeline vocal complet : detection du mot-cle "Jarvis" via Porcupine, transcription temps reel Whisper acceleree CUDA sur port 9000, synthese vocale EasySpeak.
+### Cluster IA distribue
+| Noeud | Modele | Role | Perf |
+|-------|--------|------|------|
+| M1 | qwen3-8b | Champion local | 46 tok/s |
+| M1B | gpt-oss-20b | Deep local | ctx 25K |
+| M2 | deepseek-r1-qwen3-8b | Reasoning | 44 tok/s |
+| M3 | deepseek-r1-qwen3-8b | Reasoning fallback | — |
+| OL1 cloud | gpt-oss:120b | Champion cloud | 51 tok/s |
+| OL1 cloud | devstral-2:123b | Code cloud #2 | 94/100 |
+| OL1 local | qwen3:1.7b | Ultra-rapide | 84 tok/s |
 
-### Domino Pipelines
-Systeme de cascades d'actions chainables. Chaque domino declenche le suivant, permettant des workflows autonomes complexes a travers tout le cluster.
+- Re-routage automatique en cascade (GPU warning 75C, critical 85C)
+- Load balancing intelligent avec scoring par noeud
 
-### DERNI ULTIMATE — Trading Automatise
-Systeme de trading multi-exchange :
-- **Exchanges** : CoinEx + MEXC Futures
-- **Workflow n8n** : 32 noeuds, 6 fichiers JSON de workflows
-- **Consensus** : Multi-agents ia-trading + ia-consensus
-- **Execution** : Signaux automatises via pipelines domino
+### Services systemd
+17 services + 5 timers user :
 
-### Dashboard Electron
-Interface graphique cyberpunk construite avec **React 19**, **Vite 6**, theme sombre neon. Monitoring temps reel du cluster, des GPUs, du trading et des pipelines.
+| Timer | Frequence | Action |
+|-------|-----------|--------|
+| `jarvis-health` | 15 min | Health check cluster |
+| `jarvis-backup` | Quotidien | Backup bases SQLite |
+| `jarvis-thermal` | 5 min | Monitoring temperature GPU |
+| `jarvis-log-rotate` | Hebdomadaire | Rotation logs + rapports |
+| `jarvis-pipeline-check` | 10 min | Watchdog pipeline |
 
-### Bot Telegram via Canvas Bridge
-Bot Telegram accessible sur le port 18800 via le bridge canvas, incluant proxy direct et boucle d'auto-amelioration (`autolearn.js`, `improve_loop.py`).
-
-### Docker
-Conteneurisation complete avec `docker-compose.yml` et scripts PowerShell d'installation, demarrage et arret.
-
----
-
-## Arborescence du Projet
-
-```
-F:\BUREAU\turbo\
-|
-|-- src\                    278 modules Python (108,666 lignes)
-|   |-- core\               Orchestrateur, scheduler, config
-|   |-- domino_pipelines.py Cascades d'actions
-|   +-- mcp_server.py       613 handlers MCP
-|
-|-- tests\                  305 fichiers, 8,716 fonctions de test
-|-- coworks\                477 scripts de cooperation inter-agents
-|-- canvas\                 14 fichiers (Telegram bot, proxy, Electron bridge)
-|-- electron\               Dashboard React 19 + Vite 6
-|-- docker\                 Conteneurisation (compose + PowerShell)
-|-- finetuning\             Fine-tuning de modeles
-|-- memory\                 long_term.db (contexte persistant SQLite)
-|-- backups\                Git bundles & snapshots SQL
-|-- n8n\                    6 workflows JSON (trading DERNI, etc.)
-|
-|-- install.bat             Installation automatisee
-|-- JARVIS_CONSOLE.bat      Console interactive JARVIS
-|-- JARVIS_GEMINI_PROXY.bat Proxy Gemini
-|-- JARVIS_STATUS.bat       Statut du cluster
-|-- JARVIS_UNIFIED_BOOT.bat Boot unifie de tous les services
-|-- jarvis.ps1              Lanceur principal PowerShell
-|-- check_jarvis.ps1        Verification sante du systeme
-|-- system_info.ps1         Informations systeme
-|-- test_m2.ps1             Tests machine M2
-|-- test_perf.ps1           Benchmark performances
-|-- claude_desktop_dispatch.ps1   Dispatch Claude Desktop
-|-- find_windows.ps1        Detection des fenetres actives
-|
-+-- CLAUDE.md               Instructions orchestrateur pour Claude
-```
-
----
-
-## Installation
-
-### Prerequis
-- **Windows 11** avec PowerShell 7+
-- **Python 3.11+**
-- **Node.js 20+** (pour Electron et canvas)
-- **NVIDIA Drivers** + **CUDA Toolkit** (pour WhisperFlow et GPU routing)
-- **Docker Desktop** (optionnel, pour conteneurisation)
-
-### Procedure
-
-```powershell
-# 1. Cloner le depot
-git clone https://github.com/Turbo31150/turbo.git F:\BUREAU\turbo
-cd F:\BUREAU\turbo
-
-# 2. Installation automatisee
-.\install.bat
-
-# 3. Configurer l'environnement
-# Editer le fichier .env avec vos cles API :
-#   - ANTHROPIC_API_KEY
-#   - GEMINI_API_KEY
-#   - TELEGRAM_BOT_TOKEN
-#   - COINEX_API_KEY / MEXC_API_KEY
-#   - etc.
-
-# 4. Boot unifie de tous les services
-.\JARVIS_UNIFIED_BOOT.bat
-```
-
-### Verification
-
-```powershell
-# Sante du systeme
-.\check_jarvis.ps1
-
-# Statut complet du cluster
-.\JARVIS_STATUS.bat
-
-# Informations hardware
-.\system_info.ps1
-```
-
----
-
-## Utilisation
-
-### Console Interactive
-
-```powershell
-.\JARVIS_CONSOLE.bat
-```
-
-### Lanceur Principal PowerShell
-
-```powershell
-.\jarvis.ps1
-```
-
-### Dashboard Electron
-
-```powershell
-cd electron
-npm install
-.\start-dev.ps1
-# -> http://localhost:5173
-```
+### Dashboard web + Conky
+- Dashboard web sur port `8088`
+- Widgets Conky temps reel (CPU, RAM, GPU, cluster)
+- Canvas UI standalone sur port `18800` avec moteur d'autolearn
 
 ### Bot Telegram
+- 15 commandes Linux pilotables a distance
+- Notifications proactives (alertes GPU, services down, etc.)
 
-```powershell
-cd canvas
-npm install
-node telegram-bot.js
-# -> Ecoute sur le port 18800
-```
-
-### Docker
-
-```powershell
-cd docker
-.\install_docker.ps1
-.\start.ps1
-# Pour arreter :
-.\stop.ps1
-```
-
-### Integration Claude Desktop
-
-Le fichier `claude_desktop_dispatch.ps1` configure automatiquement le dispatch MCP pour que Claude Desktop puisse piloter JARVIS via les 613 handlers du serveur MCP.
+### CI/CD
+- GitHub Actions integre
+- 2 281 fonctions de test (77+ fichiers, couverture 85.5%)
+- `uv run pytest` pour lancer les tests
 
 ---
 
-## Tests
+## Demarrage rapide
 
-```powershell
-# Suite complete (305 fichiers, 8,716 tests)
-pytest tests\ -v
+```bash
+# Installation complete (deps, venv, services systemd)
+./install_jarvis_linux.sh
 
-# Benchmark performances
-.\test_perf.ps1
+# Alternative : Docker Compose
+cd projects/linux && docker compose up -d
 
-# Tests machine M2
-.\test_m2.ps1
+# Controle des services
+./jarvis-ctl.sh status    # Voir l'etat
+./jarvis-ctl.sh start     # Demarrer JARVIS
+./jarvis-ctl.sh stop      # Arreter JARVIS
+```
+
+### Pre-requis
+- Ubuntu 22.04+ / Debian 12+
+- Python 3.13 + uv
+- GNOME Shell (pour les raccourcis clavier gsettings)
+- nvidia-driver + nvidia-smi (pour le monitoring GPU)
+- `apt install xdotool xrandr` (controle desktop)
+
+---
+
+## Architecture
+
+```
+┌─────────────────────────────────────────────────────────┐
+│                    UTILISATEUR                          │
+│         Voix  |  Clavier  |  API  |  Telegram          │
+└──────┬────────┴─────┬─────┴───┬───┴──────┬─────────────┘
+       │              │         │          │
+       v              v         v          v
+┌──────────────┐ ┌─────────┐ ┌──────┐ ┌────────┐
+│  STT Engine  │ │ Hotkey  │ │ REST │ │Telegram│
+│ (corrections │ │ Daemon  │ │ API  │ │  Bot   │
+│  2628 regles)│ │(gsettings)│ │(20ep)│ │(15 cmd)│
+└──────┬───────┘ └────┬────┘ └──┬───┘ └───┬────┘
+       │              │         │          │
+       v              v         v          v
+┌─────────────────────────────────────────────────────────┐
+│              ROUTER / COMMANDER                         │
+│   Classification intent + decomposition multi-tache     │
+│   Match fuzzy (SequenceMatcher + Jaccard)                │
+└──────────────────────┬──────────────────────────────────┘
+                       │
+       ┌───────────────┼───────────────┐
+       v               v               v
+┌─────────────┐ ┌─────────────┐ ┌─────────────┐
+│  21 Modules │ │  203 Skills │ │  494 Dominos│
+│  linux_*.py │ │  skills.json│ │  learned_   │
+│             │ │             │ │  actions.db │
+└──────┬──────┘ └──────┬──────┘ └──────┬──────┘
+       │               │               │
+       v               v               v
+┌─────────────────────────────────────────────────────────┐
+│                     BRAIN                               │
+│   Apprentissage par renforcement + auto-generation      │
+│   Patterns detectes → nouveaux skills + dominos         │
+└──────────────────────┬──────────────────────────────────┘
+                       │
+                       v
+┌─────────────────────────────────────────────────────────┐
+│              CLUSTER IA (M1/M1B/M2/M3/OL1)             │
+│   Orchestration + load balancing + cascade thermique    │
+│   10 GPU, 78 GB VRAM, scoring par noeud                 │
+└─────────────────────────────────────────────────────────┘
 ```
 
 ---
 
-## Chiffres Cles
+## Commandes vocales — Exemples
+
+| Categorie | Exemple | Description |
+|-----------|---------|-------------|
+| Systeme | *"rapport systeme"* | Diagnostic complet (CPU, RAM, GPU, disque) |
+| Maintenance | *"nettoyage profond"* | apt autoremove + cache + logs |
+| Reseau | *"diagnostic reseau"* | Interfaces, IP, routes, latence |
+| Cluster | *"status cluster"* | Etat des 4 noeuds + GPU |
+| Dev | *"mode dev"* | Active IDE + terminals + monitoring |
+| Securite | *"audit securite"* | UFW, fail2ban, ports ouverts |
+| Desktop | *"focus mode"* | Desactive notifications, plein ecran |
+| Trading | *"scan trading"* | Pipeline GPU d'analyse marche |
+| Fichiers | *"ouvre le dossier projets"* | Navigateur de fichiers |
+| Apps | *"lance firefox"* | Ouverture d'application |
+
+Les commandes supportent les **parametres** (*"ouvre {site}"*) et la **confirmation** pour les actions destructives.
+
+---
+
+## Raccourcis clavier
+
+| Raccourci | Action |
+|-----------|--------|
+| `Super+1` | Rapport systeme |
+| `Super+2` | Maintenance complete |
+| `Super+3` | Diagnostic reseau |
+| `Super+4` | Cluster check |
+| `Super+5` | Mode dev |
+| `Super+J` | Pipeline vocal |
+| `Super+G` | GPU monitor |
+| `Super+F1` | Documentation vocale (HTML) |
+| `Super+F2` | Dashboard web |
+| `Super+F5` | Nettoyage profond |
+| `Super+F12` | Self-diagnostic JARVIS |
+| `Super+Escape` | Focus mode |
+
+Les raccourcis sont synchronises avec les commandes vocales via le module `linux_hotkey_daemon.py` et gsettings (GNOME natif).
+
+---
+
+## API REST
+
+L'API est servie sur le port `8080` sous le prefixe `/api/linux/`. 20 endpoints disponibles :
+
+| # | Methode | Endpoint | Description |
+|---|---------|----------|-------------|
+| 1 | GET | `/api/linux/health` | Sante complete (CPU, RAM, GPU, disque) |
+| 2 | GET | `/api/linux/skills` | Liste des 203 skills |
+| 3 | GET | `/api/linux/skills/<name>` | Detail d'un skill |
+| 4 | POST | `/api/linux/skills/execute` | Executer un skill |
+| 5 | GET | `/api/linux/voice/commands` | Commandes vocales (?category=) |
+| 6 | GET | `/api/linux/voice/corrections` | Corrections STT |
+| 7 | GET | `/api/linux/voice/aliases` | Aliases sites/apps |
+| 8 | GET | `/api/linux/voice/macros` | Macros vocales |
+| 9 | GET | `/api/linux/brain/status` | Etat du cerveau IA |
+| 10 | GET | `/api/linux/brain/predictions` | Predictions d'intent |
+| 11 | GET | `/api/linux/cluster/status` | Etat du cluster |
+| 12 | GET | `/api/linux/dominos` | Liste des dominos |
+| 13 | POST | `/api/linux/dominos/execute` | Executer un domino |
+| 14 | GET | `/api/linux/profiles` | Profils utilisateur |
+| 15 | POST | `/api/linux/profiles/activate` | Activer un profil |
+| 16 | GET | `/api/linux/notifications` | Historique notifications |
+| 17 | GET | `/api/linux/performance` | Metriques de performance |
+| 18 | GET | `/api/linux/report/today` | Rapport du jour |
+| 19 | GET | `/api/linux/faq` | FAQ dynamique |
+| 20 | GET | `/api/linux/stats` | Statistiques globales |
+
+### Exemples
+
+```bash
+# Sante du systeme
+curl http://127.0.0.1:8080/api/linux/health | jq
+
+# Lister les skills
+curl http://127.0.0.1:8080/api/linux/skills | jq '.data.count'
+
+# Executer un skill
+curl -X POST http://127.0.0.1:8080/api/linux/skills/execute \
+  -H "Content-Type: application/json" \
+  -d '{"skill": "rapport_systeme_linux"}'
+
+# Commandes vocales par categorie
+curl "http://127.0.0.1:8080/api/linux/voice/commands?category=systeme" | jq
+
+# Etat du cluster
+curl http://127.0.0.1:8080/api/linux/cluster/status | jq
+```
+
+---
+
+## Modules Linux
+
+21 modules natifs dans `src/linux_*.py`, charges dynamiquement via `platform_dispatch.py` :
+
+| Module | Domaine |
+|--------|---------|
+| `linux_sys.py` | Infos systeme (uname, uptime, memoire) |
+| `linux_services.py` | Gestion systemd (start/stop/status) |
+| `linux_network.py` | Interfaces reseau, IP, routes |
+| `linux_packages.py` | APT/DNF, packages installes |
+| `linux_package_manager.py` | Gestionnaire de paquets avance |
+| `linux_display.py` | Xrandr, resolution |
+| `linux_screen.py` | Screenshots, enregistrement ecran |
+| `linux_desktop_control.py` | xdotool, controle fenetres |
+| `linux_hotkey_daemon.py` | Raccourcis clavier globaux (gsettings) |
+| `linux_power_manager.py` | Suspend, hibernate, shutdown |
+| `linux_security_status.py` | UFW, fail2ban, audit |
+| `linux_journal_reader.py` | Journalctl, logs systeme |
+| `linux_maintenance.py` | Nettoyage, apt autoremove |
+| `linux_startup.py` | Autostart XDG, systemd user |
+| `linux_update_manager.py` | Mises a jour systeme |
+| `linux_swap_manager.py` | Swap, zram config |
+| `linux_workspace_manager.py` | Bureaux virtuels |
+| `linux_snapshot_manager.py` | Snapshots btrfs/timeshift |
+| `linux_config_manager.py` | Fichiers config (/etc) |
+| `linux_share_manager.py` | Samba, NFS shares |
+| `linux_trash_manager.py` | Corbeille freedesktop |
+
+---
+
+## Configuration
+
+### Variables d'environnement
+
+Copier `.env.example` vers `.env` et renseigner les valeurs. Les variables sensibles ne doivent **jamais** etre commitees.
+
+### Profils vocaux
+
+Les profils adaptent le comportement de JARVIS selon le contexte (dev, trading, multimedia, etc.). Activation via API ou commande vocale.
+
+### Routines
+
+Les routines sont des sequences de skills executees automatiquement (demarrage, cron, evenement). Configurables dans `data/skills.json`.
+
+---
+
+## Developpement
+
+### Lancer les tests
+
+```bash
+uv run pytest                              # Tous les tests
+uv run pytest tests/test_linux_*.py        # Tests Linux uniquement
+uv run python scripts/system_audit.py --quick  # Audit rapide
+```
+
+### Structure du projet
+
+```
+jarvis/
+├── src/                  # 246 modules Python (93K lignes)
+│   ├── linux_*.py        # 21 modules Linux natifs
+│   ├── commands.py       # Base de commandes vocales (SQL-backed)
+│   ├── config.py         # Configuration cluster + routage
+│   ├── tools.py          # Outils MCP (613 handlers)
+│   ├── mcp_server.py     # Serveur MCP (6400+ lignes)
+│   ├── commander.py      # Classification/decomposition taches
+│   ├── learned_actions.py # Moteur dominos conversationnels
+│   └── platform_dispatch.py # Dispatch linux_*/win_* automatique
+├── data/                 # 64 bases SQLite (160 MB)
+│   ├── jarvis.db         # Base principale (42 tables)
+│   ├── skills.json       # 203 skills
+│   └── learned_actions.db # 41 dominos conversationnels
+├── canvas/               # UI standalone (port 18800)
+├── cowork/dev/           # 409 scripts pipeline autonome
+├── projects/linux/       # Deploy Docker + systemd
+├── scripts/              # Utilitaires et generation
+├── tests/                # 2 281 fonctions de test
+└── main.py               # Point d'entree
+```
+
+### Conventions
+
+- Python : type hints, async/await, f-strings, dataclasses
+- Imports : `from __future__ import annotations` en premier
+- Nommage : `snake_case` (Python), `camelCase` (JS)
+- Toujours `127.0.0.1` au lieu de `localhost` (eviter le lag IPv6)
+
+### Scripts utiles
+
+```bash
+uv run python scripts/system_audit.py --quick              # Audit rapide
+uv run python scripts/trading_v2/gpu_pipeline.py --quick   # Trading scan
+node canvas/direct-proxy.js                                 # Canvas proxy
+python cowork/dev/autonomous_cluster_pipeline.py            # Pipeline autonome
+uv run python scripts/generate_systemd_timers.py            # Generer timers
+```
+
+---
+
+## Statistiques
 
 | Metrique | Valeur |
-|---|---|
-| Modules Python | **278** |
-| Lignes de code | **108,666** |
-| Handlers MCP | **613** |
-| Fichiers de test | **305** |
-| Fonctions de test | **8,716** |
-| Scripts cowork | **477** |
-| Launchers (.bat/.ps1) | **12** |
-| Agents SDK | **7** |
-| Patterns OpenClaw | **96** |
-| Workflows n8n | **6** |
-| GPUs NVIDIA | **6** |
-| Machines cluster | **3** |
+|----------|--------|
+| Modules Python | 246 (93K lignes) |
+| Modules Linux | 21 |
+| Skills | 203 |
+| Categories de skills | 35 |
+| Commandes vocales | 853 |
+| Corrections STT | 2 628 |
+| Dominos conversationnels | 41 |
+| Handlers MCP | 613 |
+| Endpoints REST | 517 |
+| Endpoints API Linux | 20 |
+| Bases SQLite | 64 (160 MB) |
+| Tests | 2 281 fonctions (77+ fichiers) |
+| Couverture | 85.5% |
+| Noeuds cluster | 4 (+cloud) |
+| GPU | 10 (78 GB VRAM) |
+| Services systemd | 17 + 5 timers |
+| Workflows n8n | 63 |
+| Scripts cowork | 409 |
+| Raccourcis clavier | 12 |
+| Slash commands | 43 |
 
 ---
 
-## Stack Technique
+## Troubleshooting
 
-| Couche | Technologies |
-|---|---|
-| Langage principal | Python 3.11+ |
-| Serveur MCP | Flask (port 8080) |
-| Frontend | Electron, React 19, Vite 6, TypeScript |
-| Voice | Whisper CUDA, Porcupine, EasySpeak |
-| Trading | CoinEx API, MEXC Futures, n8n |
-| Messagerie | Telegram Bot API, Canvas Bridge |
-| Base de donnees | SQLite (long_term.db) |
-| Conteneurs | Docker, docker-compose |
-| Scripting | PowerShell 7, Batch |
-| IA Backend | LM Studio (M2), Claude, Gemini |
-| Hardware | Ryzen 5700X3D, 46GB RAM, 6x NVIDIA, 12GB ZRAM |
+| Symptome | Solution |
+|----------|----------|
+| M2/M3 TIMEOUT | `max_output_tokens` trop bas pour deepseek-r1, minimum 2048 |
+| OL1 OFFLINE | `ollama serve` restart |
+| Canvas crash | `node canvas/direct-proxy.js` restart (port 18800) |
+| GPU >75C | `/thermal`, decharger modeles |
+| systemd timer inactif | `systemctl --user enable --now jarvis-health.timer` |
+| `linux_*.py` ImportError | `apt install xdotool xrandr` |
+| platform_dispatch stub | Module pas porte — creer `src/linux_<domain>.py` |
+| Docker compose fail | `docker compose logs jarvis-mcp` |
+| xdotool echoue | Verifier `$DISPLAY` ou `$WAYLAND_DISPLAY` |
 
 ---
 
 ## Licence
 
-**Depot prive.** Tous droits reserves. Aucune redistribution autorisee sans accord explicite.
+Projet prive. Tous droits reserves.
 
 ---
 
-<p align="center">
-<br>
-
-```
-  ╔══════════════════════════════════════════════════════════════╗
-  ║  JARVIS TURMONT v3.0 — Orchestrateur Autonome Windows 11   ║
-  ║  278 modules | 613 MCP | 8,716 tests | 6 GPUs | 3 machines ║
-  ║  "Zero-Stop. Zero-Permission. Maximum Precision."           ║
-  ╚══════════════════════════════════════════════════════════════╝
-```
-
-</p>
+*JARVIS Turbo v12.4 — Construit avec le Claude Agent SDK*

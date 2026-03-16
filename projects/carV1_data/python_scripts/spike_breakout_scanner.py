@@ -4,6 +4,7 @@ SPIKE BREAKOUT SCANNER - Entree/Sortie Immediate sur GROS PIKES
 Trading AI Ultimate v9.0
 """
 
+import os
 import ccxt
 import time
 import json
@@ -11,7 +12,7 @@ import requests
 from datetime import datetime
 
 # Configuration
-TELEGRAM_TOKEN = "8369376863:AAF-7YGDbun8mXWwqYJFj-eX6P78DeIu9Aw"
+TELEGRAM_TOKEN = os.environ.get("TELEGRAM_TOKEN", "")
 TELEGRAM_CHAT = "2010747443"
 MIN_SPIKE_PERCENT = 1.5  # Minimum spike % pour alerte
 MIN_VOLUME_MULTIPLIER = 3.0  # Volume 3x normal

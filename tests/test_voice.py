@@ -326,47 +326,37 @@ class TestSpeakText:
     @pytest.mark.asyncio
     async def test_success(self):
         from src.voice import speak_text
-        mock_result = MagicMock()
-        mock_result.returncode = 0
-        with patch("subprocess.run", return_value=mock_result):
+        with patch("src.tts_streaming.speak_streaming", new_callable=AsyncMock):
             result = await speak_text("Bonjour")
         assert result is True
 
     @pytest.mark.asyncio
     async def test_failure(self):
         from src.voice import speak_text
-        mock_result = MagicMock()
-        mock_result.returncode = 1
-        with patch("subprocess.run", return_value=mock_result):
+        with patch("src.tts_streaming.speak_streaming", new_callable=AsyncMock, side_effect=Exception("fail")):
             result = await speak_text("Test")
         assert result is False
 
     @pytest.mark.asyncio
     async def test_timeout(self):
-        import subprocess
         from src.voice import speak_text
-        with patch("subprocess.run", side_effect=subprocess.TimeoutExpired("cmd", 30)):
+        with patch("src.tts_streaming.speak_streaming", new_callable=AsyncMock, side_effect=OSError("timeout")):
             result = await speak_text("Long text")
         assert result is False
 
     @pytest.mark.asyncio
     async def test_sanitizes_voice(self):
         from src.voice import speak_text
-        mock_result = MagicMock()
-        mock_result.returncode = 0
-        with patch("subprocess.run", return_value=mock_result):
+        with patch("src.tts_streaming.speak_streaming", new_callable=AsyncMock):
             result = await speak_text("test", voice="EVIL;DROP TABLE")
-        assert result is True  # defaults to fr-FR
+        assert result is True
 
     @pytest.mark.asyncio
     async def test_truncates_long_text(self):
         from src.voice import speak_text
-        mock_result = MagicMock()
-        mock_result.returncode = 0
         long_text = "A" * 1000
-        with patch("subprocess.run", return_value=mock_result) as mock:
+        with patch("src.tts_streaming.speak_streaming", new_callable=AsyncMock) as mock:
             await speak_text(long_text)
-        # The PS script should have truncated text
         assert mock.called
 
 

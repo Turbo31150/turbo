@@ -1,0 +1,244 @@
+{
+  "timestamp": "2026-03-13T09:04:04.042761",
+  "version": "12.6",
+  "audit_duration_ms": 31721,
+  "quick_mode": true,
+  "nodes": [
+    {
+      "name": "M2",
+      "url": "http://192.168.1.26:1234",
+      "role": "fast_inference",
+      "status": "ONLINE",
+      "latency_ms": 104.9,
+      "error": null,
+      "models": [
+        {
+          "id": "qwen/qwen3-8b",
+          "loaded": false
+        },
+        {
+          "id": "deepseek/deepseek-r1-0528-qwen3-8b",
+          "loaded": false
+        },
+        {
+          "id": "text-embedding-nomic-embed-text-v1.5",
+          "loaded": false
+        },
+        {
+          "id": "nvidia/nemotron-3-nano",
+          "loaded": false
+        },
+        {
+          "id": "zai-org/glm-4.7-flash",
+          "loaded": false
+        },
+        {
+          "id": "deepseek-coder-v2-lite-instruct",
+          "loaded": false
+        },
+        {
+          "id": "openai/gpt-oss-20b",
+          "loaded": false
+        }
+      ]
+    },
+    {
+      "name": "M3",
+      "url": "http://192.168.1.113:1234",
+      "role": "general_inference",
+      "status": "OFFLINE",
+      "latency_ms": 0,
+      "error": "All connection attempts failed",
+      "models": []
+    },
+    {
+      "name": "OL1",
+      "url": "http://127.0.0.1:11434",
+      "role": "cloud_inference",
+      "status": "ONLINE",
+      "latency_ms": 25.9,
+      "error": null,
+      "models": [
+        {
+          "name": "deepseek-r1:7b",
+          "size": 4683075440
+        },
+        {
+          "name": "qwen2.5:1.5b",
+          "size": 986061892
+        }
+      ]
+    },
+    {
+      "name": "GEMINI",
+      "proxy_path": "/home/turbo/jarvis/gemini-proxy.js",
+      "role": "polyvalent",
+      "status": "ONLINE",
+      "latency_ms": 31546.7,
+      "error": null,
+      "models": [
+        "gemini-2.5-flash",
+        "gemini-2.5-pro",
+        "gemini-3-flash-preview",
+        "gemini-3.1-pro-preview"
+      ]
+    },
+    {
+      "name": "M1",
+      "url": "http://127.0.0.1:1234",
+      "role": "deep_analysis",
+      "status": "SKIPPED",
+      "latency_ms": 0,
+      "error": "Skipped in quick mode",
+      "models": []
+    }
+  ],
+  "gpus": [
+    {
+      "index": 0,
+      "name": "NVIDIA GeForce RTX 2060",
+      "temperature": 39,
+      "memory_used_mb": 9082,
+      "memory_total_mb": 12288,
+      "utilization_percent": 46
+    },
+    {
+      "index": 1,
+      "name": "NVIDIA GeForce GTX 1660 SUPER",
+      "temperature": 29,
+      "memory_used_mb": 1031,
+      "memory_total_mb": 6144,
+      "utilization_percent": 0
+    },
+    {
+      "index": 2,
+      "name": "NVIDIA GeForce GTX 1660 SUPER",
+      "temperature": 34,
+      "memory_used_mb": 1017,
+      "memory_total_mb": 6144,
+      "utilization_percent": 0
+    },
+    {
+      "index": 3,
+      "name": "NVIDIA GeForce GTX 1660 SUPER",
+      "temperature": 33,
+      "memory_used_mb": 1043,
+      "memory_total_mb": 6144,
+      "utilization_percent": 0
+    },
+    {
+      "index": 4,
+      "name": "NVIDIA GeForce GTX 1660 SUPER",
+      "temperature": 30,
+      "memory_used_mb": 1617,
+      "memory_total_mb": 6144,
+      "utilization_percent": 0
+    },
+    {
+      "index": 5,
+      "name": "NVIDIA GeForce RTX 3080",
+      "temperature": 32,
+      "memory_used_mb": 8881,
+      "memory_total_mb": 10240,
+      "utilization_percent": 29
+    }
+  ],
+  "system_info": {
+    "os_version": "unknown",
+    "ram_total_gb": 0,
+    "ram_free_gb": 0,
+    "disks": [],
+    "error": "[Errno 2] No such file or directory: 'powershell'"
+  },
+  "ports": {
+    "127.0.0.1": [
+      {
+        "port": 1234,
+        "open": true
+      }
+    ],
+    "192.168.1.26": [
+      {
+        "port": 1234,
+        "open": true
+      }
+    ],
+    "192.168.1.113": [
+      {
+        "port": 1234,
+        "open": false
+      }
+    ]
+  },
+  "persistence": {
+    "data/": {
+      "path": "/home/turbo/jarvis/data",
+      "exists": true,
+      "size_bytes": 0
+    },
+    "LMSTUDIO_BACKUP/": {
+      "path": "/home/turbo/jarvis/projects/lmstudio_backup",
+      "exists": false,
+      "size_bytes": 0
+    },
+    "etoile.db": {
+      "path": "/home/turbo/jarvis/data/etoile.db",
+      "exists": true,
+      "size_bytes": 77824
+    },
+    "jarvis.db": {
+      "path": "/home/turbo/jarvis/data/jarvis.db",
+      "exists": true,
+      "size_bytes": 319488
+    },
+    "logs/": {
+      "path": "/home/turbo/jarvis/logs",
+      "exists": true,
+      "size_bytes": 0
+    }
+  },
+  "spofs": [
+    {
+      "component": "GEMINI Proxy",
+      "risk": "Single proxy instance (gemini-proxy.js) — no redundancy",
+      "severity": "medium",
+      "mitigation": "Consider a secondary proxy or direct API fallback"
+    },
+    {
+      "component": "Master Orchestrator",
+      "risk": "Single localhost orchestrator — no HA/failover",
+      "severity": "low",
+      "mitigation": "Acceptable for development; consider distributed orchestration for production"
+    }
+  ],
+  "security": [
+    {
+      "issue": "Exposed ports on 192.168.1.26",
+      "severity": "medium",
+      "details": "Open ports: 1234 — accessible on LAN"
+    },
+    {
+      "issue": "No API key for M1",
+      "severity": "low",
+      "details": "M1 at http://127.0.0.1:1234 accepts unauthenticated requests"
+    },
+    {
+      "issue": "No API key for M2",
+      "severity": "low",
+      "details": "M2 at http://192.168.1.26:1234 accepts unauthenticated requests"
+    },
+    {
+      "issue": "No API key for M3",
+      "severity": "low",
+      "details": "M3 at http://192.168.1.113:1234 accepts unauthenticated requests"
+    }
+  ],
+  "scores": {
+    "stability": 42,
+    "resilience": 90,
+    "security": 55,
+    "scalability": 95,
+    "multimodal": 100,
+    "observability": 60
+  }
+}

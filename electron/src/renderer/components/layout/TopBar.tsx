@@ -46,6 +46,7 @@ const PAGE_LABELS: Record<Page, string> = {
   processes: 'PROCESSES',
   snapshots: 'SNAPSHOTS',
   system: 'SYSTEM',
+  browser: 'BROWSER',
 };
 
 const CSS = `

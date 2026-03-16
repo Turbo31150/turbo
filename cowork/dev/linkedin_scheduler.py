@@ -273,12 +273,12 @@ def publish_post(db, row, method="clipboard"):
     if method in ("clipboard", "all"):
         try:
             r = subprocess.run(
-                ['powershell', '-Command', '$input | Set-Clipboard'],
+                ['bash', '-Command', '$input | Set-Clipboard'],
                 input=text.encode('utf-8'),
                 capture_output=True, timeout=10)
             if r.returncode == 0:
                 subprocess.Popen(
-                    ['powershell', '-Command', 'Start-Process "https://www.linkedin.com/feed/"'],
+                    ['bash', '-Command', 'Start-Process "https://www.linkedin.com/feed/"'],
                     stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
                 print(f"    [+] Clipboard: {len(text)} chars + LinkedIn opened")
                 success = True

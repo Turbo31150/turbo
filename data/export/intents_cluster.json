@@ -1,0 +1,38 @@
+[
+  {
+    "id": 1,
+    "pattern": "code.*python",
+    "category": "code",
+    "target_agent": "coding"
+  },
+  {
+    "id": 2,
+    "pattern": "bug|erreur|fix",
+    "category": "debug",
+    "target_agent": "coding"
+  },
+  {
+    "id": 3,
+    "pattern": "analyse.*marche|btc|eth",
+    "category": "trading",
+    "target_agent": "trading"
+  },
+  {
+    "id": 4,
+    "pattern": "système|linux|processus",
+    "category": "system",
+    "target_agent": "system-ops"
+  },
+  {
+    "id": 5,
+    "pattern": "plan|architecture",
+    "category": "archi",
+    "target_agent": "deep-work"
+  },
+  {
+    "id": 6,
+    "pattern": "recherche.*web|google",
+    "category": "web",
+    "target_agent": "ol1-web"
+  }
+]

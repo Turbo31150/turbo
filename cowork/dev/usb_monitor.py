@@ -36,7 +36,7 @@ def telegram_send(msg: str):
 def ps(cmd: str, timeout: int = 15) -> str:
     try:
         return subprocess.check_output(
-            ["powershell", "-NoProfile", "-Command", cmd],
+            ["bash", "-NoProfile", "-Command", cmd],
             text=True, stderr=subprocess.DEVNULL, timeout=timeout
         ).strip()
     except Exception:

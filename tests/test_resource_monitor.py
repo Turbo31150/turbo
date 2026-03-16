@@ -134,7 +134,7 @@ class TestQueryDisks:
         rm = ResourceMonitor()
         mock_psutil = MagicMock()
         mock_part = MagicMock()
-        mock_part.mountpoint = "/\"
+        mock_part.mountpoint = "C:\\"
         mock_psutil.disk_partitions.return_value = [mock_part]
         mock_usage = MagicMock()
         mock_usage.total = 500 * (1024**3)

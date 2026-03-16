@@ -142,7 +142,7 @@ KEYWORD_SHORTCUTS = {
     r"^(disk|espace disque|df)$": {"action": "powershell", "cmd": "Get-PSDrive -PSProvider FileSystem | Format-Table Name,@{n='Used(GB)';e={[math]::Round($_.Used/1GB,1)}},@{n='Free(GB)';e={[math]::Round($_.Free/1GB,1)}} -AutoSize", "label": "Espace disque"},
     r"^(ram|memoire|memory)$": {"action": "powershell", "cmd": "Get-Process | Sort-Object WorkingSet64 -Descending | Select-Object -First 10 Name,@{n='MB';e={[math]::Round($_.WorkingSet64/1MB)}} | Format-Table -AutoSize", "label": "Top 10 RAM"},
     r"^(process|processus|ps)$": {"action": "powershell", "cmd": "Get-Process | Sort-Object CPU -Descending | Select-Object -First 10 Name,CPU,@{n='MB';e={[math]::Round($_.WorkingSet64/1MB)}} | Format-Table -AutoSize", "label": "Top 10 CPU"},
-    r"^(ip|network|reseau)$": {"action": "powershell", "cmd": "Get-NetIPAddress -AddressFamily IPv4 | Where-Object {$_.IPAddress -ne '127.0.0.1'} | Format-Table InterfaceAlias,IPAddress -AutoSize", "label": "IPs reseau"},
+    r"^(ip|network|reseau)$": {"action": "powershell", "cmd": "ip -4 addr | Where-Object {$_.IPAddress -ne '127.0.0.1'} | Format-Table InterfaceAlias,IPAddress -AutoSize", "label": "IPs reseau"},
     r"^(uptime)$": {"action": "powershell", "cmd": "(Get-Date) - (gcim Win32_OperatingSystem).LastBootUpTime | Format-Table Days,Hours,Minutes -AutoSize", "label": "Uptime"},
     # Cluster
     r"^(cluster|status|health)$": {"action": "cluster_health", "label": "Cluster Health"},
@@ -338,7 +338,7 @@ async def try_shortcut(client: httpx.AsyncClient, chat_id: int, text: str) -> bo
         action = config["action"]
         log.info(f"  SHORTCUT [{label}]: {action}")
 
-        if action == "powershell":
+        if action == "bash":
             try:
                 result = subprocess.run(
                     ["powershell", "-NoProfile", "-Command", config["cmd"]],

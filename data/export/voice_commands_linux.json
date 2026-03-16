@@ -1,0 +1,62 @@
+[
+  {
+    "id": 1,
+    "command": "ouvre le terminal",
+    "action": "gnome-terminal",
+    "platform": "linux"
+  },
+  {
+    "id": 2,
+    "command": "statut du cluster",
+    "action": "/home/turbo/jarvis/jarvis-ctl.sh health",
+    "platform": "linux"
+  },
+  {
+    "id": 3,
+    "command": "température gpu",
+    "action": "nvidia-smi --query-gpu=temperature.gpu --format=csv,noheader",
+    "platform": "linux"
+  },
+  {
+    "id": 4,
+    "command": "usage mémoire",
+    "action": "free -h",
+    "platform": "linux"
+  },
+  {
+    "id": 5,
+    "command": "nettoie le système",
+    "action": "sudo apt autoremove -y",
+    "platform": "linux"
+  },
+  {
+    "id": 6,
+    "command": "redémarre jarvis",
+    "action": "systemctl --user restart jarvis-*",
+    "platform": "linux"
+  },
+  {
+    "id": 7,
+    "command": "affiche le dashboard",
+    "action": "xdg-open http://localhost:8080",
+    "platform": "linux"
+  },
+  {
+    "id": 8,
+    "command": "lance claude",
+    "action": "cd /home/turbo/jarvis && claude",
+    "platform": "linux"
+  },
+  {
+    "id": 9,
+    "command": "vérifie les agents",
+    "action": "curl -s http://127.0.0.1:18789/health",
+    "platform": "linux"
+  },
+  {
+    "id": 10,
+    "command": "capture écran",
+    "action": "gnome-screenshot",
+    "platform": "linux"
+  }
+]

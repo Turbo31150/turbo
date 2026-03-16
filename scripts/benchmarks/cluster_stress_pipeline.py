@@ -24,7 +24,11 @@ from datetime import datetime
 from pathlib import Path
 from urllib.request import Request, urlopen
 
+<<<<<<< Updated upstream
 TURBO = Path("/home/turbo/jarvis-m1-ops")
+=======
+TURBO = Path("/home/turbo/jarvis")
+>>>>>>> Stashed changes
 DB_PATH = TURBO / "data" / "etoile.db"
 
 # ============================================================================

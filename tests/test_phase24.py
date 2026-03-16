@@ -2,7 +2,10 @@
 
 import asyncio
 import json
-import winreg
+try:
+    import winreg
+except ImportError:
+    winreg = None  # type: ignore[assignment]
 import pytest
 
 

@@ -301,7 +301,11 @@ async def run_benchmark(nodes_filter=None, scenarios_filter=None):
         "rankings": [{"node": r[0], "avg_time": r[1], "avg_quality": r[2], "avg_tok_s": r[3], "ok": r[4], "total": r[5], "score": r[6]} for r in sorted(rankings, key=lambda x: -x[6])],
         "routing_table": routing_table,
     }
+<<<<<<< Updated upstream
     out_path = "/home/turbo/jarvis-m1-ops/data/cluster_benchmark_distributed.json"
+=======
+    out_path = "/home/turbo/jarvis/data/cluster_benchmark_distributed.json"
+>>>>>>> Stashed changes
     with open(out_path, "w", encoding="utf-8") as f:
         json.dump(output, f, indent=2, ensure_ascii=False, default=str)
     print(f"\n  Results saved to {out_path}")
