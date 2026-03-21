@@ -751,6 +751,7 @@ COWORK_CATEGORIES: dict[str, list[str]] = {
     "browser":   ["browser_pilot", "browser_automation"],
     "scheduler": ["cowork_scheduler", "auto_scheduler"],
     "security":  ["dependency_vulnerability_scanner", "security_auditor"],
+    "cleanup":   ["kill_phantoms", "zombie_killer", "cleanup_zombies", "process_gc"],
 }
 
 
@@ -967,6 +968,8 @@ def main():
     parser.add_argument("--pipeline-resume", type=str, help="Resume an incomplete pipeline by ID")
     parser.add_argument("--daemon", action="store_true", help="Continuous loop: health → dispatch → audit → repeat")
     parser.add_argument("--interval", type=int, default=300, help="Daemon loop interval in seconds (default 300)")
+    parser.add_argument("--kill-phantoms", action="store_true", help="Run phantom process killer")
+    parser.add_argument("--kill-phantoms-watchdog", action="store_true", help="Start phantom killer watchdog daemon")
     args = parser.parse_args()
 
     if args.metrics:
@@ -1125,6 +1128,29 @@ def main():
         conn.close()
         return
 
+    # ── Kill Phantoms integration ──────────────────────────────────────
+    if args.kill_phantoms or args.kill_phantoms_watchdog:
+        kp_script = TURBO / "scripts" / "kill_phantoms.py"
+        kp_args = ["python3", str(kp_script)]
+        if args.kill_phantoms_watchdog:
+            kp_args += ["--watchdog", "--interval", str(args.interval)]
+        if args.telegram:
+            kp_args.append("--telegram")
+        kp_args.append("--json")
+        try:
+            r = subprocess.run(kp_args, capture_output=True, text=True, timeout=120,
+                               encoding="utf-8", errors="replace")
+            kp_data = json.loads(r.stdout) if r.stdout.strip() else {}
+            killed = kp_data.get("killed", 0)
+            phantoms = len(kp_data.get("phantoms", []))
+            mem_freed = kp_data.get("mem_freed_mb", 0)
+            print(f"Kill Phantoms: {killed}/{phantoms} killed, {mem_freed:.0f}MB freed")
+            if args.telegram and killed > 0:
+                send_telegram(f"Kill Phantoms: {killed} elimines, {mem_freed:.0f}MB liberes")
+        except Exception as e:
+            print(f"Kill Phantoms error: {e}")
+        return
+
     if args.daemon:
         print(f"=== DAEMON MODE (interval={args.interval}s) ===")
         warm_up_local_nodes()
@@ -1149,9 +1175,27 @@ def main():
             test_result = dispatch_to_agent("fast-chat", "status report bref du systeme")
             print(f"  Dispatch test: {'OK' if test_result.success else 'FAIL'} via {test_result.provider_name}")
 
-            # Phase 4: Report to Telegram
             # Phase 4: Dynamic weight adjustment
             METRICS.adjust_weights()
+
+            # Phase 5: Kill phantom processes (every cycle)
+            kp_killed = 0
+            kp_mem = 0.0
+            try:
+                kp_script = TURBO / "scripts" / "kill_phantoms.py"
+                kp_r = subprocess.run(
+                    ["python3", str(kp_script), "--json"],
+                    capture_output=True, text=True, timeout=30,
+                    encoding="utf-8", errors="replace"
+                )
+                if kp_r.stdout.strip():
+                    kp_data = json.loads(kp_r.stdout)
+                    kp_killed = kp_data.get("killed", 0)
+                    kp_mem = kp_data.get("mem_freed_mb", 0)
+            except Exception:
+                pass
+            if kp_killed > 0:
+                print(f"  Kill Phantoms: {kp_killed} killed, {kp_mem:.0f}MB freed")
 
             report = (
                 f"[Cycle {cycle}] {ts}\n"
@@ -1159,6 +1203,8 @@ def main():
                 f"Cowork: {cw_ok}/{len(cowork_results)} OK\n"
                 f"Dispatch: {'OK' if test_result.success else 'FAIL'} ({test_result.provider_name})"
             )
+            if kp_killed > 0:
+                report += f"\nPhantoms: {kp_killed} killed, {kp_mem:.0f}MB freed"
             if test_result.response:
                 report += f"\n{test_result.response[:500]}"
             send_telegram(report)

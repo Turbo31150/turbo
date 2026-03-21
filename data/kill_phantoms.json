@@ -1,0 +1,170 @@
+{
+  "version": "2.0",
+  "keep_count": 1,
+  "max_memory_mb": 0,
+  "max_age_hours": 0,
+  "watchdog_interval_s": 120,
+  "telegram_alert_threshold": 3,
+  "health_check_after_kill": true,
+  "cluster_nodes": {
+    "M1": {
+      "url": "http://127.0.0.1:1234/api/v1/models",
+      "timeout": 5
+    },
+    "M2": {
+      "url": "http://192.168.1.26:1234/api/v1/models",
+      "timeout": 5
+    },
+    "M3": {
+      "url": "http://192.168.1.113:1234/api/v1/models",
+      "timeout": 5
+    },
+    "OL1": {
+      "url": "http://127.0.0.1:11434/api/tags",
+      "timeout": 3
+    }
+  },
+  "protected_ports": [
+    1234,
+    11434,
+    9742,
+    18789,
+    18793,
+    18800,
+    8080,
+    8901,
+    5678,
+    9222
+  ],
+  "protected_cmdline_patterns": [
+    "unified_boot",
+    "unified_console",
+    "devops_orchestrator",
+    "kill_phantoms",
+    "openclaw_watchdog",
+    "watchdog_autonomous",
+    "telegram-bot",
+    "linkedin_scheduler",
+    "whisper_worker",
+    "dashboard",
+    "lmstudio",
+    "ollama",
+    "LM Studio"
+  ],
+  "node_mcp_patterns": {
+    "playwright-mcp": {
+      "match": "playwright.*mcp.*cli\\.js",
+      "exclude": "npx-cli",
+      "keep": 1
+    },
+    "chrome-devtools-mcp": {
+      "match": "chrome-devtools-mcp.*bin",
+      "exclude": "npx-cli",
+      "keep": 1
+    },
+    "context7-mcp": {
+      "match": "context7-mcp.*index\\.js",
+      "exclude": "npx-cli",
+      "keep": 1
+    },
+    "filesystem-mcp": {
+      "match": "server-filesystem.*index\\.js",
+      "exclude": "npx-cli",
+      "keep": 1
+    },
+    "gemini-cli": {
+      "match": "gemini-cli.*index\\.js",
+      "exclude": null,
+      "keep": 1
+    },
+    "github-mcp": {
+      "match": "server-github.*index\\.js",
+      "exclude": "npx-cli",
+      "keep": 1
+    },
+    "microsoft-learn-mcp": {
+      "match": "microsoft-learn.*index\\.js",
+      "exclude": "npx-cli",
+      "keep": 1
+    },
+    "browseros-mcp": {
+      "match": "browseros.*index\\.js",
+      "exclude": "npx-cli",
+      "keep": 1
+    },
+    "canva-mcp": {
+      "match": "canva.*index\\.js",
+      "exclude": "npx-cli",
+      "keep": 1
+    },
+    "notion-mcp": {
+      "match": "notion.*index\\.js",
+      "exclude": "npx-cli",
+      "keep": 1
+    },
+    "calendar-mcp": {
+      "match": "google.*calendar.*index\\.js",
+      "exclude": "npx-cli",
+      "keep": 1
+    },
+    "codex-cli": {
+      "match": "codex.*index\\.js",
+      "exclude": null,
+      "keep": 1
+    },
+    "chrome-devtools-watchdog": {
+      "match": "chrome-devtools-mcp.*watchdog",
+      "exclude": null,
+      "keep": 1
+    }
+  },
+  "npx_patterns": {
+    "npx-playwright": "npx-cli.*playwright",
+    "npx-chrome-devtools": "npx-cli.*chrome-devtools",
+    "npx-context7": "npx-cli.*context7",
+    "npx-filesystem": "npx-cli.*server-filesystem",
+    "npx-microsoft-learn": "npx-cli.*microsoft-learn"
+  },
+  "python_patterns": {
+    "mcp-server-sse": {
+      "match": "mcp_server_sse",
+      "keep": 1
+    },
+    "jarvis-mcp-router": {
+      "match": "jarvis_mcp_router",
+      "keep": 1
+    },
+    "windows-mcp": {
+      "match": "windows-mcp",
+      "keep": 1
+    },
+    "claude-proxy": {
+      "match": "claude-proxy\\.js",
+      "keep": 1
+    },
+    "gemini-proxy": {
+      "match": "gemini-proxy\\.js",
+      "keep": 1
+    },
+    "direct-proxy": {
+      "match": "direct-proxy\\.js",
+      "keep": 1
+    },
+    "devops-orchestrator": {
+      "match": "devops_orchestrator",
+      "keep": 1
+    }
+  },
+  "cmd_patterns": {
+    "cmd-npx-wrapper": {
+      "match": "cmd\\.exe.*npx.*mcp",
+      "keep": 0
+    }
+  },
+  "aggressive": {
+    "max_memory_mb": 300,
+    "max_age_hours": 1,
+    "keep_count": 1,
+    "telegram_alert_threshold": 1
+  }
+}

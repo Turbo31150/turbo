@@ -1105,11 +1105,13 @@ def watch_loop(interval: int = 60):
 
     NOTE: process_gc and vram_guard are no longer launched here — they are
     handled by Automation Hub (health_check, gpu_monitor, zombie_gc handlers).
+    kill_phantoms runs every 3rd cycle to clean duplicate MCP/Python processes.
     """
     log(f"WATCH MODE actif — check services toutes les {interval}s", "PHASE")
     log("Services surveilles: " + ", ".join(WATCH_SERVICES.keys()), "INFO")
     log("Ctrl+C pour arreter", "DIM")
 
+    _watch_cycle = 0
     while True:
         try:
             time.sleep(interval)
@@ -1117,8 +1119,28 @@ def watch_loop(interval: int = 60):
             log("Watchdog arrete par l'utilisateur", "WARN")
             break
 
+        _watch_cycle += 1
+
         # ── Cleanup dead PID files every cycle ──
         _singleton.cleanup_dead()
+
+        # ── Kill phantom processes every 3rd cycle ──
+        if _watch_cycle % 3 == 0:
+            try:
+                kp_script = TURBO_DIR / "scripts" / "kill_phantoms.py"
+                kp_r = subprocess.run(
+                    ["python3", str(kp_script), "--json"],
+                    capture_output=True, text=True, timeout=30,
+                    encoding="utf-8", errors="replace"
+                )
+                if kp_r.stdout.strip():
+                    import json as _json
+                    kp_data = _json.loads(kp_r.stdout)
+                    kp_killed = kp_data.get("killed", 0)
+                    if kp_killed > 0:
+                        log(f"Kill Phantoms: {kp_killed} killed, {kp_data.get('mem_freed_mb', 0):.0f}MB freed", "OK")
+            except Exception as e:
+                log(f"Kill Phantoms error: {e}", "WARN")
 
         restarted_lmstudio = False
         for svc_id, svc in WATCH_SERVICES.items():

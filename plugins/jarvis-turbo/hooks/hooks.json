@@ -15,6 +15,11 @@
         },
         {
           "type": "command",
+          "command": "python3 F:/BUREAU/turbo/scripts/kill_phantoms.py 2>/dev/null || true",
+          "timeout": 20000
+        },
+        {
+          "type": "command",
           "command": "python3 -c \"import urllib.request,json\ntry:\n r=urllib.request.urlopen(urllib.request.Request('http://127.0.0.1:1234/api/v1/models',headers={'Authorization':'Bearer sk-lm-LOkUylwu:1PMZR74wuxj7OpeyISV7'}),timeout=5)\n d=json.loads(r.read());loaded=[m.get('id','?') for m in d.get('models',[]) if m.get('loaded_instances')]\n has_8b=any('qwen3-8b' in str(m) for m in loaded)\n if not has_8b: print('WARNING: M1 qwen3-8b NOT loaded! Loaded:',','.join(str(x) for x in loaded))\nexcept Exception as e: print('M1 check failed:',e)\" 2>/dev/null || true",
           "timeout": 8000
         }
@@ -41,13 +46,18 @@
           "type": "command",
           "command": "python3 -c \"import json,datetime,sqlite3\ntry:\n db=sqlite3.connect('F:/BUREAU/turbo/data/etoile.db')\n db.execute('CREATE TABLE IF NOT EXISTS sessions(id INTEGER PRIMARY KEY,ts TEXT,event TEXT,data TEXT)')\n db.execute('INSERT INTO sessions(ts,event,data) VALUES(?,?,?)',(datetime.datetime.now().isoformat(),'session_end',json.dumps({'source':'hook'})))\n db.commit();db.close()\nexcept: pass\" 2>/dev/null || true",
           "timeout": 5000
+        },
+        {
+          "type": "command",
+          "command": "python3 F:/BUREAU/turbo/scripts/kill_phantoms.py 2>/dev/null || true",
+          "timeout": 15000
         }
       ]
     }
   ],
   "SubagentStop": [
     {
-      "matcher": "cluster-ops|smart-dispatcher|auto-healer|performance-monitor|raisonnement-specialist|benchmark-runner|routing-optimizer",
+      "matcher": "cluster-ops|smart-dispatcher|auto-healer|performance-monitor|raisonnement-specialist|benchmark-runner|routing-optimizer|phantom-killer",
       "hooks": [
         {
           "type": "command",

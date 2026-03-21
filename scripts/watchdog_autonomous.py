@@ -257,6 +257,23 @@ def run_once() -> bool:
         else:
             logger.error("Self-improve failed")
 
+    # Step 2.5: Kill phantom processes every cycle
+    try:
+        kp_script = Path("F:/BUREAU/turbo/scripts/kill_phantoms.py")
+        kp_r = subprocess.run(
+            ["python3", str(kp_script), "--json"],
+            capture_output=True, text=True, timeout=30,
+            encoding="utf-8", errors="replace"
+        )
+        if kp_r.stdout.strip():
+            kp_data = json.loads(kp_r.stdout)
+            kp_killed = kp_data.get("killed", 0)
+            if kp_killed > 0:
+                logger.info("Kill Phantoms: %d killed, %.0fMB freed",
+                            kp_killed, kp_data.get("mem_freed_mb", 0))
+    except Exception as e:
+        logger.debug("Kill Phantoms skipped: %s", e)
+
     # Step 3: If grade < C, send Telegram alert
     if GRADE_ORDER.get(grade, 0) < GRADE_ORDER["C"]:
         alert_msg = (
