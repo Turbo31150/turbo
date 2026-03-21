@@ -14,6 +14,11 @@ import json
 import sqlite3
 import sys
 import time
+
+try:
+    sys.stdout.reconfigure(encoding='utf-8', errors='replace')
+except Exception:
+    pass
 import urllib.request
 from datetime import datetime
 from pathlib import Path

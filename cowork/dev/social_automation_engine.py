@@ -14,6 +14,11 @@ import time
 import urllib.request
 import urllib.error
 import os
+
+try:
+    sys.stdout.reconfigure(encoding='utf-8', errors='replace')
+except Exception:
+    pass
 import sys
 from datetime import datetime, timezone
 
@@ -37,13 +42,13 @@ def _log_to_db(action: str, platform: str, content: str, status: str = "ok"):
         conn = sqlite3.connect(db)
         conn.execute(
             "CREATE TABLE IF NOT EXISTS memories "
-            "(id INTEGER PRIMARY KEY AUTOINCREMENT, timestamp TEXT, category TEXT, "
-            "action TEXT, platform TEXT, content TEXT, status TEXT)"
+            "(id INTEGER PRIMARY KEY AUTOINCREMENT, category TEXT, key TEXT, "
+            "value TEXT, source TEXT, confidence REAL, created_at TEXT, updated_at TEXT)"
         )
         conn.execute(
-            "INSERT INTO memories (timestamp, category, action, platform, content, status) "
-            "VALUES (?, 'social_automation', ?, ?, ?, ?)",
-            (_now(), action, platform, content[:2000], status),
+            "INSERT INTO memories (category, key, value, confidence, source, updated_at) "
+            "VALUES ('social_automation', ?, ?, 1.0, ?, ?)",
+            (f"{action}_{platform}", content[:2000], status, _now()),
         )
         conn.commit()
         conn.close()

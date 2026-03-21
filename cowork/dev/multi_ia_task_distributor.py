@@ -13,6 +13,11 @@ import argparse
 import json
 import sqlite3
 import sys
+
+try:
+    sys.stdout.reconfigure(encoding='utf-8', errors='replace')
+except Exception:
+    pass
 import time
 import urllib.request
 import urllib.error
