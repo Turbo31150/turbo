@@ -1,241 +1,126 @@
 #!/usr/bin/env python3
-"""knowledge_graph.py
+"""Build a relationship graph from etoile.db: agents -> patterns -> scripts.
 
-Batch 6.3 – Gestion d'un graphe de connaissances pour JARVIS.
-
-Fonctionnalités :
-* Stockage SQLite dans `knowledge.db` avec deux tables :
-  - `entities` (id, name, type, description)
-  - `relations` (id, source_id, target_id, rel_type)
-* Types d'entités : person, service, model, script, database, api
-* Types de relation : uses, depends_on, produces, monitors, controls
-* CLI :
-  --add-entity TYPE NAME [--desc DESC]
-  --add-relation SRC REL_TYPE TARGET
-  --query NAME            – affiche l'entité et ses relations
-  --graph                 – affiche tout le graphe (textuel)
-  --stats                 – compte entités / relations par type
-* À la création du fichier, le graphe est pré‑rempli avec les
-  éléments majeurs du système JARVIS.
-
-Utilise uniquement la bibliothèque standard (`sqlite3`, `argparse`, `textwrap`).
+Reads tables: map, agents, agent_patterns, cowork_script_mapping.
+Outputs JSON with nodes/edges counts and top connected agents.
+Logs execution to etoile.db cowork_execution_log.
 """
 
 import argparse
+import json
 import sqlite3
 import sys
-import textwrap
-from collections import Counter
+import time
 from pathlib import Path
 
-DB_PATH = Path(__file__).with_name("knowledge.db")
+ETOILE_DB = Path(r"F:\BUREAU\turbo\etoile.db")
 
-# ---------------------------------------------------------------------------
-# Initialisation de la base
-# ---------------------------------------------------------------------------
 
-def init_db(conn: sqlite3.Connection):
-    cur = conn.cursor()
-    cur.execute(
-        """
-        CREATE TABLE IF NOT EXISTS entities (
-            id INTEGER PRIMARY KEY AUTOINCREMENT,
-            name TEXT UNIQUE NOT NULL,
-            type TEXT NOT NULL,
-            description TEXT
-        )
-        """
-    )
-    cur.execute(
-        """
-        CREATE TABLE IF NOT EXISTS relations (
-            id INTEGER PRIMARY KEY AUTOINCREMENT,
-            source_id INTEGER NOT NULL,
-            target_id INTEGER NOT NULL,
-            rel_type TEXT NOT NULL,
-            FOREIGN KEY(source_id) REFERENCES entities(id),
-            FOREIGN KEY(target_id) REFERENCES entities(id)
-        )
-        """
-    )
-    conn.commit()
-
-# ---------------------------------------------------------------------------
-# Fonctions utilitaires
-# ---------------------------------------------------------------------------
-
-def add_entity(conn: sqlite3.Connection, name: str, typ: str, desc: str = ""):
-    cur = conn.cursor()
+def log_run(db_path: Path, script: str, exit_code: int, duration_ms: float,
+            success: bool, stdout_preview: str = "", stderr_preview: str = ""):
+    """Log execution to cowork_execution_log."""
     try:
-        cur.execute(
-            "INSERT INTO entities (name, type, description) VALUES (?,?,?)",
-            (name, typ, desc),
-        )
-        conn.commit()
-        print(f"[knowledge] Entité ajoutée:  {name} ({typ})")
-    except sqlite3.IntegrityError:
-        print(f"[knowledge] Entité déjà existante : {name}")
+        con = sqlite3.connect(str(db_path))
+        con.execute(
+            "INSERT INTO cowork_execution_log (script,args,exit_code,duration_ms,success,stdout_preview,stderr_preview)"
+            " VALUES (?,?,?,?,?,?,?)",
+            (script, "--once", exit_code, duration_ms, int(success),
+             stdout_preview[:500], stderr_preview[:500]))
+        con.commit()
+        con.close()
+    except Exception:
+        pass
 
-def get_entity_id(conn: sqlite3.Connection, name: str):
-    cur = conn.cursor()
-    cur.execute("SELECT id FROM entities WHERE name = ?", (name,))
-    row = cur.fetchone()
-    return row[0] if row else None
 
-def add_relation(conn: sqlite3.Connection, src: str, rel_type: str, tgt: str):
-    src_id = get_entity_id(conn, src)
-    tgt_id = get_entity_id(conn, tgt)
-    if src_id is None:
-        print(f"[knowledge] Source inconnue : {src}")
-        return
-    if tgt_id is None:
-        print(f"[knowledge] Cible inconnue : {tgt}")
-        return
-    cur = conn.cursor()
-    cur.execute(
-        "INSERT INTO relations (source_id, target_id, rel_type) VALUES (?,?,?)",
-        (src_id, tgt_id, rel_type),
-    )
-    conn.commit()
-    print(f"[knowledge] Relation ajoutée:  {src} -[{rel_type}]-> {tgt}")
+def build_graph(db_path: Path) -> dict:
+    """Query etoile.db and build the relationship graph."""
+    con = sqlite3.connect(str(db_path))
+    con.row_factory = sqlite3.Row
 
-def query_entity(conn: sqlite3.Connection, name: str):
-    cur = conn.cursor()
-    cur.execute("SELECT id, type, description FROM entities WHERE name = ?", (name,))
-    row = cur.fetchone()
-    if not row:
-        print(f"[knowledge] Entité non trouvée : {name}")
-        return
-    eid, typ, desc = row
-    print(f"Entité : {name}\n  Type : {typ}\n  Description : {desc or '(aucune)'}")
-    # Relations sortantes
-    cur.execute(
-        "SELECT e2.name, r.rel_type FROM relations r JOIN entities e2 ON r.target_id = e2.id WHERE r.source_id = ?",
-        (eid,)
-    )
-    out = cur.fetchall()
-    if out:
-        print("  Relations sortantes :")
-        for tgt, rtype in out:
-            print(f"    - [{rtype}] → {tgt}")
-    # Relations entrantes
-    cur.execute(
-        "SELECT e1.name, r.rel_type FROM relations r JOIN entities e1 ON r.source_id = e1.id WHERE r.target_id = ?",
-        (eid,)
-    )
-    inc = cur.fetchall()
-    if inc:
-        print("  Relations entrantes :")
-        for src, rtype in inc:
-            print(f"    - {src} -[{rtype}]-> (cible) {name}")
+    nodes = []
+    edges = []
+    agent_connections: dict[str, int] = {}
 
-def display_graph(conn: sqlite3.Connection):
-    cur = conn.cursor()
-    cur.execute("SELECT name, type FROM entities ORDER BY type, name")
-    entities = cur.fetchall()
-    print("=== Entités ===")
-    for name, typ in entities:
-        print(f"- {name} [{typ}]")
-    print("\n=== Relations ===")
-    cur.execute(
-        """
-        SELECT e1.name, r.rel_type, e2.name
-        FROM relations r
-        JOIN entities e1 ON r.source_id = e1.id
-        JOIN entities e2 ON r.target_id = e2.id
-        ORDER BY e1.name
-        """
-    )
-    for src, rtype, tgt in cur.fetchall():
-        print(f"{src} -[{rtype}]-> {tgt}")
+    # Load agents
+    agents = {}
+    for row in con.execute("SELECT id, name, model, status FROM agents"):
+        nid = f"agent:{row['name']}"
+        agents[row['name']] = nid
+        nodes.append({"id": nid, "type": "agent", "label": row['name'],
+                       "model": row['model'], "status": row['status']})
+        agent_connections[row['name']] = 0
 
-def stats(conn: sqlite3.Connection):
-    cur = conn.cursor()
-    cur.execute("SELECT type, COUNT(*) FROM entities GROUP BY type")
-    ent_counts = cur.fetchall()
-    cur.execute("SELECT rel_type, COUNT(*) FROM relations GROUP BY rel_type")
-    rel_counts = cur.fetchall()
-    print("=== Statistiques ===")
-    print("Entités par type :")
-    for typ, cnt in ent_counts:
-        print(f"  {typ}: {cnt}")
-    print("Relations par type :")
-    for rtype, cnt in rel_counts:
-        print(f"  {rtype}: {cnt}")
+    # Load map entities
+    for row in con.execute("SELECT id, entity_type, entity_name, parent, role, status FROM map"):
+        nid = f"map:{row['entity_type']}:{row['entity_name']}"
+        nodes.append({"id": nid, "type": "map_entity",
+                       "entity_type": row['entity_type'],
+                       "label": row['entity_name'], "status": row['status']})
+        if row['parent']:
+            edges.append({"source": nid, "target": f"map:{row['entity_type']}:{row['parent']}",
+                           "relation": "child_of"})
 
-# ---------------------------------------------------------------------------
-# Pré‑remplissage du graphe
-# ---------------------------------------------------------------------------
+    # Load patterns and link to agents
+    patterns = {}
+    for row in con.execute("SELECT id, pattern_name, agent_primary, agent_secondary, category FROM agent_patterns"):
+        pname = row['pattern_name'] or f"pattern_{row['id']}"
+        nid = f"pattern:{pname}"
+        patterns[pname] = nid
+        nodes.append({"id": nid, "type": "pattern", "label": pname,
+                       "category": row['category']})
+        for agent_col in ('agent_primary', 'agent_secondary'):
+            aname = row[agent_col]
+            if aname and aname in agents:
+                edges.append({"source": agents[aname], "target": nid,
+                               "relation": agent_col})
+                agent_connections[aname] = agent_connections.get(aname, 0) + 1
 
-def seed_graph(conn: sqlite3.Connection):
-    # Entités majeures (type, name, description)
-    entities = [
-        ("person", "Franc", "Utilisateur principal"),
-        ("service", "Telegram", "Bot Telegram de JARVIS"),
-        ("service", "MEXC", "Plateforme de trading Futures"),
-        ("model", "M1", "qwen3‑30b (réservé embedding)"),
-        ("model", "M2", "deepseek‑coder (default)"),
-        ("model", "OL1", "qwen3‑8b (rapide)"),
-        ("service", "OpenClaw", "Orchestrateur principal"),
-        ("script", "auto_healer.py", "Rotation automatique des modèles"),
-        ("script", "anomaly_detector.py", "Détection d'anomalies système"),
-        ("database", "etoile.db", "DB de la carte HEXA_CORE"),
-        ("database", "jarvis.db", "DB interne JARVIS"),
-    ]
-    for typ, name, desc in entities:
-        add_entity(conn, name, typ, desc)
-    # Relations (src, type, tgt)
-    rels = [
-        ("OpenClaw", "controls", "M1"),
-        ("OpenClaw", "controls", "M2"),
-        ("OpenClaw", "controls", "OL1"),
-        ("M2", "uses", "deepseek‑coder"),
-        ("OL1", "uses", "qwen3‑8b"),
-        ("auto_healer.py", "depends_on", "OpenClaw"),
-        ("anomaly_detector.py", "depends_on", "OpenClaw"),
-        ("Telegram", "monitors", "OpenClaw"),
-        ("MEXC", "produces", "trading signals"),
-        ("Franc", "uses", "Telegram"),
-    ]
-    for src, rtype, tgt in rels:
-        add_relation(conn, src, rtype, tgt)
+    # Load script mappings and link to patterns
+    for row in con.execute("SELECT id, script_name, pattern_id, status FROM cowork_script_mapping"):
+        nid = f"script:{row['script_name']}"
+        nodes.append({"id": nid, "type": "script", "label": row['script_name'],
+                       "status": row['status']})
+        pid = row['pattern_id']
+        if pid and pid in patterns:
+            edges.append({"source": patterns[pid], "target": nid,
+                           "relation": "maps_to"})
 
-# ---------------------------------------------------------------------------
-# CLI
-# ---------------------------------------------------------------------------
+    con.close()
+
+    # Top connected agents
+    top_agents = sorted(agent_connections.items(), key=lambda x: -x[1])[:10]
+
+    return {
+        "nodes_count": len(nodes),
+        "edges_count": len(edges),
+        "node_types": {"agents": sum(1 for n in nodes if n["type"] == "agent"),
+                        "patterns": sum(1 for n in nodes if n["type"] == "pattern"),
+                        "scripts": sum(1 for n in nodes if n["type"] == "script"),
+                        "map_entities": sum(1 for n in nodes if n["type"] == "map_entity")},
+        "top_connected_agents": [{"agent": a, "connections": c} for a, c in top_agents],
+        "edges_sample": edges[:20],
+    }
+
 
 def main():
-    parser = argparse.ArgumentParser(description="Graphe de connaissances JARVIS.")
-    sub = parser.add_mutually_exclusive_group(required=True)
-    sub.add_argument("--add-entity", nargs=2, metavar=('TYPE', 'NAME'), help="Ajouter une entité")
-    sub.add_argument("--add-relation", nargs=3, metavar=('SRC', 'REL', 'TGT'), help="Ajouter une relation")
-    sub.add_argument("--query", metavar='NAME', help="Interroger une entité")
-    sub.add_argument("--graph", action='store_true', help="Afficher tout le graphe")
-    sub.add_argument("--stats", action='store_true', help="Afficher des statistiques")
-    parser.add_argument("--desc", help="Description (utilisée avec --add-entity)")
-    args = parser.parse_args()
+    parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument("--once", action="store_true", help="Run once and exit")
+    parser.parse_args()
 
-    conn = sqlite3.connect(DB_PATH)
-    init_db(conn)
-    # Seed only if database is empty (no entities)
-    cur = conn.cursor()
-    cur.execute("SELECT COUNT(*) FROM entities")
-    if cur.fetchone()[0] == 0:
-        seed_graph(conn)
+    t0 = time.time()
+    try:
+        result = build_graph(ETOILE_DB)
+        output = json.dumps(result, indent=2, ensure_ascii=False)
+        print(output)
+        duration = (time.time() - t0) * 1000
+        log_run(ETOILE_DB, "knowledge_graph.py", 0, duration, True, output[:500])
+    except Exception as exc:
+        duration = (time.time() - t0) * 1000
+        err = str(exc)
+        log_run(ETOILE_DB, "knowledge_graph.py", 1, duration, False, stderr_preview=err)
+        print(json.dumps({"error": err}), file=sys.stderr)
+        sys.exit(1)
 
-    if args.add_entity:
-        typ, name = args.add_entity
-        add_entity(conn, name, typ, args.desc or "")
-    elif args.add_relation:
-        src, rel_type, tgt = args.add_relation
-        add_relation(conn, src, rel_type, tgt)
-    elif args.query:
-        query_entity(conn, args.query)
-    elif args.graph:
-        display_graph(conn)
-    elif args.stats:
-        stats(conn)
-    conn.close()
 
 if __name__ == "__main__":
     main()

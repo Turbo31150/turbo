@@ -1,0 +1,71 @@
+# JARVIS COWORK Docker Stack — cowork engine/dispatcher/mcp
+services:
+  cowork-engine:
+    image: jarvis-linux-cowork-engine:latest
+    container_name: jarvis-cowork-engine
+    volumes:
+      - ../../data:/app/data
+      - ../../cowork:/app/cowork
+      - ../../etoile.db:/app/etoile.db
+      - ../../cowork_gaps.db:/app/cowork_gaps.db:ro
+      - ../../sniper.db:/app/sniper.db:ro
+      - ../../.env:/app/.env:ro
+    environment:
+      - TURBO=/app
+      - PYTHONUNBUFFERED=1
+      - COWORK_CYCLE_INTERVAL=300
+      - COWORK_GAPS_DB=/app/cowork_gaps.db
+      - SNIPER_DB_PATH=/app/sniper.db
+    command: python cowork/cowork_engine.py --cycle
+    restart: unless-stopped
+    logging:
+      driver: json-file
+      options:
+        max-size: "10m"
+        max-file: "5"
+
+  cowork-dispatcher:
+    image: jarvis-linux-cowork-dispatcher:latest
+    container_name: jarvis-cowork-dispatcher
+    volumes:
+      - ../../data:/app/data
+      - ../../cowork:/app/cowork
+      - ../../etoile.db:/app/etoile.db
+      - ../../cowork_gaps.db:/app/cowork_gaps.db:ro
+      - ../../sniper.db:/app/sniper.db:ro
+      - ../../.env:/app/.env:ro
+    environment:
+      - TURBO=/app
+      - PYTHONUNBUFFERED=1
+      - COWORK_GAPS_DB=/app/cowork_gaps.db
+      - SNIPER_DB_PATH=/app/sniper.db
+    command: python cowork/cowork_dispatcher.py --list
+    restart: unless-stopped
+    logging:
+      driver: json-file
+      options:
+        max-size: "10m"
+        max-file: "5"
+
+  cowork-mcp:
+    image: jarvis-linux-cowork-engine:latest
+    container_name: jarvis-cowork-mcp
+    volumes:
+      - ../../data:/app/data
+      - ../../cowork:/app/cowork
+      - ../../etoile.db:/app/etoile.db
+      - ../../.env:/app/.env:ro
+    environment:
+      - TURBO=/app
+      - PYTHONUNBUFFERED=1
+    command: python cowork/cowork_mcp_bridge.py
+    restart: unless-stopped
+    logging:
+      driver: json-file
+      options:
+        max-size: "10m"
+        max-file: "5"
+
+networks:
+  default:
+    name: jarvis-cowork-net
