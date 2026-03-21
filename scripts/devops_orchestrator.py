@@ -752,6 +752,7 @@ COWORK_CATEGORIES: dict[str, list[str]] = {
     "scheduler": ["cowork_scheduler", "auto_scheduler"],
     "security":  ["dependency_vulnerability_scanner", "security_auditor"],
     "cleanup":   ["kill_phantoms", "zombie_killer", "cleanup_zombies", "process_gc"],
+    "prompts":   ["prompt_library"],
 }
 
 
