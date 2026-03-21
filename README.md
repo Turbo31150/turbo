@@ -1,399 +1,290 @@
-```
-     ██╗ █████╗ ██████╗ ██╗   ██╗██╗███████╗
-     ██║██╔══██╗██╔══██╗██║   ██║██║██╔════╝
-     ██║███████║██████╔╝██║   ██║██║███████╗
-██   ██║██╔══██║██╔══██╗╚██╗ ██╔╝██║╚════██║
-╚█████╔╝██║  ██║██║  ██║ ╚████╔╝ ██║███████║
- ╚════╝ ╚═╝  ╚═╝╚═╝  ╚═╝  ╚═══╝  ╚═╝╚══════╝
-        Assistant IA Linux Auto-Améliorant
-```
+<div align="center">
+  <img src="assets/logo.svg" alt="JARVIS·TURBO" width="520"/>
+  <br/><br/>
 
-![Python](https://img.shields.io/badge/Python-3.13-blue?logo=python&logoColor=white)
-![License](https://img.shields.io/badge/License-Privée-red)
-![Tests](https://img.shields.io/badge/Tests-2281_fonctions-green)
-![Skills](https://img.shields.io/badge/Skills-203+-purple)
-![Modules](https://img.shields.io/badge/Modules-246-orange)
+  [![License: MIT](https://img.shields.io/badge/License-MIT-FF6B35?style=flat-square)](LICENSE)
+  [![Python](https://img.shields.io/badge/Python-3.11+-FFD700?style=flat-square&logo=python&logoColor=black)](https://python.org)
+  [![React](https://img.shields.io/badge/React-19-61DAFB?style=flat-square&logo=react&logoColor=black)](https://react.dev)
+  [![Electron](https://img.shields.io/badge/Electron-desktop-47848F?style=flat-square&logo=electron&logoColor=white)](#)
+  [![CUDA](https://img.shields.io/badge/CUDA-GPU_cluster-76B900?style=flat-square&logo=nvidia&logoColor=white)](#)
+  [![GPUs](https://img.shields.io/badge/10_GPUs-78GB_VRAM-FF3366?style=flat-square)](#hardware)
+  [![Agents](https://img.shields.io/badge/96_Agent_Patterns-OpenClaw-FFD700?style=flat-square)](#agents)
+  [![MCP](https://img.shields.io/badge/MCP-602_handlers-FF6B35?style=flat-square)](#mcp)
 
----
+  <br/>
+  <p><strong>Windows Multi-Agent Orchestrator · 3 machines · 10 GPUs · 78GB VRAM · React 19 / Vite 6 / Electron Dashboard</strong></p>
+  <p><em>Orchestration IA multi-agents sous Windows — trading quantitatif, cluster GPU, voice CUDA, dashboard temps réel</em></p>
 
-## Apercu
-
-**JARVIS** est un assistant IA vocal pour Linux, auto-ameliorant, construit sur le Claude Agent SDK. Il integre **203+ skills**, **853 commandes vocales**, **494 dominos automatises** et un cluster multi-GPU distribue (6 GPU, 4 noeuds). L'architecture couvre 246 modules Python (93K lignes), 21 modules Linux natifs, 613 handlers MCP et 517 endpoints REST.
-
-JARVIS pilote integralement un poste Linux par la voix, les raccourcis clavier, l'API REST ou un dashboard web — tout en apprenant de chaque interaction pour s'ameliorer en continu.
+  [**Architecture →**](#-architecture) · [**Hardware →**](#-hardware) · [**Dashboard →**](#-dashboard) · [**Agents →**](#-agents) · [**DERNI ULTIMATE →**](#-derni-ultimate)
+</div>
 
 ---
 
-## Fonctionnalites
+## Présentation
 
-### Controle vocal
-- **853 commandes vocales** enregistrees en base (16 categories)
-- **2 628 corrections STT** pour une reconnaissance robuste
-- **Macros** : enchainer plusieurs commandes en une phrase
-- Classification multi-intent (decomposition automatique des demandes complexes)
-- Match fuzzy (SequenceMatcher + Jaccard, seuil 0.75)
+**JARVIS·TURBO** est l'orchestrateur multi-agents Windows de Franc Delmas. Il coordonne **3 machines physiques**, **10 GPUs** (78GB VRAM cumulé), un dashboard React 19/Electron en temps réel, et une suite d'agents autonomes pour le trading, le code, et l'automatisation.
 
-### Cerveau auto-ameliorant (Brain)
-- Apprentissage par renforcement : chaque pipeline reussi est sauvegarde automatiquement
-- **41 dominos conversationnels** (5 categories : system, cluster, dev, trading, voice)
-- Detection de patterns et generation automatique de skills
-- Prediction d'intentions basee sur le contexte et l'historique
-
-### Pipelines automatises (Dominos)
-- **494 dominos** executables en cascade
-- Triggers parametres avec match fuzzy
-- Replay automatique des sequences apprises
-- 4 handlers MCP : `learned_action_list`, `learned_action_match`, `learned_action_save`, `learned_action_stats`
-
-### Cluster IA distribue
-| Noeud | Modele | Role | Perf |
-|-------|--------|------|------|
-| M1 | qwen3-8b | Champion local | 46 tok/s |
-| M1B | gpt-oss-20b | Deep local | ctx 25K |
-| M2 | deepseek-r1-qwen3-8b | Reasoning | 44 tok/s |
-| M3 | deepseek-r1-qwen3-8b | Reasoning fallback | — |
-| OL1 cloud | gpt-oss:120b | Champion cloud | 51 tok/s |
-| OL1 cloud | devstral-2:123b | Code cloud #2 | 94/100 |
-| OL1 local | qwen3:1.7b | Ultra-rapide | 84 tok/s |
-
-- Re-routage automatique en cascade (GPU warning 75C, critical 85C)
-- Load balancing intelligent avec scoring par noeud
-
-### Services systemd
-17 services + 5 timers user :
-
-| Timer | Frequence | Action |
-|-------|-----------|--------|
-| `jarvis-health` | 15 min | Health check cluster |
-| `jarvis-backup` | Quotidien | Backup bases SQLite |
-| `jarvis-thermal` | 5 min | Monitoring temperature GPU |
-| `jarvis-log-rotate` | Hebdomadaire | Rotation logs + rapports |
-| `jarvis-pipeline-check` | 10 min | Watchdog pipeline |
-
-### Dashboard web + Conky
-- Dashboard web sur port `8088`
-- Widgets Conky temps reel (CPU, RAM, GPU, cluster)
-- Canvas UI standalone sur port `18800` avec moteur d'autolearn
-
-### Bot Telegram
-- 15 commandes Linux pilotables a distance
-- Notifications proactives (alertes GPU, services down, etc.)
-
-### CI/CD
-- GitHub Actions integre
-- 2 281 fonctions de test (77+ fichiers, couverture 85.5%)
-- `uv run pytest` pour lancer les tests
-
----
-
-## Demarrage rapide
-
-```bash
-# Installation complete (deps, venv, services systemd)
-./install_jarvis_linux.sh
-
-# Alternative : Docker Compose
-cd projects/linux && docker compose up -d
-
-# Controle des services
-./jarvis-ctl.sh status    # Voir l'etat
-./jarvis-ctl.sh start     # Demarrer JARVIS
-./jarvis-ctl.sh stop      # Arreter JARVIS
-```
-
-### Pre-requis
-- Ubuntu 22.04+ / Debian 12+
-- Python 3.13 + uv
-- GNOME Shell (pour les raccourcis clavier gsettings)
-- nvidia-driver + nvidia-smi (pour le monitoring GPU)
-- `apt install xdotool xrandr` (controle desktop)
+C'est le pendant Windows de JARVIS·OS Linux — les deux systèmes se synchronisent via WebSocket pour former une infrastructure IA distribuée complète.
 
 ---
 
 ## Architecture
 
 ```
+JARVIS·TURBO — Architecture 3 machines
+────────────────────────────────────────────────────────────────────────
+  M1 — MASTER / ORCHESTRATEUR           M2 — LMT2                M3 — SERVER
+  ┌─────────────────────────────┐    ┌──────────────┐    ┌───────────────────┐
+  │ Ryzen 7 5700X3D · 46GB      │    │ LM Studio    │    │ 45GB RAM          │
+  │ 6 GPUs : 4×1660S + 2060-12GB│    │ qwen3-30b    │    │ 3× Quadro GPU     │
+  │         + 3080-10GB         │    │ deepseek-r1  │    │ Inference lourde  │
+  │                             │    │              │    │                   │
+  │  ┌───────────────────────┐  │    └──────┬───────┘    └───────┬───────────┘
+  │  │  JARVIS·TURBO Core    │  │           │                    │
+  │  │  WS :9742             │◄─────────────┴────────────────────┘
+  │  │  MCP 602 handlers     │  │
+  │  └───────────┬───────────┘  │
+  │              │              │
+  │  ┌───────────▼────────────┐ │
+  │  │   Agent Layer          │ │
+  │  │  OpenClaw · 96 patterns│ │
+  │  │  Whisperflow CUDA voice│ │
+  │  │  Comet browser control │ │
+  │  │  Claude SDK            │ │
+  │  │  DERNI ULTIMATE n8n    │ │
+  │  └───────────┬────────────┘ │
+  │              │              │
+  │  ┌───────────▼────────────┐ │
+  │  │  Dashboard Electron    │ │
+  │  │  React 19 · Vite 6     │ │
+  │  │  WS :9742 telemetry    │ │
+  │  └────────────────────────┘ │
+  └─────────────────────────────┘
+```
+
+---
+
+## Hardware
+
+| Machine | Rôle | CPU | RAM | GPUs | VRAM |
+|---------|------|-----|-----|------|------|
+| **M1 — Master** | Orchestration · Dashboard · WS | Ryzen 7 5700X3D | 46 GB | 4×GTX1660S + RTX2060-12GB + RTX3080-10GB | 34 GB |
+| **M2 — LMT2** | LM Studio · Inférence LLM | — | — | — | 24 GB+ |
+| **M3 — Server** | Compute · Inference lourde | — | 45 GB | 3× Quadro | 20 GB+ |
+| **Total** | — | — | 91 GB+ | **10 GPUs** | **~78 GB** |
+
+---
+
+## Structure du projet
+
+```
+turbo/
+├── main.py                     ← Orchestrateur central Python
+├── core/                       ← Noyau JARVIS·TURBO
+│   ├── agent_manager.py        ← Gestion multi-agents
+│   ├── cluster_manager.py      ← Coordination M1/M2/M3
+│   ├── ws_server.py            ← WebSocket :9742
+│   └── mcp_bridge.py          ← Bridge MCP handlers
+├── dashboard/                  ← Interface React 19
+│   ├── src/
+│   │   ├── components/         ← Widgets GPU, agents, trading
+│   │   ├── pages/              ← Monitoring, trading, voice
+│   │   └── stores/             ← State management
+│   └── electron/               ← App desktop wrapper
+├── openclaw-skills/            ← 96 patterns d'agents autonomes
+├── whisperflow/                ← Voice pipeline CUDA
+├── cowork/                     ← Co-développement IA sessions
+├── n8n_workflows/              ← Workflows trading automatisés
+├── scripts/                    ← Scripts déploiement / maintenance
+├── docker/                     ← Dockerfiles multi-arch
+├── systemd/                    ← Services Linux (M3)
+├── ansible/                    ← Déploiement automatisé
+├── knowledge/                  ← Base de connaissances JARVIS
+├── docs/                       ← Documentation technique
+└── src/                        ← Modules Python principaux
+```
+
+---
+
+## Dashboard
+
+Le dashboard **React 19 / Vite 6 / Electron** offre une interface cyberpunk temps réel :
+
+```
+Dashboard JARVIS·TURBO — Composants
 ┌─────────────────────────────────────────────────────────┐
-│                    UTILISATEUR                          │
-│         Voix  |  Clavier  |  API  |  Telegram          │
-└──────┬────────┴─────┬─────┴───┬───┴──────┬─────────────┘
-       │              │         │          │
-       v              v         v          v
-┌──────────────┐ ┌─────────┐ ┌──────┐ ┌────────┐
-│  STT Engine  │ │ Hotkey  │ │ REST │ │Telegram│
-│ (corrections │ │ Daemon  │ │ API  │ │  Bot   │
-│  2628 regles)│ │(gsettings)│ │(20ep)│ │(15 cmd)│
-└──────┬───────┘ └────┬────┘ └──┬───┘ └───┬────┘
-       │              │         │          │
-       v              v         v          v
-┌─────────────────────────────────────────────────────────┐
-│              ROUTER / COMMANDER                         │
-│   Classification intent + decomposition multi-tache     │
-│   Match fuzzy (SequenceMatcher + Jaccard)                │
-└──────────────────────┬──────────────────────────────────┘
-                       │
-       ┌───────────────┼───────────────┐
-       v               v               v
-┌─────────────┐ ┌─────────────┐ ┌─────────────┐
-│  21 Modules │ │  203 Skills │ │  494 Dominos│
-│  linux_*.py │ │  skills.json│ │  learned_   │
-│             │ │             │ │  actions.db │
-└──────┬──────┘ └──────┬──────┘ └──────┬──────┘
-       │               │               │
-       v               v               v
-┌─────────────────────────────────────────────────────────┐
-│                     BRAIN                               │
-│   Apprentissage par renforcement + auto-generation      │
-│   Patterns detectes → nouveaux skills + dominos         │
-└──────────────────────┬──────────────────────────────────┘
-                       │
-                       v
-┌─────────────────────────────────────────────────────────┐
-│              CLUSTER IA (M1/M1B/M2/M3/OL1)             │
-│   Orchestration + load balancing + cascade thermique    │
-│   10 GPU, 78 GB VRAM, scoring par noeud                 │
+│  GPU Heatmap     │  Cluster Monitor  │  Agent Control   │
+│  (10 GPUs)       │  M1/M2/M3 health  │  96 patterns     │
+├─────────────────────────────────────────────────────────┤
+│  Voice Console   │  Trading Live     │  Log Stream      │
+│  Whisperflow     │  DERNI ULTIMATE   │  WS :9742        │
+├─────────────────────────────────────────────────────────┤
+│  MCP Inspector   │  n8n Workflows    │  Memory Graph    │
+│  602 handlers    │  20 actifs        │  per-machine     │
 └─────────────────────────────────────────────────────────┘
 ```
 
----
-
-## Commandes vocales — Exemples
-
-| Categorie | Exemple | Description |
-|-----------|---------|-------------|
-| Systeme | *"rapport systeme"* | Diagnostic complet (CPU, RAM, GPU, disque) |
-| Maintenance | *"nettoyage profond"* | apt autoremove + cache + logs |
-| Reseau | *"diagnostic reseau"* | Interfaces, IP, routes, latence |
-| Cluster | *"status cluster"* | Etat des 4 noeuds + GPU |
-| Dev | *"mode dev"* | Active IDE + terminals + monitoring |
-| Securite | *"audit securite"* | UFW, fail2ban, ports ouverts |
-| Desktop | *"focus mode"* | Desactive notifications, plein ecran |
-| Trading | *"scan trading"* | Pipeline GPU d'analyse marche |
-| Fichiers | *"ouvre le dossier projets"* | Navigateur de fichiers |
-| Apps | *"lance firefox"* | Ouverture d'application |
-
-Les commandes supportent les **parametres** (*"ouvre {site}"*) et la **confirmation** pour les actions destructives.
+- Thème dark cyberpunk · JetBrains Mono · couleurs GPU temps réel
+- WebSocket :9742 → telemetrie GPU / RAM / VRAM toutes les 500ms
+- Agent control panel → démarrer/arrêter/configurer les 96 patterns
+- Voice command console → retranscription Whisper en temps réel
 
 ---
 
-## Raccourcis clavier
+## Agents
 
-| Raccourci | Action |
-|-----------|--------|
-| `Super+1` | Rapport systeme |
-| `Super+2` | Maintenance complete |
-| `Super+3` | Diagnostic reseau |
-| `Super+4` | Cluster check |
-| `Super+5` | Mode dev |
-| `Super+J` | Pipeline vocal |
-| `Super+G` | GPU monitor |
-| `Super+F1` | Documentation vocale (HTML) |
-| `Super+F2` | Dashboard web |
-| `Super+F5` | Nettoyage profond |
-| `Super+F12` | Self-diagnostic JARVIS |
-| `Super+Escape` | Focus mode |
+### OpenClaw — 96 Patterns autonomes
 
-Les raccourcis sont synchronises avec les commandes vocales via le module `linux_hotkey_daemon.py` et gsettings (GNOME natif).
+**OpenClaw** est le moteur d'agents autonomes. Il exécute 96 patterns d'actions :
+
+| Catégorie | Patterns | Exemples |
+|-----------|----------|---------|
+| **Trading** | 28 | scan breakout, consensus multi-IA, TP/SL auto |
+| **Code** | 20 | refactor auto, tests, commit, PR generation |
+| **Social** | 18 | LinkedIn post, GitHub automation, Twitter |
+| **Système** | 15 | backup, deploy, health check, restart |
+| **Voice** | 8 | commandes vocales → actions système |
+| **Browser** | 7 | Comet page control, scraping |
+
+### Whisperflow — Voice CUDA
+
+Pipeline voix-vers-action sur CUDA :
+```
+Microphone → Whisper large-v3 CUDA → Intent → Action
+             < 300ms latence        96 patterns
+```
+
+### Comet — Browser Control
+
+Contrôle de navigateur sans credentials :
+- Gmail / Google Calendar → sans OAuth
+- LinkedIn → publication automatique
+- GitHub → issues / comments via browser sessions
 
 ---
 
-## API REST
+## DERNI ULTIMATE
 
-L'API est servie sur le port `8080` sous le prefixe `/api/linux/`. 20 endpoints disponibles :
+**DERNI ULTIMATE** est le système de trading algorithmique intégré à JARVIS·TURBO :
 
-| # | Methode | Endpoint | Description |
-|---|---------|----------|-------------|
-| 1 | GET | `/api/linux/health` | Sante complete (CPU, RAM, GPU, disque) |
-| 2 | GET | `/api/linux/skills` | Liste des 203 skills |
-| 3 | GET | `/api/linux/skills/<name>` | Detail d'un skill |
-| 4 | POST | `/api/linux/skills/execute` | Executer un skill |
-| 5 | GET | `/api/linux/voice/commands` | Commandes vocales (?category=) |
-| 6 | GET | `/api/linux/voice/corrections` | Corrections STT |
-| 7 | GET | `/api/linux/voice/aliases` | Aliases sites/apps |
-| 8 | GET | `/api/linux/voice/macros` | Macros vocales |
-| 9 | GET | `/api/linux/brain/status` | Etat du cerveau IA |
-| 10 | GET | `/api/linux/brain/predictions` | Predictions d'intent |
-| 11 | GET | `/api/linux/cluster/status` | Etat du cluster |
-| 12 | GET | `/api/linux/dominos` | Liste des dominos |
-| 13 | POST | `/api/linux/dominos/execute` | Executer un domino |
-| 14 | GET | `/api/linux/profiles` | Profils utilisateur |
-| 15 | POST | `/api/linux/profiles/activate` | Activer un profil |
-| 16 | GET | `/api/linux/notifications` | Historique notifications |
-| 17 | GET | `/api/linux/performance` | Metriques de performance |
-| 18 | GET | `/api/linux/report/today` | Rapport du jour |
-| 19 | GET | `/api/linux/faq` | FAQ dynamique |
-| 20 | GET | `/api/linux/stats` | Statistiques globales |
+```
+GitHub: Turbo31150/DERNI-ULTIMATE-v1000
+Stack: n8n 32 nœuds · MEXC Futures · LM Studio qwen3-30b · Gemini · Telegram
 
-### Exemples
+Workflows (5):
+  SCAN    (30s)  — Détection breakouts sur 2800+ paires MEXC
+  CALL    (5min) — Consensus multi-IA (vote STRONG/NORMAL/SKIP)
+  MARGIN  (15s)  — Alertes liquidation ANCRAGE
+  TP/SL   (10s)  — Automation entrées/sorties
+  HOURLY  (1h)   — Résumé Telegram
+
+Signal types: BREAKOUT · REVERSAL · BOUNCE · MOMENTUM · FVG
+TP/SL: TP1 +1.5% (33%) · TP2 +3% (75%) · TP3 +7% (100%) · SL -1.2%
+```
+
+---
+
+## MCP — 602 Handlers
+
+```python
+# .mcp.json — extrait des serveurs MCP connectés
+{
+  "trading":     {"handlers": 95,  "port": 8766},
+  "cluster":     {"handlers": 88,  "port": 8767},
+  "openclaw":    {"handlers": 80,  "port": 8768},
+  "voice":       {"handlers": 72,  "port": 8769},
+  "comet":       {"handlers": 65,  "port": 8770},
+  "filesystem":  {"handlers": 60,  "port": 8771},
+  "dashboard":   {"handlers": 48,  "port": 8772},
+  "n8n":         {"handlers": 42,  "port": 8773},
+  "misc":        {"handlers": 52,  "port": 8774}
+}
+```
+
+---
+
+## Installation
 
 ```bash
-# Sante du systeme
-curl http://127.0.0.1:8080/api/linux/health | jq
+git clone https://github.com/Turbo31150/turbo.git
+cd turbo
 
-# Lister les skills
-curl http://127.0.0.1:8080/api/linux/skills | jq '.data.count'
+# Python — backend
+pip install uv && uv sync
+# ou: pip install -r requirements.txt
 
-# Executer un skill
-curl -X POST http://127.0.0.1:8080/api/linux/skills/execute \
-  -H "Content-Type: application/json" \
-  -d '{"skill": "rapport_systeme_linux"}'
+# Dashboard — React / Electron
+cd dashboard && npm install
+npm run build
 
-# Commandes vocales par categorie
-curl "http://127.0.0.1:8080/api/linux/voice/commands?category=systeme" | jq
+# Configuration
+cp .env.example .env
+# Renseigner: ANTHROPIC_API_KEY, LM_STUDIO_URL, MEXC keys, Telegram...
 
-# Etat du cluster
-curl http://127.0.0.1:8080/api/linux/cluster/status | jq
+# Lancer
+python main.py            # Backend
+cd dashboard && npm start # Dashboard Electron
 ```
 
----
-
-## Modules Linux
-
-21 modules natifs dans `src/linux_*.py`, charges dynamiquement via `platform_dispatch.py` :
-
-| Module | Domaine |
-|--------|---------|
-| `linux_sys.py` | Infos systeme (uname, uptime, memoire) |
-| `linux_services.py` | Gestion systemd (start/stop/status) |
-| `linux_network.py` | Interfaces reseau, IP, routes |
-| `linux_packages.py` | APT/DNF, packages installes |
-| `linux_package_manager.py` | Gestionnaire de paquets avance |
-| `linux_display.py` | Xrandr, resolution |
-| `linux_screen.py` | Screenshots, enregistrement ecran |
-| `linux_desktop_control.py` | xdotool, controle fenetres |
-| `linux_hotkey_daemon.py` | Raccourcis clavier globaux (gsettings) |
-| `linux_power_manager.py` | Suspend, hibernate, shutdown |
-| `linux_security_status.py` | UFW, fail2ban, audit |
-| `linux_journal_reader.py` | Journalctl, logs systeme |
-| `linux_maintenance.py` | Nettoyage, apt autoremove |
-| `linux_startup.py` | Autostart XDG, systemd user |
-| `linux_update_manager.py` | Mises a jour systeme |
-| `linux_swap_manager.py` | Swap, zram config |
-| `linux_workspace_manager.py` | Bureaux virtuels |
-| `linux_snapshot_manager.py` | Snapshots btrfs/timeshift |
-| `linux_config_manager.py` | Fichiers config (/etc) |
-| `linux_share_manager.py` | Samba, NFS shares |
-| `linux_trash_manager.py` | Corbeille freedesktop |
-
----
-
-## Configuration
-
-### Variables d'environnement
-
-Copier `.env.example` vers `.env` et renseigner les valeurs. Les variables sensibles ne doivent **jamais** etre commitees.
-
-### Profils vocaux
-
-Les profils adaptent le comportement de JARVIS selon le contexte (dev, trading, multimedia, etc.). Activation via API ou commande vocale.
-
-### Routines
-
-Les routines sont des sequences de skills executees automatiquement (demarrage, cron, evenement). Configurables dans `data/skills.json`.
-
----
-
-## Developpement
-
-### Lancer les tests
+### Docker
 
 ```bash
-uv run pytest                              # Tous les tests
-uv run pytest tests/test_linux_*.py        # Tests Linux uniquement
-uv run python scripts/system_audit.py --quick  # Audit rapide
-```
-
-### Structure du projet
-
-```
-jarvis/
-├── src/                  # 246 modules Python (93K lignes)
-│   ├── linux_*.py        # 21 modules Linux natifs
-│   ├── commands.py       # Base de commandes vocales (SQL-backed)
-│   ├── config.py         # Configuration cluster + routage
-│   ├── tools.py          # Outils MCP (613 handlers)
-│   ├── mcp_server.py     # Serveur MCP (6400+ lignes)
-│   ├── commander.py      # Classification/decomposition taches
-│   ├── learned_actions.py # Moteur dominos conversationnels
-│   └── platform_dispatch.py # Dispatch linux_*/win_* automatique
-├── data/                 # 64 bases SQLite (160 MB)
-│   ├── jarvis.db         # Base principale (42 tables)
-│   ├── skills.json       # 203 skills
-│   └── learned_actions.db # 41 dominos conversationnels
-├── canvas/               # UI standalone (port 18800)
-├── cowork/dev/           # 409 scripts pipeline autonome
-├── projects/linux/       # Deploy Docker + systemd
-├── scripts/              # Utilitaires et generation
-├── tests/                # 2 281 fonctions de test
-└── main.py               # Point d'entree
-```
-
-### Conventions
-
-- Python : type hints, async/await, f-strings, dataclasses
-- Imports : `from __future__ import annotations` en premier
-- Nommage : `snake_case` (Python), `camelCase` (JS)
-- Toujours `127.0.0.1` au lieu de `localhost` (eviter le lag IPv6)
-
-### Scripts utiles
-
-```bash
-uv run python scripts/system_audit.py --quick              # Audit rapide
-uv run python scripts/trading_v2/gpu_pipeline.py --quick   # Trading scan
-node canvas/direct-proxy.js                                 # Canvas proxy
-python cowork/dev/autonomous_cluster_pipeline.py            # Pipeline autonome
-uv run python scripts/generate_systemd_timers.py            # Generer timers
+docker-compose up -d
+# jarvis-core :8765 · dashboard :3000 · n8n :5678
 ```
 
 ---
 
-## Statistiques
+## Variables d'environnement
 
-| Metrique | Valeur |
-|----------|--------|
-| Modules Python | 246 (93K lignes) |
-| Modules Linux | 21 |
-| Skills | 203 |
-| Categories de skills | 35 |
-| Commandes vocales | 853 |
-| Corrections STT | 2 628 |
-| Dominos conversationnels | 41 |
-| Handlers MCP | 613 |
-| Endpoints REST | 517 |
-| Endpoints API Linux | 20 |
-| Bases SQLite | 64 (160 MB) |
-| Tests | 2 281 fonctions (77+ fichiers) |
-| Couverture | 85.5% |
-| Noeuds cluster | 4 (+cloud) |
-| GPU | 10 (78 GB VRAM) |
-| Services systemd | 17 + 5 timers |
-| Workflows n8n | 63 |
-| Scripts cowork | 409 |
-| Raccourcis clavier | 12 |
-| Slash commands | 43 |
+```env
+# Cluster
+M1_WS=ws://127.0.0.1:9742
+M2_LM_STUDIO=http://192.168.1.XX:1234
+M3_ENDPOINT=http://192.168.1.XX:8080
 
----
+# IA
+ANTHROPIC_API_KEY=sk-ant-...
+OPENAI_API_KEY=...               # ChatGPT fallback
+GOOGLE_API_KEY=...               # Gemini
 
-## Troubleshooting
+# Trading
+MEXC_API_KEY=...
+MEXC_SECRET_KEY=...
 
-| Symptome | Solution |
-|----------|----------|
-| M2/M3 TIMEOUT | `max_output_tokens` trop bas pour deepseek-r1, minimum 2048 |
-| OL1 OFFLINE | `ollama serve` restart |
-| Canvas crash | `node canvas/direct-proxy.js` restart (port 18800) |
-| GPU >75C | `/thermal`, decharger modeles |
-| systemd timer inactif | `systemctl --user enable --now jarvis-health.timer` |
-| `linux_*.py` ImportError | `apt install xdotool xrandr` |
-| platform_dispatch stub | Module pas porte — creer `src/linux_<domain>.py` |
-| Docker compose fail | `docker compose logs jarvis-mcp` |
-| xdotool echoue | Verifier `$DISPLAY` ou `$WAYLAND_DISPLAY` |
+# Notifications
+TELEGRAM_BOT_TOKEN=...
+TELEGRAM_CHAT_ID=...
+
+# Voice
+WHISPER_MODEL=large-v3
+WHISPER_DEVICE=cuda
+```
 
 ---
 
-## Licence
+## Roadmap
 
-Projet prive. Tous droits reserves.
+### v10.6 — Actuel ✅
+- [x] Dashboard React 19 / Vite 6 / Electron cyberpunk
+- [x] OpenClaw 96 patterns autonomes
+- [x] Whisperflow CUDA voice
+- [x] DERNI ULTIMATE trading n8n
+- [x] Cluster M1/M2/M3 synchronisé
+- [x] 602 MCP handlers
+
+### v11.0 — En cours
+- [ ] Zero-Stop orchestration (asyncio + ProcessPoolExecutor)
+- [ ] AES-256 SQLCipher state encryption
+- [ ] Dead Man's Switch (24h inactivity → alert)
+- [ ] Multi-arch Docker M1/M2/M3
 
 ---
 
-*JARVIS Turbo v12.4 — Construit avec le Claude Agent SDK*
+<div align="center">
+
+**Franc Delmas (Turbo31150)** · [github.com/Turbo31150](https://github.com/Turbo31150) · Toulouse, France
+
+*JARVIS·TURBO — Windows Multi-Agent Orchestrator — v10.6 — MIT License*
+
+</div>
