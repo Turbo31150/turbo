@@ -7,6 +7,10 @@
   <img src="https://img.shields.io/badge/Electron-33-47848F?style=for-the-badge&logo=electron&logoColor=white" alt="electron"/>
   <img src="https://img.shields.io/badge/Telegram-Bot-26A5E4?style=for-the-badge&logo=telegram" alt="telegram"/>
   <img src="https://img.shields.io/badge/License-Private-red?style=for-the-badge" alt="license"/>
+  <br/>
+  <img src="https://img.shields.io/github/stars/Turbo31150/turbo?style=for-the-badge&color=FFD700" alt="stars"/>
+  <img src="https://img.shields.io/github/forks/Turbo31150/turbo?style=for-the-badge&color=00FF88" alt="forks"/>
+  <img src="https://img.shields.io/github/last-commit/Turbo31150/turbo?style=for-the-badge&color=blueviolet" alt="last commit"/>
 </p>
 
 <h1 align="center">JARVIS Etoile v12.6</h1>
@@ -19,6 +23,80 @@
 <p align="center">
   <em>"Claude = Commandant Pur. Il ne fait JAMAIS le travail lui-meme. Il ORDONNE, VERIFIE et ORCHESTRE."</em>
 </p>
+
+---
+
+<!-- Screenshot: JARVIS Etoile Electron dashboard showing the 29-page desktop interface
+     with real-time GPU cluster monitoring, Telegram bot status, trading signals panel,
+     agent dispatch queue, and voice command terminal. Replace with actual screenshot. -->
+<p align="center">
+  <img src="assets/dashboard-screenshot.png" alt="JARVIS Etoile Dashboard — Electron 29 pages, GPU cluster monitoring, trading signals, agent dispatch" width="900"/>
+  <br/>
+  <em>JARVIS Etoile Desktop — 29-page Electron dashboard with GPU cluster, trading, voice control, and agent orchestration</em>
+</p>
+
+---
+
+## System Architecture
+
+```mermaid
+flowchart TD
+    subgraph Desktop["Electron 33 + React 19 — 29 Pages"]
+        UI["Dashboard UI"]
+        PAGES["Gateway | Infra | Mesh | Trading\nProcesses | Queue | Services | Terminal"]
+    end
+
+    subgraph Backend["FastAPI Backend — 504 Endpoints"]
+        REST["REST API + WebSocket"]
+        MCP_S["MCP Server\n167 tools + 603 handlers"]
+    end
+
+    subgraph Dispatch["Dispatch Engine — 9 Steps"]
+        direction LR
+        HEALTH["Health"] --> CLASSIFY["Classify"] --> MEMORY["Memory"]
+        MEMORY --> PROMPT["Prompt Opt"] --> ROUTE["Route"]
+        ROUTE --> EXEC["Dispatch"] --> GATE["Quality Gate"]
+        GATE --> FEEDBACK["Feedback"] --> EVENT["Event Stream"]
+    end
+
+    subgraph Cluster["GPU Cluster — 10 NVIDIA / ~78 GB VRAM"]
+        M1["M1: qwen3-8b\nRTX 3080 + 2060 + 4x1660S"]
+        M2["M2: deepseek-r1\n3x GPU 24GB"]
+        M3["M3: deepseek-r1\n1x GPU 8GB"]
+        OL1["OL1: Ollama\n5 models"]
+    end
+
+    subgraph Cloud["Cloud AI"]
+        GEMINI["Gemini API\n45 models"]
+        CLAUDE["Claude SDK\nOpus 4.6"]
+        HF["HuggingFace"]
+    end
+
+    subgraph Voice["Voice Pipeline"]
+        STT["Whisper large-v3-turbo\nCUDA STT"]
+        TTS["DeniseNeural\nEdge TTS"]
+    end
+
+    subgraph Telegram["Telegram Bot — @turboSSebot"]
+        BOT["Canvas Bridge\nport 18800"]
+        RACE["Cluster Race\n6 nodes"]
+    end
+
+    subgraph Trading["TradeOracle"]
+        TRADE["MEXC Futures 10x\n6 AI Consensus"]
+    end
+
+    UI <--> REST
+    REST <--> MCP_S
+    REST --> Dispatch
+    Dispatch --> M1 & M2 & M3 & OL1
+    Dispatch --> GEMINI & CLAUDE & HF
+    BOT --> RACE --> M1 & M2 & M3 & OL1 & GEMINI
+    STT --> BOT
+    BOT --> TTS
+    REST --> TRADE
+    PAGES --> REST
+```
 
 ---
 
