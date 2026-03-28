@@ -1,3 +1,5 @@
+
+<img src="assets/jarvis-canva-2.png" alt="turbo" width="800">
 <p align="center">
   <img src="https://img.shields.io/badge/version-v12.6-blueviolet?style=for-the-badge" alt="version"/>
   <img src="https://img.shields.io/badge/GPU-10x_NVIDIA-76B900?style=for-the-badge&logo=nvidia" alt="gpu"/>
