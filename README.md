@@ -2327,3 +2327,25 @@ Patches necessaires : `Params4bit` + `QuantState.to` meta vers NF4 pour compatib
 <p align="center">
   <em>Repo prive — Derniere mise a jour : 2026-03-06</em>
 </p>
+
+
+---
+
+## What is Turbo Dashboard?
+
+Turbo Dashboard is the **real-time monitoring interface** for the JARVIS GPU cluster. It gives you a single-screen view of all 6 GPUs, their temperatures, VRAM usage, model loading status, and agent health -- all at a glance. Built with a cyberpunk-themed WebSocket-powered UI that updates every second.
+
+Whether you are loading a 7B model on the RTX 3080 or running inference across 3 machines simultaneously, Turbo Dashboard shows you exactly what is happening, what is overheating, and what is idle.
+
+## What You Can Monitor
+
+| Metric | Description | Update Frequency |
+|--------|-------------|------------------|
+| **GPU Temperatures** | Per-GPU thermal readings with color-coded alerts (green < 75C, yellow < 85C, red >= 85C) | Every 5s |
+| **VRAM Usage** | Allocated vs total VRAM per GPU (e.g. 8.2/10 GB on RTX 3080) | Every 5s |
+| **Model Status** | Which model is loaded on which GPU, loading progress, ready state | Real-time |
+| **Agent Queue** | Number of pending tasks per agent pool, active/idle agents | Every 2s |
+| **Network Latency** | Ping to M2, M3 remote nodes, WebSocket connection health | Every 10s |
+| **Disk Usage** | Root partition, /tmp space, model cache size | Every 60s |
+| **Cluster Health** | Overall cluster score (0-100), circuit breaker states, failover status | Every 15s |
+
