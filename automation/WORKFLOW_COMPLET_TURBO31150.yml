@@ -1,0 +1,104 @@
+name: Turbo31150 Grand Workflow Fusion
+
+on:
+  workflow_dispatch:
+    inputs:
+      mode:
+        description: "Run mode"
+        required: false
+        default: "daily"
+        type: choice
+        options: [daily, full, weekly]
+  schedule:
+    - cron: "0 7 * * *"   # Daily
+    - cron: "0 18 * * 5"  # Weekly (Friday)
+
+permissions:
+  contents: read
+
+jobs:
+  fusion_audit:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Ensure tools
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y jq
+
+      - name: Collect repositories
+        env:
+          GH_TOKEN: ${{ secrets.TURBO_PAT }}
+        run: |
+          gh api -H "Accept: application/vnd.github+json" \
+            "/users/Turbo31150/repos?per_page=100&sort=updated&direction=desc" > repos.json
+          echo "Total repos: $(jq 'length' repos.json)"
+
+      - name: Health check repo by repo
+        env:
+          GH_TOKEN: ${{ secrets.TURBO_PAT }}
+        run: |
+          mkdir -p reports
+          echo '[]' > reports/repo_health.json
+
+          jq -r '.[].name' repos.json | while read -r REPO; do
+            echo "Checking $REPO"
+
+            gh api "/repos/Turbo31150/$REPO/readme" > /tmp/readme.json 2>/dev/null || true
+            if jq -e '.content' /tmp/readme.json >/dev/null 2>&1; then
+              README_OK="yes"
+            else
+              README_OK="no"
+            fi
+
+            gh api "/repos/Turbo31150/$REPO/contents/.github/workflows" > /tmp/wf.json 2>/dev/null || true
+            if jq -e 'type=="array" and length>0' /tmp/wf.json >/dev/null 2>&1; then
+              WF_OK="yes"
+            else
+              WF_OK="no"
+            fi
+
+            gh api "/repos/Turbo31150/$REPO" > /tmp/repo.json
+            ISSUES=$(jq -r '.open_issues_count // 0' /tmp/repo.json)
+            LANG=$(jq -r '.language // "unknown"' /tmp/repo.json)
+            DESC=$(jq -r '.description // ""' /tmp/repo.json)
+
+            jq --arg repo "$REPO" --arg readme "$README_OK" --arg wf "$WF_OK" --arg lang "$LANG" --arg desc "$DESC" --argjson issues "$ISSUES" \
+              '. + [{repo:$repo, readme:$readme, workflows:$wf, language:$lang, open_issues:$issues, description:$desc}]' \
+              reports/repo_health.json > /tmp/out.json && mv /tmp/out.json reports/repo_health.json
+          done
+
+      - name: Build consolidated markdown report
+        run: |
+          {
+            echo "# Turbo31150 Daily Fusion Report"
+            echo ""
+            echo "Generated (UTC): $(date -u '+%Y-%m-%d %H:%M:%S')"
+            echo ""
+            echo "## Repository health"
+            jq -r '.[] | "- \(.repo): language=\(.language), README=\(.readme), workflows=\(.workflows), open_issues=\(.open_issues)"' reports/repo_health.json
+            echo ""
+            echo "## Priority actions"
+            echo "- Add CI workflow to repos with workflows=no"
+            echo "- Add scheduled health check to strategic repos"
+            echo "- Convert top updates to LinkedIn/Codeur draft content"
+          } > reports/github_daily_brief.md
+
+      - name: Build daily business todo (draft-only)
+        run: |
+          cat > reports/daily_todo_morning.md <<'EOF'
+          # Daily TODO (draft-only)
+
+          1. Review repos with `workflows=no`
+          2. Select top 3 GitHub updates for LinkedIn content draft
+          3. Map top 5 Codeur missions to matching GitHub proof repos
+          4. Prepare drafts (DM/proposal/comment) — no auto-send
+          EOF
+
+      - name: Upload reports
+        uses: actions/upload-artifact@v4
+        with:
+          name: turbo31150-fusion-reports
+          path: reports/
