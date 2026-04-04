@@ -180,23 +180,40 @@ class AutonomousLoop:
             except asyncio.CancelledError:
                 break
 
-    async def _run_task(self, task: AutonomousTask) -> dict[str, Any]:
+    async def _run_task(self, task: Any) -> dict[str, Any]:
         """Execute a single task, update stats."""
-        task.last_run = time.time()
-        task.run_count += 1
+        if isinstance(task, dict):
+            name = task.get("name", "unknown")
+            fn = task.get("fn")
+            interval = task.get("interval_s", 30.0)
+        else:
+            name = task.name
+            fn = task.fn
+            interval = task.interval_s
+
+        if not fn:
+            return {"error": "no_function"}
+
+        if isinstance(task, AutonomousTask):
+            task.last_run = time.time()
+            task.run_count += 1
+        
         try:
-            result = await asyncio.wait_for(task.fn(), timeout=30.0)
-            task.last_result = result
-            if result.get("alert"):
-                self._log_event(task.name, "alert", result["alert"])
+            result = await asyncio.wait_for(fn(), timeout=30.0)
+            if isinstance(task, AutonomousTask):
+                task.last_result = result
+            if isinstance(result, dict) and result.get("alert"):
+                self._log_event(name, "alert", result["alert"])
             return result
         except asyncio.TimeoutError:
-            task.fail_count += 1
-            self._log_event(task.name, "timeout", f"{task.name} timed out")
+            if isinstance(task, AutonomousTask):
+                task.fail_count += 1
+            self._log_event(name, "timeout", f"{name} timed out")
             return {"error": "timeout"}
         except Exception as e:
-            task.fail_count += 1
-            self._log_event(task.name, "error", str(e))
+            if isinstance(task, AutonomousTask):
+                task.fail_count += 1
+            self._log_event(name, "error", str(e))
             raise
 
     def _log_event(self, task: str, level: str, message: str) -> None:

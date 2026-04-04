@@ -3,7 +3,7 @@
 SNIPER BREAKOUT v2.0 - Full cluster: M1+MCP, M2, M3, OL1 web search
 Agents: SCANNER(M2) | WEB_INTEL(OL1) | MCP_ANALYST(M1+HF) | VOTERS(M1,M2,M3)
 """
-import sys, json, urllib.request, time, sqlite3, re
+import sys, json, urllib.request, time, sqlite3, re, os
 from datetime import datetime
 
 sys.stdout.reconfigure(encoding='utf-8')
@@ -39,8 +39,8 @@ MCP_INTEGRATIONS = [{
 }]
 
 NO_SYSTEM = ['mistral-7b-instruct-v0.3', 'phi-3.1-mini-128k-instruct']
-TELEGRAM_TOKEN = '8369376863:AAF-7YGDbun8mXWwqYJFj-eX6P78DeIu9Aw'
-TELEGRAM_CHAT = '2010747443'
+TELEGRAM_TOKEN = os.getenv('TELEGRAM_BOT_TOKEN', '')
+TELEGRAM_CHAT = os.getenv('TELEGRAM_CHAT_ID', '')
 
 def log(msg, level='  ', end='\n'):
     ts = datetime.now().strftime('%H:%M:%S')
@@ -226,6 +226,8 @@ def parse_vote(text):
     return direction, confidence
 
 def send_telegram(msg):
+    if not TELEGRAM_TOKEN or not TELEGRAM_CHAT:
+        return False
     try:
         url = f"https://api.telegram.org/bot{TELEGRAM_TOKEN}/sendMessage"
         data = json.dumps({"chat_id": TELEGRAM_CHAT, "text": msg, "parse_mode": "HTML"}).encode()

@@ -35,8 +35,11 @@ def check_provider(name: str, config: dict) -> dict:
         return result
 
     # Determine health endpoint
-    if api_type == "ollama":
-        health_url = f"{base_url}/api/tags"
+    # Detect Ollama by api type OR by well-known port 11434
+    is_ollama = api_type == "ollama" or ":11434" in base_url
+    if is_ollama:
+        host = base_url.rstrip("/").removesuffix("/v1")
+        health_url = f"{host}/api/tags"
     elif "/v1" in base_url:
         health_url = f"{base_url.rstrip('/v1')}/v1/models" if not base_url.endswith("/v1") else f"{base_url}/models"
     else:
@@ -64,7 +67,7 @@ def check_provider(name: str, config: dict) -> dict:
         result["status"] = "healthy"
 
         # Count models
-        if api_type == "ollama":
+        if is_ollama:
             result["models_loaded"] = len(data.get("models", []))
         else:
             models = data.get("data", data.get("models", []))
@@ -121,4 +124,6 @@ if __name__ == "__main__":
     parser.add_argument("--json", action="store_true", help="JSON output")
     parser.add_argument("--fix", action="store_true", help="Attempt to fix offline providers")
     args = parser.parse_args()
-    run_health_check(args.json, args.fix)
+    results = run_health_check(args.json, args.fix)
+    healthy = sum(1 for r in results if r["status"] == "healthy")
+    sys.exit(0 if healthy > 0 else 1)

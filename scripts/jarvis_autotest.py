@@ -5,22 +5,22 @@ from jarvis_bench_utils import append_run
 
 # === CONFIG ===
 NODES = {
-    "M1": {"url": "http://127.0.0.1:1234/api/v1/chat", "type": "lmstudio-responses", "model": "qwen/qwen3-8b", "key": os.environ.get("LM_STUDIO_1_API_KEY", ""), "timeout": 30, "priority": 2},
-    "OL1": {"url": "http://127.0.0.1:11434/api/chat", "type": "ollama", "model": "qwen3:1.7b", "timeout": 20, "priority": 2},
+    "M1": {"url": "http://127.0.0.1:1234/v1/chat/completions", "type": "lmstudio", "model": "google/gemma-3-4b", "key": os.environ.get("LM_STUDIO_1_API_KEY", ""), "timeout": 15, "priority": 2},
+    "OL1": {"url": "http://127.0.0.1:11434/api/chat", "type": "ollama", "model": "qwen2.5:1.5b", "timeout": 20, "priority": 2},
     "M2": {"url": "http://192.168.1.26:1234/v1/chat/completions", "type": "lmstudio", "model": "deepseek-r1-0528-qwen3-8b", "key": os.environ.get("LM_STUDIO_2_API_KEY", ""), "timeout": 60, "priority": 2},
-    "M3": {"url": "http://192.168.1.113:1234/v1/chat/completions", "type": "lmstudio", "model": "deepseek-r1-0528-qwen3-8b", "key": os.environ.get("LM_STUDIO_3_API_KEY", ""), "timeout": 30, "priority": 1},
+    "M3": {"url": "http://192.168.1.113:1234/v1/chat/completions", "type": "lmstudio", "model": "deepseek/deepseek-r1-0528-qwen3-8b", "key": os.environ.get("LM_STUDIO_3_API_KEY", ""), "timeout": 60, "priority": 2},
 }
 
 # Routage intelligent : domaine -> noeuds preferes (ordre de priorite)
 ROUTING = {
-    "code": ["M1", "M2", "M3", "OL1"],        # M1 meilleur en code 30B
-    "math": ["M1", "OL1", "M2", "M3"],         # M1 excelle, OL1 rapide
-    "raisonnement": ["M1", "M2", "OL1"],       # M1 champion, JAMAIS M3
-    "traduction": ["M1", "OL1", "M2", "M3"],   # M1 30B multilingue, OL1 rapide
-    "systeme": ["M1", "OL1", "M2", "M3"],      # M1 + OL1 rapide
-    "trading": ["M1", "OL1", "M2"],            # M1 analyse, OL1 rapide, PAS M3
-    "securite": ["M1", "M2", "M3"],            # M1 + M2 code, M3 scan
-    "web": ["M1", "M2", "OL1", "M3"],          # M1 + M2 code web
+    "code": ["M3", "M1", "M2", "OL1"],        # M3 champion (100%), M1 gemma rapide
+    "math": ["M3", "M1", "OL1", "M2"],         # M3 deepseek-r1 excelle en math
+    "raisonnement": ["M3", "M1", "OL1", "M2"], # M3 champion raisonnement (100%), M1 gemma rapide
+    "traduction": ["M3", "OL1", "M1", "M2"],   # M3 + OL1 rapide
+    "systeme": ["M1", "OL1", "M3", "M2"],      # M1 gemma ultra-rapide (0.4s) + OL1
+    "trading": ["M3", "OL1", "M1", "M2"],      # M3 analyse fiable, OL1 rapide
+    "securite": ["M3", "M1", "M2", "OL1"],     # M3 fiable, M1 rapide
+    "web": ["M3", "OL1", "M1", "M2"],          # M3 + OL1 fiable
 }
 
 # Noeuds temporairement offline (auto-correction)
@@ -106,9 +106,11 @@ def query_node(node_id, prompt):
             headers = {"Content-Type": "application/json", "Authorization": f"Bearer {cfg['key']}"}
             req = urllib.request.Request(cfg["url"], data=data, headers=headers)
         else:
-            # M2/M3: max_tokens=512 suffit pour nos taches, temp basse
-            data = json.dumps({"model": cfg["model"], "messages": [{"role": "user", "content": prompt}], "temperature": 0.2, "max_tokens": 512, "stream": False}).encode()
-            headers = {"Content-Type": "application/json", "Authorization": f"Bearer {cfg['key']}"}
+            # LM Studio Chat API (M1/M2/M3): max_tokens=1024 pour reasoning models (qwen3.5, deepseek-r1)
+            data = json.dumps({"model": cfg["model"], "messages": [{"role": "user", "content": prompt}], "temperature": 0.2, "max_tokens": 1024, "stream": False}).encode()
+            headers = {"Content-Type": "application/json"}
+            if cfg.get("key"):
+                headers["Authorization"] = f"Bearer {cfg['key']}"
             req = urllib.request.Request(cfg["url"], data=data, headers=headers)
 
         with urllib.request.urlopen(req, timeout=cfg["timeout"]) as resp:
@@ -128,7 +130,11 @@ def query_node(node_id, prompt):
             if not text and output:
                 text = output[-1].get("content", "")
         else:
-            text = result.get("choices", [{}])[0].get("message", {}).get("content", "")
+            msg = result.get("choices", [{}])[0].get("message", {})
+            text = msg.get("content", "")
+            # Reasoning models (qwen3.5, deepseek-r1): content may be empty, check reasoning_content
+            if not text.strip() and msg.get("reasoning_content"):
+                text = msg["reasoning_content"]
 
         # Strip think tags
         text = re.sub(r'<think>.*?</think>', '', text, flags=re.DOTALL).strip()

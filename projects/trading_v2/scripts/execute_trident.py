@@ -9,17 +9,18 @@ import json
 import time
 import datetime
 import urllib.request
+import os
 
 sys.stdout.reconfigure(encoding='utf-8')
 
 # ===================== CONFIGURATION =====================
 DRY_RUN = True  # True = simulation, False = ORDRES REELS
 
-MEXC_API_KEY = "mx0vglrR6uWgWEB6Vm"
-MEXC_SECRET_KEY = "ba096c7a96c149409914dc0eebdfa53f"
+MEXC_API_KEY = os.getenv("MEXC_API_KEY", "")
+MEXC_SECRET_KEY = os.getenv("MEXC_SECRET_KEY", "")
 
-TELEGRAM_TOKEN = "8369376863:AAF-7YGDbun8mXWwqYJFj-eX6P78DeIu9Aw"
-TELEGRAM_CHAT = "2010747443"
+TELEGRAM_TOKEN = os.getenv("TELEGRAM_BOT_TOKEN", "")
+TELEGRAM_CHAT = os.getenv("TELEGRAM_CHAT_ID", "")
 
 # Taille par trade en USDT (avant levier)
 SIZE_USDT = 10
@@ -69,6 +70,8 @@ TRIDENT = [
 
 def send_telegram(msg):
     """Envoie message Telegram"""
+    if not TELEGRAM_TOKEN or not TELEGRAM_CHAT:
+        return "DISABLED"
     try:
         body = json.dumps({"chat_id": TELEGRAM_CHAT, "text": msg}).encode()
         req = urllib.request.Request(
@@ -102,6 +105,8 @@ def calculate_quantity(entry_price):
 
 def place_order_ccxt(order):
     """Place un ordre via ccxt (mode LIVE uniquement)"""
+    if not MEXC_API_KEY or not MEXC_SECRET_KEY:
+        raise RuntimeError("MEXC_API_KEY / MEXC_SECRET_KEY missing from environment")
     try:
         import ccxt
         mexc = ccxt.mexc({

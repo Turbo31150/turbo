@@ -40,6 +40,7 @@ TRADING_V2_PRODUCTION/
 │   ├── auto_cycle_10.py            # Pipeline 10 cycles scan MEXC + DB
 │   ├── execute_trident.py          # Execution multi-ordres (DRY_RUN/LIVE)
 │   ├── river_scalp_1min.py         # Monitor 1min avec indicateurs
+│   ├── river_orderbook_readonly.py # Scanner read-only 1m + orderbook, sans secrets
 │   ├── sniper_10cycles.py          # 10 cycles sniper + focus tracking
 │   └── sniper_breakout.py          # Scan pre-pump orderbook + indicateurs
 ├── Scanner-Pro-v2.ps1              # Scanner Pro V3.2 (patche)
@@ -69,3 +70,39 @@ TRADING_V2_PRODUCTION/
 | #4 | 12.797 (+50.0%) | +14.96$ | +44.8% | 0.9% → YES |
 | #5 | 12.967 (+77.2%) | +23.09$ | +68.3% | YES |
 | #6 | 12.801 (+50.7%) | +15.15$ | +50.7% | 0.6% → YES |
+
+## Scanner read-only RIVER/USDT
+
+Pour un scan safe sans Telegram, sans position hardcodee et sans execution:
+
+```bash
+python3 scripts/river_orderbook_readonly.py --symbol RIVER_USDT --cycles 1
+python3 scripts/river_orderbook_readonly.py --symbol RIVER_USDT --cycles 10 --interval 15
+```
+
+Ce script se limite a:
+- lire le ticker futures MEXC
+- lire le top du carnet d'ordres
+- calculer quelques metriques microstructurelles 1m
+- afficher un etat compact en terminal
+
+Le flux vocal peut maintenant lancer ce mode safe via:
+- `lance river`
+- `monitor river`
+- `river lecture seule`
+
+Le moniteur historique avec alertes reste disponible en mode legacy.
+
+## Telegram
+
+Les helpers communs utilisent maintenant des variables d'environnement au lieu d'un token embarque:
+
+```bash
+export TELEGRAM_BOT_TOKEN="..."
+export TELEGRAM_CHAT_ID="..."
+export MEXC_API_KEY="..."
+export MEXC_SECRET_KEY="..."
+```
+
+Si ces variables ne sont pas definies, `scripts/utils.py` desactive proprement l'envoi Telegram.
+Les scripts de scan restent lisibles en mode lecture seule, mais les fonctions Telegram et les appels MEXC prives seront desactives.

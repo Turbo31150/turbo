@@ -1,104 +1,155 @@
 {
-  "cycles": 7,
-  "total": 56,
-  "pass": 12,
-  "fail": 0,
-  "errors": 44,
+  "cycles": 5,
+  "total": 50,
+  "pass": 46,
+  "fail": 2,
+  "errors": 2,
   "by_node": {
-    "M1": {
-      "total": 26,
-      "pass": 0,
-      "fail": 0,
-      "error": 26,
-      "avg_latency": 67
-    },
-    "M2": {
-      "total": 16,
-      "pass": 0,
-      "fail": 0,
-      "error": 16,
-      "avg_latency": 14026
-    },
     "M3": {
-      "total": 2,
-      "pass": 0,
-      "fail": 0,
-      "error": 2,
-      "avg_latency": 30023
-    },
-    "OL1": {
-      "total": 12,
-      "pass": 12,
+      "total": 28,
+      "pass": 28,
       "fail": 0,
       "error": 0,
-      "avg_latency": 2451
+      "avg_latency": 18873
+    },
+    "M1": {
+      "total": 4,
+      "pass": 3,
+      "fail": 0,
+      "error": 1,
+      "avg_latency": 9926
+    },
+    "OL1": {
+      "total": 14,
+      "pass": 12,
+      "fail": 2,
+      "error": 0,
+      "avg_latency": 5803
+    },
+    "M2": {
+      "total": 4,
+      "pass": 3,
+      "fail": 0,
+      "error": 1,
+      "avg_latency": 17299
     }
   },
   "by_domain": {
-    "traduction": {
-      "total": 6,
-      "pass": 2,
-      "fail": 0,
-      "error": 4
-    },
-    "math": {
+    "raisonnement": {
       "total": 8,
-      "pass": 2,
-      "fail": 0,
-      "error": 6
-    },
-    "trading": {
-      "total": 12,
-      "pass": 3,
-      "fail": 0,
-      "error": 9
-    },
-    "web": {
-      "total": 8,
-      "pass": 2,
-      "fail": 0,
-      "error": 6
+      "pass": 7,
+      "fail": 1,
+      "error": 0
     },
     "securite": {
-      "total": 6,
-      "pass": 0,
-      "fail": 0,
-      "error": 6
-    },
-    "code": {
-      "total": 10,
-      "pass": 2,
-      "fail": 0,
-      "error": 8
-    },
-    "systeme": {
       "total": 5,
-      "pass": 1,
+      "pass": 5,
       "fail": 0,
-      "error": 4
+      "error": 0
     },
-    "raisonnement": {
-      "total": 1,
-      "pass": 0,
+    "web": {
+      "total": 10,
+      "pass": 9,
       "fail": 0,
       "error": 1
+    },
+    "systeme": {
+      "total": 7,
+      "pass": 6,
+      "fail": 0,
+      "error": 1
+    },
+    "traduction": {
+      "total": 5,
+      "pass": 5,
+      "fail": 0,
+      "error": 0
+    },
+    "trading": {
+      "total": 2,
+      "pass": 2,
+      "fail": 0,
+      "error": 0
+    },
+    "code": {
+      "total": 8,
+      "pass": 8,
+      "fail": 0,
+      "error": 0
+    },
+    "math": {
+      "total": 5,
+      "pass": 4,
+      "fail": 1,
+      "error": 0
     }
   },
-  "failures": [],
+  "failures": [
+    {
+      "cycle": 3,
+      "node": "OL1",
+      "domain": "math",
+      "question": "Calcule 847 * 23. Montre le calcul puis donne le resultat.",
+      "check": "19481",
+      "response": "847 * 23 = 19,491",
+      "reason": "retry failed(OL1): '19481' non trouve dans reponse",
+      "latency": 606
+    },
+    {
+      "cycle": 4,
+      "node": "OL1",
+      "domain": "raisonnement",
+      "question": "J'ai 3 boites. C pese 10kg. B pese 5kg de plus que C donc B=15kg. A pese le doub",
+      "check": "30",
+      "response": "D'accord, je vais vous aider à résoudre ce problème étape par étape.\n\n1. D'abord, nous savons que la totalité des 3 boîtes pèse 10 kg.\n\n2. Donc, si nous divisons la pèse totale par 3, nous pouvons dét",
+      "reason": "retry failed(M3): '30' non trouve dans reponse",
+      "latency": 8222
+    }
+  ],
   "improvements": [],
   "corrections": [
     {
-      "node": "M3",
-      "domain": "securite",
-      "action": "timeout -> M3 offline, retry on M2"
+      "node": "M1",
+      "domain": "systeme",
+      "action": "timeout -> M1 offline, retry on M2"
+    },
+    {
+      "node": "M2",
+      "domain": "trading",
+      "action": "fail trading -> enrichi, force M1"
     },
     {
       "node": "M3",
       "domain": "code",
-      "action": "timeout -> M3 offline, retry on M1"
+      "action": "fail generique -> retry M1"
+    },
+    {
+      "node": "OL1",
+      "domain": "securite",
+      "action": "fail generique -> retry M1"
+    },
+    {
+      "node": "OL1",
+      "domain": "math",
+      "action": "fail math -> steps enrichi, force M1"
+    },
+    {
+      "node": "OL1",
+      "domain": "raisonnement",
+      "action": "fail raisonnement -> CoT enrichi, force M1"
+    },
+    {
+      "node": "M2",
+      "domain": "web",
+      "action": "fail generique -> retry M1"
+    },
+    {
+      "node": "M1",
+      "domain": "systeme",
+      "action": "timeout -> M1 offline, retry on M3"
     }
   ],
   "offline_nodes": [
-    "M3"
+    "M1"
   ]
 }

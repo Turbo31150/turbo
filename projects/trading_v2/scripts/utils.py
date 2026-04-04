@@ -4,12 +4,13 @@ UTILS v1.0 - Fonctions communes pour TRADING_V2_PRODUCTION
 Elimine les doublons entre scripts (send_telegram, fetch_json, ema, log, etc.)
 """
 import json
+import os
 import urllib.request
 from datetime import datetime
 
 # === DEFAULTS (overridable par chaque script) ===
-DEFAULT_TELEGRAM_TOKEN = '8369376863:AAF-7YGDbun8mXWwqYJFj-eX6P78DeIu9Aw'
-DEFAULT_TELEGRAM_CHAT = '2010747443'
+DEFAULT_TELEGRAM_TOKEN = os.getenv("TELEGRAM_BOT_TOKEN", "")
+DEFAULT_TELEGRAM_CHAT = os.getenv("TELEGRAM_CHAT_ID", "")
 
 
 # === LOGGING ===
@@ -54,6 +55,8 @@ def send_telegram(msg, token=None, chat_id=None, parse_mode=None):
     """
     token = token or DEFAULT_TELEGRAM_TOKEN
     chat_id = chat_id or DEFAULT_TELEGRAM_CHAT
+    if not token or not chat_id:
+        return 'DISABLED'
     try:
         url = f"https://api.telegram.org/bot{token}/sendMessage"
         payload = {'chat_id': chat_id, 'text': str(msg)[:4000]}

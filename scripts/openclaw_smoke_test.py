@@ -17,31 +17,24 @@ from pathlib import Path
 OPENCLAW_JSON = Path.home() / ".openclaw" / "openclaw.json"
 DEFAULT_TIMEOUT = 15
 
-# One test model per provider
+# One test model per provider — names MUST match openclaw.json providers
+# Models use full IDs as shown by /v1/models (vendor/model format)
 PROVIDER_TESTS = {
-    "lm-m1": {
-        "model": "qwen3-8b",
+    "lmstudio": {
+        "model": "qwen/qwen3-8b",
         "format": "lmstudio",
     },
-    "lm-m2": {
-        "model": "deepseek-r1-0528-qwen3-8b",
+    "m2-deepseek": {
+        "model": "deepseek/deepseek-r1-0528-qwen3-8b",
         "format": "lmstudio",
     },
-    "lm-m3": {
-        "model": "deepseek-r1-0528-qwen3-8b",
+    "m3-deepseek": {
+        "model": "deepseek/deepseek-r1-0528-qwen3-8b",
         "format": "lmstudio",
     },
     "ollama": {
-        "model": "qwen3:1.7b",
+        "model": "gemma3:4b",
         "format": "ollama",
-    },
-    "gemini": {
-        "model": "gemini-2.0-flash",
-        "format": "openai",
-    },
-    "huggingface": {
-        "model": "Qwen/Qwen3-4B-Instruct-2507",
-        "format": "openai",
     },
 }
 
@@ -211,6 +204,9 @@ if __name__ == "__main__":
     parser.add_argument("--timeout", type=int, default=DEFAULT_TIMEOUT, help="Timeout per provider")
     args = parser.parse_args()
 
-    print("OpenClaw Smoke Test — inference E2E")
-    print("-" * 70)
-    run_smoke_tests(args.json, args.timeout)
+    if not args.json:
+        print("OpenClaw Smoke Test — inference E2E")
+        print("-" * 70)
+    results = run_smoke_tests(args.json, args.timeout)
+    passed = sum(1 for r in results if r.get("pong"))
+    sys.exit(0 if passed > 0 else 1)

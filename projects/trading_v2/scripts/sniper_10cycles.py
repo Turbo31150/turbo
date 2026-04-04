@@ -1,18 +1,20 @@
 #!/usr/bin/env python3
 """SNIPER BREAKOUT 10 CYCLES - Focus ROSE + Top Breakouts"""
-import urllib.request, json, sys, time, datetime
+import urllib.request, json, sys, time, datetime, os
 
 sys.stdout.reconfigure(encoding='utf-8')
 sys.stdout = open(sys.stdout.fileno(), mode='w', encoding='utf-8', buffering=1)
 
-TOKEN = '8369376863:AAF-7YGDbun8mXWwqYJFj-eX6P78DeIu9Aw'
-CHAT = '2010747443'
+TOKEN = os.getenv('TELEGRAM_BOT_TOKEN', '')
+CHAT = os.getenv('TELEGRAM_CHAT_ID', '')
 FOCUS = 'ROSE_USDT'
 CYCLES = 10
 INTERVAL = 60
 
 
 def tg(msg):
+    if not TOKEN or not CHAT:
+        return 'DISABLED'
     try:
         body = json.dumps({'chat_id': CHAT, 'text': msg}).encode()
         req = urllib.request.Request(

@@ -355,8 +355,10 @@ def execute_task(task_type, params=None):
 
     elif task_type == "send_telegram":
         msg = params.get("message", "Test PRISC")
-        token = "8369376863:AAF-7YGDbun8mXWwqYJFj-eX6P78DeIu9Aw"
-        chat_id = "2010747443"
+        token = os.getenv("TELEGRAM_BOT_TOKEN", "")
+        chat_id = os.getenv("TELEGRAM_CHAT_ID", "")
+        if not token or not chat_id:
+            return "Telegram desactive: TELEGRAM_BOT_TOKEN / TELEGRAM_CHAT_ID absents"
         r = requests.post(
             f"https://api.telegram.org/bot{token}/sendMessage",
             json={"chat_id": chat_id, "text": msg, "parse_mode": "Markdown"},
@@ -366,10 +368,13 @@ def execute_task(task_type, params=None):
 
     elif task_type == "check_positions":
         cprint("  Verification positions MEXC...", style="yellow")
+        mexc_api_key = os.getenv("MEXC_API_KEY", "")
+        if not mexc_api_key:
+            return "MEXC desactive: MEXC_API_KEY absent"
         r = requests.get(
             "https://contract.mexc.com/api/v1/private/position/open_positions",
             headers={
-                "ApiKey": "mx0vglrR6uWgWEB6Vm",
+                "ApiKey": mexc_api_key,
                 "Content-Type": "application/json",
             },
             timeout=10,

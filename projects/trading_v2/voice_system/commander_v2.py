@@ -17,7 +17,7 @@ import re
 import requests
 
 # CONFIGURATION
-ROOT = r"F:\BUREAU\TRADING_V2_PRODUCTION"
+ROOT = r"/home/turbo\TRADING_V2_PRODUCTION"
 SCRIPTS = os.path.join(ROOT, "scripts")
 PILOT_PATH = os.path.join(SCRIPTS, "os_pilot.py")
 GENESIS_PATH = os.path.join(SCRIPTS, "self_coder.py")
@@ -608,8 +608,11 @@ PRIORITY_PATTERNS = [
     ("lance le sniper 10", {"action": "RUN_SNIPER_10", "params": ""}),
     ("lance le sniper", {"action": "RUN_SNIPER", "params": ""}),
     ("lance le trident", {"action": "RUN_TRIDENT", "params": ""}),
-    ("lance river", {"action": "MONITOR_RIVER", "params": ""}),
-    ("monitor river", {"action": "MONITOR_RIVER", "params": ""}),
+    ("lance river", {"action": "MONITOR_RIVER_READONLY", "params": ""}),
+    ("monitor river", {"action": "MONITOR_RIVER_READONLY", "params": ""}),
+    ("river lecture seule", {"action": "MONITOR_RIVER_READONLY", "params": ""}),
+    ("river read only", {"action": "MONITOR_RIVER_READONLY", "params": ""}),
+    ("river legacy", {"action": "MONITOR_RIVER", "params": ""}),
     # Dashboard / GUI / Cluster
     ("lance le dashboard", {"action": "RUN_DASHBOARD", "params": ""}),
     ("ouvre le dashboard", {"action": "RUN_DASHBOARD", "params": ""}),
@@ -642,7 +645,7 @@ LOCAL_KEYWORDS = {
     "pipeline": "RUN_PIPELINE",
     "trident": "RUN_TRIDENT",
     "sniper": "RUN_SNIPER",
-    "river": "MONITOR_RIVER",
+    "river": "MONITOR_RIVER_READONLY",
     "scan": "RUN_SCAN",
     "position": "STATUS_REPORT",
     "status": "STATUS_REPORT",
@@ -771,24 +774,24 @@ PARAM_KEYWORDS = {
 # FOLDER_ALIASES - noms connus vers paths Windows
 # ================================================================
 FOLDER_ALIASES = {
-    "bureau": os.path.join(os.environ.get("USERPROFILE", "C:\\Users\\franc"), "Desktop"),
-    "documents": os.path.join(os.environ.get("USERPROFILE", "C:\\Users\\franc"), "Documents"),
-    "downloads": os.path.join(os.environ.get("USERPROFILE", "C:\\Users\\franc"), "Downloads"),
-    "telechargements": os.path.join(os.environ.get("USERPROFILE", "C:\\Users\\franc"), "Downloads"),
-    "images": os.path.join(os.environ.get("USERPROFILE", "C:\\Users\\franc"), "Pictures"),
-    "musique": os.path.join(os.environ.get("USERPROFILE", "C:\\Users\\franc"), "Music"),
-    "videos": os.path.join(os.environ.get("USERPROFILE", "C:\\Users\\franc"), "Videos"),
-    "disque c": "C:\\",
-    "disque d": "D:\\",
-    "disque f": "F:\\",
-    "f bureau": r"F:\BUREAU",
-    "production": r"F:\BUREAU\TRADING_V2_PRODUCTION",
-    "trading v2": r"F:\BUREAU\TRADING_V2_PRODUCTION",
-    "scripts": r"F:\BUREAU\TRADING_V2_PRODUCTION\scripts",
-    "logs": r"F:\BUREAU\TRADING_V2_PRODUCTION\logs",
-    "config": r"F:\BUREAU\TRADING_V2_PRODUCTION\config",
-    "database": r"F:\BUREAU\TRADING_V2_PRODUCTION\database",
-    "voice": r"F:\BUREAU\TRADING_V2_PRODUCTION\voice_system",
+    "bureau": os.path.join(os.environ.get("USERPROFILE", r"C:\Users\franc"), "Desktop"),
+    "documents": os.path.join(os.environ.get("USERPROFILE", r"C:\Users\franc"), "Documents"),
+    "downloads": os.path.join(os.environ.get("USERPROFILE", r"C:\Users\franc"), "Downloads"),
+    "telechargements": os.path.join(os.environ.get("USERPROFILE", r"C:\Users\franc"), "Downloads"),
+    "images": os.path.join(os.environ.get("USERPROFILE", r"C:\Users\franc"), "Pictures"),
+    "musique": os.path.join(os.environ.get("USERPROFILE", r"C:\Users\franc"), "Music"),
+    "videos": os.path.join(os.environ.get("USERPROFILE", r"C:\Users\franc"), "Videos"),
+    "disque c": r"C:\\",
+    "disque d": "D:/",
+    "disque f": "F:/",
+    "f bureau": r"/home/turbo",
+    "production": r"/home/turbo\TRADING_V2_PRODUCTION",
+    "trading v2": r"/home/turbo\TRADING_V2_PRODUCTION",
+    "scripts": r"/home/turbo\TRADING_V2_PRODUCTION\scripts",
+    "logs": r"/home/turbo\TRADING_V2_PRODUCTION\logs",
+    "config": r"/home/turbo\TRADING_V2_PRODUCTION\config",
+    "database": r"/home/turbo\TRADING_V2_PRODUCTION\database",
+    "voice": r"/home/turbo\TRADING_V2_PRODUCTION\voice_system",
 }
 
 # APP ALIASES - noms courants vers noms Windows
@@ -907,6 +910,13 @@ def execute_command(intent_data):
         speak("Monitoring RIVER active.")
         subprocess.Popen(f'start cmd /k "{PYTHON_EXE}" -u "{os.path.join(SCRIPTS, "river_scalp_1min.py")}"', shell=True)
 
+    elif action == "MONITOR_RIVER_READONLY":
+        speak("Scan RIVER en lecture seule.")
+        subprocess.Popen(
+            f'start cmd /k "{PYTHON_EXE}" -u "{os.path.join(SCRIPTS, "river_orderbook_readonly.py")}" --symbol RIVER_USDT --cycles 10 --interval 15',
+            shell=True,
+        )
+
     elif action == "STATUS_REPORT":
         speak("Lecture des positions.")
         try:
@@ -930,7 +940,7 @@ def execute_command(intent_data):
 
     elif action == "RUN_DASHBOARD":
         speak("Lancement du dashboard.")
-        dash = r"F:\BUREAU\MCP_MCPLMSTUDIO1\dashboard\app.py"
+        dash = r"/home/turbo\MCP_MCPLMSTUDIO1\dashboard\app.py"
         if os.path.exists(dash):
             subprocess.Popen(f'start cmd /k "{PYTHON_EXE}" -u "{dash}"', shell=True)
         else:
